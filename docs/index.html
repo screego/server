@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Screego</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="description" content="Screego - open source screen sharing for developers">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .markdown-section h1 {
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    const ghVersion = fetch('https://api.github.com/repos/screego/server/tags').then(resp => resp.json()).then(data => data[0].name.slice(1))
+    window.$docsify = {
+        name: 'screego',
+        repo: 'screego/server',
+        logo: '/logo.png',
+        loadSidebar: true,
+        autoHeader: true,
+        maxLevel: 4,
+        subMaxLevel: 2,
+        plugins: [
+            function (hook) {
+                hook.afterEach(function (html, next) {
+                    ghVersion.then((version) => next(html.replaceAll('GITHUB_VERSION', version)))
+                })
+            }
+        ]
+    }
+</script>
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.21.0/components/prism-yaml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.21.0/components/prism-ini.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.21.0/components/prism-bash.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.21.0/components/prism-nginx.js"></script>
+</body>
+</html>
