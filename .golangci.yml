@@ -1,0 +1,65 @@
+inters:
+  enable:
+  - asciicheck
+  - bodyclose
+  - deadcode
+  - depguard
+  - dogsled
+  - dupl
+  - errcheck
+  - exhaustive
+  - exportloopref
+  - gci
+  - gocritic
+  - godot
+  - goerr113
+  - gofmt
+  - gofumpt
+  - goimports
+  - golint
+  - gomodguard
+  - goprintffuncname
+  - gosec
+  - gosimple
+  - govet
+  - ineffassign
+  - interfacer
+  - misspell
+  - nakedret
+  - nolintlint
+  - prealloc
+  - rowserrcheck
+  - scopelint
+  - sqlclosecheck
+  - staticcheck
+  - structcheck
+  - stylecheck
+  - typecheck
+  - unconvert
+  - unparam
+  - unused
+  - varcheck
+  - whitespace
+  disable:
+  - funlen
+  - gochecknoglobals
+  - gocognit
+  - goconst
+  - gocyclo
+  - godox
+  - gomnd
+  - lll
+  - maligned
+  - nestif
+  - nlreturn
+  - noctx
+  - testpackage
+  - wsl
+
+linters-settings:
+  gofumpt:
+    extra-rules: true
+  goimports:
+    local-prefixes: github.com/screego/server
+  misspell:
+    locale: US
