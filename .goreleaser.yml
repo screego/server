@@ -1,0 +1,135 @@
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+project_name: screego
+before:
+  hooks:
+    - go mod download
+    - go run hack/packr/packr.go
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+      - ppc64
+      - ppc64le
+    goarm:
+      - 6
+      - 7
+    flags:
+      - '-tags="netgo osusergo"'
+    ldflags:
+      - '-s'
+      - '-w'
+      - '-X main.version={{.Version}}'
+      - '-X main.commitHash={{.Commit}}'
+      - '-X main.mode=prod'
+archives:
+  - files:
+      - LICENSE
+      - README.md
+    replacements:
+      386: i386
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+dockers:
+  - goos: linux
+    goarch: amd64
+    goarm: ''
+    binaries:
+      - screego
+    image_templates:
+      - "screego/server:amd64-unstable"
+      - "screego/server:amd64-{{ .RawVersion }}"
+      - "screego/server:amd64-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - goos: linux
+    goarch: 386
+    binaries:
+      - screego
+    goarm: ''
+    image_templates:
+      - "screego/server:386-unstable"
+      - "screego/server:386-{{ .RawVersion }}"
+      - "screego/server:386-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - goos: linux
+    goarch: arm64
+    goarm: ''
+    binaries:
+      - screego
+    image_templates:
+      - "screego/server:arm64-unstable"
+      - "screego/server:arm64-{{ .RawVersion }}"
+      - "screego/server:arm64-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - goos: linux
+    goarch: arm
+    goarm: 7
+    binaries:
+      - screego
+    image_templates:
+      - "screego/server:armv7-unstable"
+      - "screego/server:armv7-{{ .RawVersion }}"
+      - "screego/server:armv7-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - goos: linux
+    goarch: arm
+    goarm: 6
+    binaries:
+      - screego
+    image_templates:
+      - "screego/server:armv6-unstable"
+      - "screego/server:armv6-{{ .RawVersion }}"
+      - "screego/server:armv6-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - goos: linux
+    goarch: ppc64le
+    goarm: ''
+    binaries:
+      - screego
+    image_templates:
+      - "screego/server:ppc64le-unstable"
+      - "screego/server:ppc64le-{{ .RawVersion }}"
+      - "screego/server:ppc64le-{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
