@@ -13,7 +13,7 @@ func Run(version, commitHash string) {
 		Name:    "screego",
 		Version: fmt.Sprintf("%s; screego/server@%s", version, commitHash),
 		Commands: []cli.Command{
-			serveCmd,
+			serveCmd(version),
 			hashCmd,
 		},
 	}

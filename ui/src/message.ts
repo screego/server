@@ -9,6 +9,7 @@ export interface UIConfig {
     authMode: 'turn' | 'none' | 'all';
     user: string;
     loggedIn: boolean;
+    version: string;
 }
 
 export interface RoomConfiguration {
