@@ -1,6 +1,6 @@
 # screego/server
 
-Screego was created because of a displeasure against cooperate chatting solutions.
+Screego was created because of a displeasure against corporate chatting solutions.
 For developers, screen sharing shouldn't be optimized for low bandwidth or presenting some slides.
 It should be high definition, that you still can read the tiny font of your colleague.
 No more, "wait a minute, the stream isn't updating".
