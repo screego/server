@@ -1,0 +1,129 @@
+package turn
+
+import (
+	"fmt"
+	"net"
+	"strings"
+	"sync"
+
+	"github.com/pion/turn/v2"
+	"github.com/rs/zerolog/log"
+	"github.com/screego/server/config"
+)
+
+type Server struct {
+	TurnAddress   string
+	StunAddress   string
+	lock          sync.RWMutex
+	strictIPCheck bool
+	lookup        map[string]Entry
+}
+
+type Entry struct {
+	addr     net.IP
+	password []byte
+}
+
+const Realm = "screego"
+
+func Start(conf config.Config) (*Server, error) {
+	udpListener, err := net.ListenPacket("udp4", conf.TurnAddress)
+	if err != nil {
+		return nil, fmt.Errorf("udp: could not listen on %s: %s", conf.TurnAddress, err)
+	}
+	tcpListener, err := net.Listen("tcp4", conf.TurnAddress)
+	if err != nil {
+		return nil, fmt.Errorf("tcp: could not listen on %s: %s", conf.TurnAddress, err)
+	}
+
+	split := strings.SplitN(conf.TurnAddress, ":", 2)
+	svr := &Server{
+		TurnAddress:   fmt.Sprintf("turn:%s:%s", conf.ExternalIP, split[1]),
+		StunAddress:   fmt.Sprintf("stun:%s:%s", conf.ExternalIP, split[1]),
+		lookup:        map[string]Entry{},
+		strictIPCheck: conf.TurnStrictAuth,
+	}
+
+	_, err = turn.NewServer(turn.ServerConfig{
+		Realm:       Realm,
+		AuthHandler: svr.authenticate,
+		ListenerConfigs: []turn.ListenerConfig{
+			{
+				Listener: tcpListener,
+				RelayAddressGenerator: &turn.RelayAddressGeneratorStatic{
+					RelayAddress: net.ParseIP(conf.ExternalIP),
+					Address:      "0.0.0.0",
+				},
+			},
+		},
+		PacketConnConfigs: []turn.PacketConnConfig{
+			{
+				PacketConn: udpListener,
+				RelayAddressGenerator: &turn.RelayAddressGeneratorStatic{
+					RelayAddress: net.ParseIP(conf.ExternalIP),
+					Address:      "0.0.0.0",
+				},
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info().Str("addr", conf.TurnAddress).Msg("Start TURN/STUN")
+	return svr, nil
+}
+
+func (a *Server) Allow(username, password string, addr net.IP) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+	a.lookup[username] = Entry{
+		addr:     addr,
+		password: turn.GenerateAuthKey(username, Realm, password),
+	}
+}
+
+func (a *Server) Disallow(username string) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	delete(a.lookup, username)
+}
+
+func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bool) {
+	a.lock.RLock()
+	defer a.lock.RUnlock()
+
+	udp, ok := addr.(*net.UDPAddr)
+	if !ok {
+		log.Debug().Interface("addr", addr.String()).Msg("TURN auth failed")
+		return nil, false
+	}
+
+	entry, ok := a.lookup[username]
+
+	if !ok {
+		log.Debug().Interface("addr", addr).Str("username", username).Msg("TURN username not found")
+		return nil, false
+	}
+
+	conIP := udp.IP
+	authIP := entry.addr
+
+	if !conIP.Equal(authIP) {
+		if a.strictIPCheck {
+			log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict ip check failed")
+			return nil, false
+		}
+
+		conIPIsV4 := conIP.To4() != nil
+		authIPIsV4 := authIP.To4() != nil
+
+		if authIPIsV4 == conIPIsV4 {
+			log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN ip check failed")
+			return nil, false
+		}
+	}
+	log.Debug().Interface("addr", addr.String()).Str("realm", realm).Msg("TURN authenticated")
+	return entry.password, true
+}
