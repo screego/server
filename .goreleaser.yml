@@ -42,6 +42,8 @@ archives:
       - goos: windows
         format: zip
 checksum:
+changelog:
+  skip: true
 dockers:
   - goos: linux
     goarch: amd64
