@@ -16,9 +16,10 @@ type UIConfig struct {
 	AuthMode string `json:"authMode"`
 	User     string `json:"user"`
 	LoggedIn bool   `json:"loggedIn"`
+	Version  string `json:"version"`
 }
 
-func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users) *mux.Router {
+func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version string) *mux.Router {
 	router := mux.NewRouter()
 	router.Use(handlers.CORS(handlers.AllowedMethods([]string{"GET", "POST"}), handlers.AllowedOriginValidator(conf.CheckOrigin)))
 	router.HandleFunc("/stream", rooms.Upgrade)
@@ -30,6 +31,7 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users) *mux.Router 
 			AuthMode: conf.AuthMode,
 			LoggedIn: loggedIn,
 			User:     user,
+			Version:  version,
 		})
 	})
 

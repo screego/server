@@ -16,6 +16,7 @@ export const useConfig = (): UseConfig => {
         user: 'guest',
         loggedIn: false,
         loading: true,
+        version: 'unknown',
     });
 
     const refetch = React.useCallback(() => {

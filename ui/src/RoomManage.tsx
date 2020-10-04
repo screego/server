@@ -12,6 +12,7 @@ import {
     Select,
     TextField,
     Typography,
+    Link,
 } from '@material-ui/core';
 import {FCreateRoom, UseRoom} from './useRoom';
 import {RoomMode, UIConfig} from './message';
@@ -144,6 +145,10 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
                     )}
                 </Paper>
             </Grid>
+            <div style={{position: 'absolute', margin: '0 auto', bottom: 0}}>
+                Screego {config.version} |{' '}
+                <Link href="https://github.com/screego/server/">GitHub</Link>
+            </div>
         </Grid>
     );
 };
