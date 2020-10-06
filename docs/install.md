@@ -12,7 +12,7 @@ The [screego/server](https://hub.docker.com/r/screego/server) docker images are 
 This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64`, `arm v7` (Raspberry PI).
 
 ```bash
-$ docker run -p 8080:5050 -e SCREEGO_EXTERNAL_IP=0.0.0.0 screego/server:GITHUB_VERSION serve
+$ docker run -p 8080:5050 -e SCREEGO_EXTERNAL_IP=0.0.0.0 screego/server:GITHUB_VERSION
 ```
 
 By default, Screego runs on port 5050.
