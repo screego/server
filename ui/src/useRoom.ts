@@ -219,13 +219,13 @@ export const useRoom = (): UseRoom => {
                             return;
                         case 'clientanswer':
                             host.current[event.payload.sid]?.setRemoteDescription(
-                                new RTCSessionDescription(event.payload.value)
+                                event.payload.value
                             );
                             return;
                         case 'hostoffer':
                             (async () => {
                                 await client.current[event.payload.sid]?.setRemoteDescription(
-                                    new RTCSessionDescription(event.payload.value)
+                                    event.payload.value
                                 );
                                 const answer = await client.current[
                                     event.payload.sid
