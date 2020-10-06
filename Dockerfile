@@ -2,4 +2,4 @@ FROM scratch
 COPY screego /screego
 EXPOSE 5050
 WORKDIR "/"
-ENTRYPOINT [ "/scrego" ]
+ENTRYPOINT [ "/screego" ]
