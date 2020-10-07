@@ -108,6 +108,7 @@ func (c *Client) startReading(pongWait time.Duration) {
 			_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, fmt.Sprintf("malformed message: %s", err))
 			return
 		}
+		log.Debug().Interface("event", fmt.Sprintf("%T", incoming)).Str("room", c.info.RoomID).Str("addr", c.conn.RemoteAddr().String()).Msg("Receive Event")
 		c.read <- ClientMessage{Info: c.info, Incoming: incoming}
 	}
 }
@@ -133,6 +134,7 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			typed, err := ToTypedOutgoing(message)
+			log.Debug().Interface("event", typed.Type).Str("room", c.info.RoomID).Str("addr", c.conn.RemoteAddr().String()).Msg("Send Event")
 			if err != nil {
 				log.Debug().Err(err).Msg("could not get typed message, exiting connection.")
 				return
