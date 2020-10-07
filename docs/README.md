@@ -1,11 +1,13 @@
 # screego/server
 
-Screego was created because of a displeasure against corporate chatting solutions.
-For developers, screen sharing shouldn't be optimized for low bandwidth or presenting some slides.
-It should be high definition, that you still can read the tiny font of your colleague.
-No more, "wait a minute, the stream isn't updating".
+In the past I've had some problems sharing my screen with coworkers using
+corporate chatting solutions like Microsoft Teams. I wanted to show them some
+of my code, but either the stream lagged several seconds behind or the quality
+was so poor that my colleagues couldn't read the code. Or both.
 
-Screego is an addition to existing software and only helps to share your screen. Nothing else (:.
+That's why I created screego. It allows you to share your screen with good
+quality and low latency. Screego is an addition to existing software and 
+only helps to share your screen. Nothing else (:.
 
 ## Features
 
@@ -15,7 +17,6 @@ Screego is an addition to existing software and only helps to share your screen.
 * Simple Install via [Docker](https://hub.docker.com/r/screego/server) / single binary
 * Integrated [TURN](nat-traversal.md) Server see [NAT Traversal](nat-traversal.md)
 
-
 ---
 
-[Installation](install.md) ᛫ [Configuration](config.md) 
+[Demo / Public Instance](https://app.screego.net/) ᛫ [Installation](https://screego.net/#/install) ᛫ [Configuration](https://screego.net/#/config) 
