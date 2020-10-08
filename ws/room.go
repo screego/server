@@ -48,12 +48,18 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		clientName := id.String() + "client"
 		rooms.turnServer.Allow(clientName, clientPW, r.Users[client].Addr)
 		iceHost = []outgoing.ICEServer{{
-			URLs:       []string{rooms.turnServer.TurnAddress},
+			URLs: []string{
+				rooms.turnServer.TurnAddress,
+				rooms.turnServer.TurnAddress + "?transport=tcp",
+			},
 			Credential: hostPW,
 			Username:   hostName,
 		}}
 		iceClient = []outgoing.ICEServer{{
-			URLs:       []string{rooms.turnServer.TurnAddress},
+			URLs: []string{
+				rooms.turnServer.TurnAddress,
+				rooms.turnServer.TurnAddress + "?transport=tcp",
+			},
 			Credential: clientPW,
 			Username:   clientName,
 		}}
