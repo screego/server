@@ -94,12 +94,16 @@ func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bo
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 
-	udp, ok := addr.(*net.UDPAddr)
-	if !ok {
-		log.Debug().Interface("addr", addr.String()).Msg("TURN auth failed")
+	var connectedIp net.IP
+	switch addr := addr.(type) {
+	case *net.UDPAddr:
+		connectedIp = addr.IP
+	case *net.TCPAddr:
+		connectedIp = addr.IP
+	default:
+		log.Error().Interface("type", fmt.Sprintf("%T", addr)).Msg("unknown addr type")
 		return nil, false
 	}
-
 	entry, ok := a.lookup[username]
 
 	if !ok {
@@ -107,16 +111,15 @@ func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bo
 		return nil, false
 	}
 
-	conIP := udp.IP
 	authIP := entry.addr
 
-	if !conIP.Equal(authIP) {
+	if !connectedIp.Equal(authIP) {
 		if a.strictIPCheck {
 			log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict ip check failed")
 			return nil, false
 		}
 
-		conIPIsV4 := conIP.To4() != nil
+		conIPIsV4 := connectedIp.To4() != nil
 		authIPIsV4 := authIP.To4() != nil
 
 		if authIPIsV4 == conIPIsV4 {
