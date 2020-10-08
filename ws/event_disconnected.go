@@ -21,11 +21,12 @@ func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 		return nil
 	}
 
+	current.Close <- CloseDone
 	delete(room.Users, current.ID)
 
 	if user.Owner && room.CloseOnOwnerLeave {
 		for _, member := range room.Users {
-			member.Close <- "Owner left"
+			member.Close <- CloseOwnerLeft
 		}
 		delete(rooms.Rooms, current.RoomID)
 		return nil

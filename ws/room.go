@@ -26,6 +26,11 @@ type Room struct {
 	Sessions          map[xid.ID]*RoomSession
 }
 
+const (
+	CloseOwnerLeft = "Owner Left"
+	CloseDone      = "Read End"
+)
+
 func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 	id := xid.New()
 	r.Sessions[id] = &RoomSession{
