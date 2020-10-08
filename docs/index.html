@@ -33,7 +33,7 @@
         plugins: [
             function (hook) {
                 hook.afterEach(function (html, next) {
-                    ghVersion.then((version) => next(html.replaceAll('GITHUB_VERSION', version)))
+                    ghVersion.then((version) => next(html.replace(/GITHUB_VERSION/g, version)))
                 })
             }
         ]
