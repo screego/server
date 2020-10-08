@@ -2,10 +2,11 @@ package ws
 
 import (
 	"fmt"
+	"github.com/rs/zerolog"
 	"net"
 	"net/http"
+	"strings"
 	"time"
-
 	"github.com/gorilla/websocket"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
@@ -46,18 +47,13 @@ type ClientInfo struct {
 }
 
 func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage, authenticated, trustProxy bool) *Client {
-	conn.SetCloseHandler(func(code int, text string) error {
-		message := websocket.FormatCloseMessage(code, text)
-		log.Debug().Str("reason", text).Int("code", code).Msg("WebSocket Close")
-		return conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(writeWait))
-	})
 
 	ip := conn.RemoteAddr().(*net.TCPAddr).IP
 	if realIP := req.Header.Get("X-Real-IP"); trustProxy && realIP != "" {
 		ip = net.ParseIP(realIP)
 	}
 
-	return &Client{
+	client := &Client{
 		conn: conn,
 		info: ClientInfo{
 			Authenticated: authenticated,
@@ -69,6 +65,13 @@ func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage,
 		},
 		read: read,
 	}
+	client.debug().Msg("WebSocket New Connection")
+	conn.SetCloseHandler(func(code int, text string) error {
+		message := websocket.FormatCloseMessage(code, text)
+		client.debug().Str("reason", text).Int("code", code).Msg("WebSocket Close")
+		return conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(writeWait))
+	})
+	return client
 }
 
 // Close closes the connection.
@@ -94,7 +97,7 @@ func (c *Client) startReading(pongWait time.Duration) {
 	for {
 		t, m, err := c.conn.NextReader()
 		if err != nil {
-			printWebSocketError("read", err)
+			c.printWebSocketError("read", err)
 			return
 		}
 		if t == websocket.BinaryMessage {
@@ -107,7 +110,7 @@ func (c *Client) startReading(pongWait time.Duration) {
 			_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, fmt.Sprintf("malformed message: %s", err))
 			return
 		}
-		log.Debug().Interface("event", fmt.Sprintf("%T", incoming)).Str("room", c.info.RoomID).Str("addr", c.conn.RemoteAddr().String()).Msg("Receive Event")
+		c.debug().Interface("event", fmt.Sprintf("%T", incoming)).Msg("WebSocket Receive")
 		c.read <- ClientMessage{Info: c.info, Incoming: incoming}
 	}
 }
@@ -126,6 +129,9 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 		c.Close()
 	}
 	defer conClosed()
+	defer func() {
+		c.debug().Msg("WebSocket Done")
+	}()
 	for {
 		select {
 		case reason := <-c.info.Close:
@@ -135,15 +141,15 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 			return
 		case message := <-c.info.Write:
 			if dead {
-				log.Debug().Str("addr", c.info.Addr.String()).Msg("Write on dead connection")
+				c.debug().Msg("WebSocket write on dead connection")
 				continue
 			}
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			typed, err := ToTypedOutgoing(message)
-			log.Debug().Interface("event", typed.Type).Str("addr", c.info.Addr.String()).Msg("Send Event")
+			c.debug().Interface("event", typed.Type).Msg("WebSocket Send")
 			if err != nil {
-				log.Debug().Err(err).Msg("could not get typed message, exiting connection.")
+				c.debug().Err(err).Msg("could not get typed message, exiting connection.")
 				conClosed()
 				continue
 			}
@@ -154,20 +160,26 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 
 			if err := writeJSON(c.conn, typed); err != nil {
 				conClosed()
-				printWebSocketError("write", err)
+				c.printWebSocketError("write", err)
 			}
 		case <-pingTicker.C:
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := ping(c.conn); err != nil {
 				conClosed()
-				printWebSocketError("ping", err)
+				c.printWebSocketError("ping", err)
 			}
 		}
 	}
 }
 
-func printWebSocketError(typex string, err error) {
+func (c *Client) debug() *zerolog.Event {
+	return log.Debug().Str("id", c.info.ID.String()).Str("ip", c.info.Addr.String())
+}
 
+func (c *Client) printWebSocketError(typex string, err error) {
+	if strings.Contains(err.Error(), "use of closed network connection") {
+		return
+	}
 	closeError, ok := err.(*websocket.CloseError)
 
 	if ok && closeError != nil && (closeError.Code == 1000 || closeError.Code == 1001) {
@@ -175,5 +187,5 @@ func printWebSocketError(typex string, err error) {
 		return
 	}
 
-	log.Debug().Str("type", typex).Err(err).Msg("WebSocket")
+	c.debug().Str("type", typex).Err(err).Msg("WebSocket Error")
 }
