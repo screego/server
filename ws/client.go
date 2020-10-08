@@ -75,7 +75,6 @@ func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage,
 func (c *Client) Close() {
 	c.once.Do(func() {
 		c.conn.Close()
-		close(c.info.Write)
 		c.read <- ClientMessage{
 			Info:     c.info,
 			Incoming: &Disconnected{},
@@ -119,25 +118,34 @@ func (c *Client) startReading(pongWait time.Duration) {
 // * on errors exit the loop
 func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 	pingTicker := time.NewTicker(pingPeriod)
-	defer c.Close()
-	defer pingTicker.Stop()
 
+	dead := false
+	conClosed := func() {
+		dead = true
+		pingTicker.Stop()
+		c.Close()
+	}
+	defer conClosed()
 	for {
 		select {
 		case reason := <-c.info.Close:
-			_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, reason)
+			if reason != CloseDone {
+				_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, reason)
+			}
 			return
-		case message, ok := <-c.info.Write:
-			if !ok {
-				return
+		case message := <-c.info.Write:
+			if dead {
+				log.Debug().Str("addr", c.info.Addr.String()).Msg("Write on dead connection")
+				continue
 			}
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			typed, err := ToTypedOutgoing(message)
-			log.Debug().Interface("event", typed.Type).Str("room", c.info.RoomID).Str("addr", c.conn.RemoteAddr().String()).Msg("Send Event")
+			log.Debug().Interface("event", typed.Type).Str("addr", c.info.Addr.String()).Msg("Send Event")
 			if err != nil {
 				log.Debug().Err(err).Msg("could not get typed message, exiting connection.")
-				return
+				conClosed()
+				continue
 			}
 
 			if room, ok := message.(outgoing.Room); ok {
@@ -145,14 +153,14 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 			}
 
 			if err := writeJSON(c.conn, typed); err != nil {
+				conClosed()
 				printWebSocketError("write", err)
-				return
 			}
 		case <-pingTicker.C:
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := ping(c.conn); err != nil {
+				conClosed()
 				printWebSocketError("ping", err)
-				return
 			}
 		}
 	}
