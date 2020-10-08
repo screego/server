@@ -2,3 +2,4 @@
 /.idea
 *-packr.go
 /dist/
+*.local
