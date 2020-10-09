@@ -3,6 +3,7 @@ package ws
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/screego/server/ws/outgoing"
 )
 
@@ -25,7 +26,7 @@ func (e *StopShare) Execute(rooms *Rooms, current ClientInfo) error {
 		return fmt.Errorf("room with id %s does not exist", current.RoomID)
 	}
 
-	room.Users[current.ID].Sharing = false
+	room.Users[current.ID].Streaming = false
 	for id, session := range room.Sessions {
 		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
 			client, ok := room.Users[session.Client]

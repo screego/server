@@ -39,7 +39,7 @@ const flags = (user: RoomUser) => {
     if (user.owner) {
         result.push('Owner');
     }
-    if (user.sharing) {
+    if (user.streaming) {
         result.push('Streaming');
     }
     if (!result.length) {

@@ -60,13 +60,13 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 		Sessions:          map[xid.ID]*RoomSession{},
 		Users: map[xid.ID]*User{
 			current.ID: {
-				ID:      current.ID,
-				Name:    name,
-				Sharing: false,
-				Owner:   true,
-				Addr:    current.Addr,
-				Write:   current.Write,
-				Close:   current.Close,
+				ID:        current.ID,
+				Name:      name,
+				Streaming: false,
+				Owner:     true,
+				Addr:      current.Addr,
+				Write:     current.Write,
+				Close:     current.Close,
 			},
 		},
 	}
