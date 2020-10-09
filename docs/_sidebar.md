@@ -3,4 +3,5 @@
 * [Config](config.md)
 * [NAT Traversal](nat-traversal.md)
 * [Reverse Proxy](proxy.md)
+* [Development](development.md)
 * [GitHub](https://github.com/screego/server)
