@@ -283,6 +283,16 @@ export const useRoom = (): UseRoom => {
     );
 
     const share = async () => {
+        if (!navigator.mediaDevices) {
+            enqueueSnackbar(
+                'Could not start presentation. (mediaDevices undefined) Are you using https?',
+                {
+                    variant: 'error',
+                    persist: true,
+                }
+            );
+            return;
+        }
         stream.current = await navigator.mediaDevices
             // @ts-ignore
             .getDisplayMedia({video: true});
