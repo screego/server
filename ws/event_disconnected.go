@@ -1,5 +1,10 @@
 package ws
 
+import (
+	"bytes"
+	"github.com/screego/server/ws/outgoing"
+)
+
 type Disconnected struct {
 }
 
@@ -23,6 +28,23 @@ func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 
 	current.Close <- CloseDone
 	delete(room.Users, current.ID)
+
+	for id, session := range room.Sessions {
+		if bytes.Equal(session.Client.Bytes(), current.ID.Bytes()) {
+			host, ok := room.Users[session.Host]
+			if ok {
+				host.Write <- outgoing.EndShare(id)
+			}
+			delete(room.Sessions, id)
+		}
+		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
+			client, ok := room.Users[session.Client]
+			if ok {
+				client.Write <- outgoing.EndShare(id)
+			}
+			delete(room.Sessions, id)
+		}
+	}
 
 	if user.Owner && room.CloseOnOwnerLeave {
 		for _, member := range room.Users {

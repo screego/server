@@ -83,6 +83,12 @@ func (HostOffer) Type() string {
 	return "hostoffer"
 }
 
+type EndShare xid.ID
+
+func (EndShare) Type() string {
+	return "endshare"
+}
+
 type ConnectionMode string
 
 const (

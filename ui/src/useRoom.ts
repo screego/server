@@ -242,6 +242,19 @@ export const useRoom = (): UseRoom => {
                         case 'hostice':
                             client.current[event.payload.sid]?.addIceCandidate(event.payload.value);
                             return;
+                        case 'endshare':
+                            client.current[event.payload]?.close();
+                            host.current[event.payload]?.close();
+                            setState((current) =>
+                                current
+                                    ? {
+                                          ...current,
+                                          clientStreams: current.clientStreams.filter(
+                                              ({id}) => id !== event.payload
+                                          ),
+                                      }
+                                    : current
+                            );
                     }
                 };
                 ws.onclose = (event) => {
@@ -285,7 +298,7 @@ export const useRoom = (): UseRoom => {
         host.current = {};
         stream.current?.getTracks().forEach((track) => track.stop());
         stream.current = undefined;
-        // todo notify server
+        conn.current?.send(JSON.stringify({type: 'stopshare'}));
         setState((current) => (current ? {...current, hostStream: undefined} : current));
     };
 
