@@ -33,7 +33,7 @@ was so poor that my colleagues couldn't read the code. Or both.
 
 That's why I created screego. It allows you to share your screen with good
 quality and low latency. Screego is an addition to existing software and 
-only helps to share your screen. Nothing else (:.
+only helps to share your screen. Nothing else.
 
 ## Features
 
