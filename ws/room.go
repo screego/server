@@ -84,11 +84,11 @@ func (r *Room) notifyInfoChanged() {
 		users := []outgoing.User{}
 		for _, user := range r.Users {
 			users = append(users, outgoing.User{
-				ID:      user.ID,
-				Name:    user.Name,
-				Sharing: user.Sharing,
-				You:     current == user,
-				Owner:   user.Owner,
+				ID:        user.ID,
+				Name:      user.Name,
+				Streaming: user.Streaming,
+				You:       current == user,
+				Owner:     user.Owner,
 			})
 		}
 
@@ -100,8 +100,8 @@ func (r *Room) notifyInfoChanged() {
 				return left.Owner
 			}
 
-			if left.Sharing != right.Sharing {
-				return left.Sharing
+			if left.Streaming != right.Streaming {
+				return left.Streaming
 			}
 
 			return left.Name < right.Name
@@ -115,11 +115,11 @@ func (r *Room) notifyInfoChanged() {
 }
 
 type User struct {
-	ID      xid.ID
-	Addr    net.IP
-	Name    string
-	Sharing bool
-	Owner   bool
-	Write   chan<- outgoing.Message
-	Close   chan<- string
+	ID        xid.ID
+	Addr      net.IP
+	Name      string
+	Streaming bool
+	Owner     bool
+	Write     chan<- outgoing.Message
+	Close     chan<- string
 }

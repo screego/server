@@ -36,18 +36,18 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 
 	room.Users[current.ID] = &User{
-		ID:      current.ID,
-		Name:    name,
-		Sharing: false,
-		Owner:   false,
-		Addr:    current.Addr,
-		Write:   current.Write,
-		Close:   current.Close,
+		ID:        current.ID,
+		Name:      name,
+		Streaming: false,
+		Owner:     false,
+		Addr:      current.Addr,
+		Write:     current.Write,
+		Close:     current.Close,
 	}
 	room.notifyInfoChanged()
 
 	for _, user := range room.Users {
-		if current.ID == user.ID || !user.Sharing {
+		if current.ID == user.ID || !user.Streaming {
 			continue
 		}
 		room.newSession(user.ID, current.ID, rooms)

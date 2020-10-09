@@ -23,7 +23,7 @@ func (e *StartShare) Execute(rooms *Rooms, current ClientInfo) error {
 		return fmt.Errorf("room with id %s does not exist", current.RoomID)
 	}
 
-	room.Users[current.ID].Sharing = true
+	room.Users[current.ID].Streaming = true
 
 	for _, user := range room.Users {
 		if current.ID == user.ID {
