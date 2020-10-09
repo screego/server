@@ -2,15 +2,15 @@ package ws
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
+	"github.com/rs/xid"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/screego/server/ws/outgoing"
 	"net"
 	"net/http"
 	"strings"
 	"time"
-	"github.com/gorilla/websocket"
-	"github.com/rs/xid"
-	"github.com/rs/zerolog/log"
-	"github.com/screego/server/ws/outgoing"
 )
 
 var ping = func(conn *websocket.Conn) error {
@@ -78,10 +78,12 @@ func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage,
 func (c *Client) Close() {
 	c.once.Do(func() {
 		c.conn.Close()
-		c.read <- ClientMessage{
-			Info:     c.info,
-			Incoming: &Disconnected{},
-		}
+		go func() {
+			c.read <- ClientMessage{
+				Info:     c.info,
+				Incoming: &Disconnected{},
+			}
+		}()
 	})
 }
 
@@ -125,8 +127,8 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 	dead := false
 	conClosed := func() {
 		dead = true
-		pingTicker.Stop()
 		c.Close()
+		pingTicker.Stop()
 	}
 	defer conClosed()
 	defer func() {
@@ -135,10 +137,12 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 	for {
 		select {
 		case reason := <-c.info.Close:
-			if reason != CloseDone {
+			if reason == CloseDone {
+				return
+			} else {
 				_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, reason)
+				conClosed()
 			}
-			return
 		case message := <-c.info.Write:
 			if dead {
 				c.debug().Msg("WebSocket write on dead connection")
