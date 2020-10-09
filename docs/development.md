@@ -83,7 +83,7 @@ $ golangci-lint run
 1. Build the UI
 
    ```bash
-   $ (cd ui && yarn build)
+   $ (cd ui && yarn install && yarn build)
    ```
 
 1. Generate static assets for go.
