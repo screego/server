@@ -297,7 +297,6 @@ export const Room = ({
 };
 
 const useShowOnMouseMovement = (doShow: (s: boolean) => void) => {
-    const lastMoved = React.useRef(0);
     const timeoutHandle = React.useRef(0);
 
     React.useEffect(() => {
@@ -306,13 +305,11 @@ const useShowOnMouseMovement = (doShow: (s: boolean) => void) => {
                 doShow(true);
             }
 
-            if (lastMoved.current < Date.now() - 100) {
-                clearInterval(timeoutHandle.current);
-                timeoutHandle.current = window.setTimeout(() => {
-                    timeoutHandle.current = 0;
-                    doShow(false);
-                }, 1000);
-            }
+            clearTimeout(timeoutHandle.current);
+            timeoutHandle.current = window.setTimeout(() => {
+                timeoutHandle.current = 0;
+                doShow(false);
+            }, 1000);
         };
         window.addEventListener('mousemove', update);
         return () => window.removeEventListener('mousemove', update);
