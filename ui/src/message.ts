@@ -57,7 +57,7 @@ export interface RoomInfo {
 export interface RoomUser {
     id: string;
     name: string;
-    streaming: boolean;
+    sharing: boolean;
     you: boolean;
     owner: boolean;
 }
