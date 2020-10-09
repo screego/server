@@ -28,6 +28,9 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		return fmt.Errorf("room with id %s does not exist", e.ID)
 	}
 	name := e.UserName
+	if current.Authenticated {
+		name = current.AuthenticatedUser
+	}
 	if name == "" {
 		name = util.NewName()
 	}

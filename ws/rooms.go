@@ -57,8 +57,8 @@ func (r *Rooms) Upgrade(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, loggedIn := r.users.CurrentUser(req)
-	c := newClient(conn, req, r.Incoming, loggedIn, r.config.TrustProxyHeaders)
+	user, loggedIn := r.users.CurrentUser(req)
+	c := newClient(conn, req, r.Incoming, user, loggedIn, r.config.TrustProxyHeaders)
 
 	go c.startReading(time.Second * 20)
 	go c.startWriteHandler(time.Second * 5)
