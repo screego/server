@@ -32,6 +32,9 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 
 	name := e.UserName
+	if current.Authenticated {
+		name = current.AuthenticatedUser
+	}
 	if name == "" {
 		name = util.NewName()
 	}

@@ -38,15 +38,16 @@ type ClientMessage struct {
 }
 
 type ClientInfo struct {
-	ID            xid.ID
-	RoomID        string
-	Authenticated bool
-	Write         chan outgoing.Message
-	Close         chan string
-	Addr          net.IP
+	ID                xid.ID
+	RoomID            string
+	Authenticated     bool
+	AuthenticatedUser string
+	Write             chan outgoing.Message
+	Close             chan string
+	Addr              net.IP
 }
 
-func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage, authenticated, trustProxy bool) *Client {
+func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage, authenticatedUser string, authenticated, trustProxy bool) *Client {
 
 	ip := conn.RemoteAddr().(*net.TCPAddr).IP
 	if realIP := req.Header.Get("X-Real-IP"); trustProxy && realIP != "" {
@@ -56,12 +57,13 @@ func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage,
 	client := &Client{
 		conn: conn,
 		info: ClientInfo{
-			Authenticated: authenticated,
-			ID:            xid.New(),
-			RoomID:        "",
-			Addr:          ip,
-			Write:         make(chan outgoing.Message, 1),
-			Close:         make(chan string, 1),
+			Authenticated:     authenticated,
+			AuthenticatedUser: authenticatedUser,
+			ID:                xid.New(),
+			RoomID:            "",
+			Addr:              ip,
+			Write:             make(chan outgoing.Message, 1),
+			Close:             make(chan string, 1),
 		},
 		read: read,
 	}
