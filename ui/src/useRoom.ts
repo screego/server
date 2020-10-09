@@ -308,7 +308,7 @@ export const useRoom = (): UseRoom => {
         host.current = {};
         stream.current?.getTracks().forEach((track) => track.stop());
         stream.current = undefined;
-        conn.current?.send(JSON.stringify({type: 'stopshare'}));
+        conn.current?.send(JSON.stringify({type: 'stopshare', payload: {}}));
         setState((current) => (current ? {...current, hostStream: undefined} : current));
     };
 

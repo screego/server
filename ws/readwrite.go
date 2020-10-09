@@ -40,7 +40,7 @@ func ReadTypedIncoming(r io.Reader) (Event, error) {
 	payload := create()
 
 	if err := json.Unmarshal(typed.Payload, payload); err != nil {
-		return nil, fmt.Errorf("kekw %s", err)
+		return nil, fmt.Errorf("incoming payload %s", err)
 	}
 	return payload, nil
 }
