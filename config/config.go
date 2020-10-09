@@ -48,6 +48,7 @@ type Config struct {
 	AuthMode           string   `default:"turn" split_words:"true"`
 	CorsAllowedOrigins []string `split_words:"true"`
 	UsersFile          string   `split_words:"true"`
+	Prometheus         bool     `split_words:"true"`
 
 	CheckOrigin func(string) bool `ignored:"true" json:"-"`
 }

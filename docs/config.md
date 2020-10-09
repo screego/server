@@ -69,4 +69,8 @@ SCREEGO_USERS_FILE=
 
 # The loglevel (one of: debug, info, warn, error)
 SCREEGO_LOG_LEVEL=info
+
+# If screego should expose a prometheus endpoint at /metrics. The endpoint
+# requires basic authentication from a user in the users file.
+SCREEGO_PROMETHEUS=false
 ```
