@@ -44,10 +44,12 @@ export const Room = ({
     const {enqueueSnackbar} = useSnackbar();
     const [nameInput, setNameInput] = React.useState('');
     const [permanent, setPermanent] = React.useState(false);
-    const [showControl] = React.useState(true);
+    const [showControl, setShowControl] = React.useState(true);
+    const [hoverControl, setHoverControl] = React.useState();
     const [showMore, setShowMore] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
+    useShowOnMouseMovement(setShowControl);
 
     React.useEffect(() => {
         if (selectedStream === HostStream && state.hostStream) {
@@ -90,10 +92,20 @@ export const Room = ({
         );
     };
 
+    const setHoverState = React.useMemo(
+        () => ({
+            onMouseLeave: () => setHoverControl(false),
+            onMouseEnter: () => setHoverControl(true),
+        }),
+        [setHoverControl]
+    );
+
+    const controlVisible = showControl || open || showMore || hoverControl;
+
     return (
         <div className={classes.videoContainer}>
-            {showControl && (
-                <Paper className={classes.title} elevation={10}>
+            {controlVisible && (
+                <Paper className={classes.title} elevation={10} {...setHoverState}>
                     <Tooltip title="Copy Link">
                         <Typography
                             variant="h4"
@@ -123,8 +135,8 @@ export const Room = ({
                 </Typography>
             )}
 
-            {showControl && (
-                <Paper className={classes.control} elevation={10}>
+            {controlVisible && (
+                <Paper className={classes.control} elevation={10} {...setHoverState}>
                     {state.hostStream ? (
                         <Tooltip title="Cancel Presentation" arrow>
                             <IconButton onClick={stopShare}>
@@ -246,6 +258,40 @@ export const Room = ({
         </div>
     );
 };
+
+const useShowOnMouseMovement = (doShow: (s: boolean) => void) => {
+    const lastMoved = React.useRef(0);
+    const timeoutHandle = React.useRef(0);
+
+    React.useEffect(() => {
+        const update = () => {
+            if (timeoutHandle.current === 0) {
+                doShow(true);
+            }
+
+            if (lastMoved.current < Date.now() - 100) {
+                clearInterval(timeoutHandle.current);
+                timeoutHandle.current = window.setTimeout(() => {
+                    timeoutHandle.current = 0;
+                    doShow(false);
+                }, 1000);
+            }
+        };
+        window.addEventListener('mousemove', update);
+        return () => window.removeEventListener('mousemove', update);
+    }, [doShow]);
+
+    React.useEffect(
+        () =>
+            void (timeoutHandle.current = window.setTimeout(() => {
+                timeoutHandle.current = 0;
+                doShow(false);
+            }, 1000)),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
+};
+
 const useStyles = makeStyles((theme: Theme) => ({
     title: {
         padding: 15,
