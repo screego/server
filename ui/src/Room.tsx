@@ -24,6 +24,7 @@ import ShowMoreIcon from '@material-ui/icons/MoreVert';
 import {Video} from './Video';
 import {makeStyles} from '@material-ui/core/styles';
 import {ConnectedRoom} from './useRoom';
+import {useSnackbar} from 'notistack';
 
 const HostStream: unique symbol = Symbol('mystream');
 
@@ -40,6 +41,7 @@ export const Room = ({
 }) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const [nameInput, setNameInput] = React.useState('');
     const [permanent, setPermanent] = React.useState(false);
     const [showControl] = React.useState(true);
@@ -81,13 +83,26 @@ export const Room = ({
         }
     }, [videoElement, stream]);
 
+    const copyLink = () => {
+        navigator?.clipboard?.writeText(window.location.href)?.then(
+            () => enqueueSnackbar('Link Copied', {variant: 'success'}),
+            (err) => enqueueSnackbar('Copy Failed ' + err, {variant: 'error'})
+        );
+    };
+
     return (
         <div className={classes.videoContainer}>
             {showControl && (
                 <Paper className={classes.title} elevation={10}>
-                    <Typography variant="h4" component="h4">
-                        {state.id}
-                    </Typography>
+                    <Tooltip title="Copy Link">
+                        <Typography
+                            variant="h4"
+                            component="h4"
+                            style={{cursor: 'pointer'}}
+                            onClick={copyLink}>
+                            {state.id}
+                        </Typography>
+                    </Tooltip>
                 </Paper>
             )}
 
