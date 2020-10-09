@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"syscall"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/screego/server/logger"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ssh/terminal"
@@ -17,6 +20,7 @@ var hashCmd = cli.Command{
 		&cli.StringFlag{Name: "pass"},
 	},
 	Action: func(ctx *cli.Context) {
+		logger.Init(zerolog.ErrorLevel)
 		name := ctx.String("name")
 		pass := []byte(ctx.String("pass"))
 		if name == "" {
@@ -25,12 +29,12 @@ var hashCmd = cli.Command{
 
 		if len(pass) == 0 {
 			var err error
-			fmt.Print("Enter Password: ")
+			_, _ = fmt.Fprint(os.Stderr, "Enter Password: ")
 			pass, err = terminal.ReadPassword(int(syscall.Stdin))
 			if err != nil {
 				log.Fatal().Err(err).Msg("could not read stdin")
 			}
-			fmt.Println("")
+			_, _ = fmt.Fprintln(os.Stderr, "")
 		}
 		hashedPw, err := bcrypt.GenerateFromPassword(pass, 12)
 		if err != nil {
