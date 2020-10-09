@@ -77,8 +77,10 @@ export type ClientICECandidate = Typed<P2PMessage<RTCIceCandidate>, 'clientice'>
 export type HostOffer = Typed<P2PMessage<RTCSessionDescriptionInit>, 'hostoffer'>;
 export type ClientAnswer = Typed<P2PMessage<RTCSessionDescriptionInit>, 'clientanswer'>;
 export type StartSharing = Typed<{}, 'share'>;
+export type StopShare = Typed<{}, 'stopshare'>;
 export type RoomCreate = Typed<RoomConfiguration, 'create'>;
 export type JoinRoom = Typed<JoinConfiguration, 'join'>;
+export type EndShare = Typed<string, 'endshare'>;
 
 export type IncomingMessage =
     | Room
@@ -88,6 +90,7 @@ export type IncomingMessage =
     | HostICECandidate
     | ClientICECandidate
     | HostOffer
+    | EndShare
     | ClientAnswer;
 
 export type OutgoingMessage =
@@ -97,5 +100,6 @@ export type OutgoingMessage =
     | HostICECandidate
     | ClientICECandidate
     | HostOffer
+    | StopShare
     | ClientAnswer
     | StartSharing;
