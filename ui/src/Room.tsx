@@ -1,6 +1,7 @@
 import React from 'react';
 import {setPermanentName} from './name';
 import {
+    Badge,
     Button,
     Checkbox,
     Dialog,
@@ -20,13 +21,32 @@ import {
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import PresentToAllIcon from '@material-ui/icons/PresentToAll';
 import FullScreenIcon from '@material-ui/icons/Fullscreen';
+import PeopleIcon from '@material-ui/icons/People';
 import ShowMoreIcon from '@material-ui/icons/MoreVert';
 import {Video} from './Video';
 import {makeStyles} from '@material-ui/core/styles';
 import {ConnectedRoom} from './useRoom';
 import {useSnackbar} from 'notistack';
+import {RoomUser} from './message';
 
 const HostStream: unique symbol = Symbol('mystream');
+
+const flags = (user: RoomUser) => {
+    const result: string[] = [];
+    if (user.you) {
+        result.push('You');
+    }
+    if (user.owner) {
+        result.push('Owner');
+    }
+    if (user.sharing) {
+        result.push('Streaming');
+    }
+    if (!result.length) {
+        return '';
+    }
+    return ` (${result.join(', ')})`;
+};
 
 export const Room = ({
     state,
@@ -151,6 +171,23 @@ export const Room = ({
                         </Tooltip>
                     )}
 
+                    <Tooltip
+                        classes={{tooltip: classes.noMaxWidth}}
+                        title={
+                            <div>
+                                <Typography variant="h5">Member List</Typography>
+                                {state.users.map((user) => (
+                                    <Typography>
+                                        {user.name} {flags(user)}
+                                    </Typography>
+                                ))}
+                            </div>
+                        }
+                        arrow>
+                        <Badge badgeContent={state.users.length} color="primary">
+                            <PeopleIcon fontSize="large" />
+                        </Badge>
+                    </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
                         <IconButton
                             onClick={() => videoElement?.requestFullscreen()}
@@ -343,6 +380,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         bottom: 0,
         background: 'rgba(0,0,0,.5)',
         padding: '5px 15px',
+    },
+    noMaxWidth: {
+        maxWidth: 'none',
     },
     smallVideoContainer: {
         height: '100%',
