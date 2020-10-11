@@ -3,6 +3,7 @@ package config
 import (
 	"crypto/rand"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -136,6 +137,10 @@ func Get() (Config, []FutureLog) {
 		} else {
 			logs = append(logs, futureFatal(fmt.Sprintf("cannot create secret %s", err)))
 		}
+	}
+
+	if net.ParseIP(config.ExternalIP) == nil || config.ExternalIP == "0.0.0.0" {
+		logs = append(logs, futureFatal(fmt.Sprintf("invalid SCREEGO_EXTERNAL_IP: %s", config.ExternalIP)))
 	}
 
 	return config, logs
