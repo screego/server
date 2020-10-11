@@ -36,6 +36,7 @@ archives:
   - files:
       - LICENSE
       - README.md
+      - screego.config.example
     replacements:
       386: i386
     format_overrides:
