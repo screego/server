@@ -17,7 +17,10 @@ Properties will never be overridden. Thus, the first occurrence of a setting wil
 #### Config Example
 
 ```ini
-# The external ip of the server
+# The external ip of the server.
+# Execute the following command on the server you want to host Screego
+# to find your external ip.
+#   curl 'https://api.ipify.org'
 SCREEGO_EXTERNAL_IP=
 
 # A secret which should be unique. Is used for cookie authentication.

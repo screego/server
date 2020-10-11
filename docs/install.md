@@ -15,7 +15,12 @@ This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64
    Screego will allocate random ports for relay connections. Thus, network host is needed.
 
 ```bash
-$ docker run --net=host -e SCREEGO_EXTERNAL_IP=0.0.0.0 screego/server:GITHUB_VERSION
+$ docker run --net=host -e SCREEGO_EXTERNAL_IP=YOUREXTERNALIP screego/server:GITHUB_VERSION
+```
+
+Replace `YOUREXTERNALIP` with your external IP. One way to find your external ip is with ipify.
+```bash
+$ curl 'https://api.ipify.org'
 ```
 
 By default, Screego runs on port 5050.
@@ -29,7 +34,12 @@ services:
     image: screego/server:GITHUB_VERSION
     network_mode: host
     environment:
-      SCREEGO_EXTERNAL_IP: "0.0.0.0"
+      SCREEGO_EXTERNAL_IP: "YOUREXTERNALIP"
+```
+
+Replace `YOUREXTERNALIP` with your external IP. One way to find your external ip is with ipify.
+```bash
+$ curl 'https://api.ipify.org'
 ```
 
 ## Binary
