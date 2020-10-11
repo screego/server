@@ -80,6 +80,8 @@ $ golangci-lint run
 
 ## Build
 
+1. [Setup](#setup)
+
 1. Build the UI
 
    ```bash
