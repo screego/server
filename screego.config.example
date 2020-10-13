@@ -21,6 +21,12 @@ SCREEGO_SERVER_ADDRESS=0.0.0.0:5050
 # The address the TURN server will listen on.
 SCREEGO_TURN_ADDRESS=0.0.0.0:3478
 
+# Limit the ports that TURN will use for data relaying.
+# Format: min:max
+# Example:
+#   50000:55000
+SCREEGO_TURN_PORT_RANGE=
+
 # If reverse proxy headers should be trusted.
 # Screego uses ip whitelisting for authentication
 # of TURN connections. When behind a proxy the ip is always the proxy server.

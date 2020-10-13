@@ -26,6 +26,18 @@ type Entry struct {
 
 const Realm = "screego"
 
+type LoggedGenerator struct {
+	turn.RelayAddressGenerator
+}
+
+func (r *LoggedGenerator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
+	conn, addr, err := r.RelayAddressGenerator.AllocatePacketConn(network, requestedPort)
+	if err == nil {
+		log.Debug().Str("addr", addr.String()).Str("network", network).Msg("TURN allocated")
+	}
+	return conn, addr, err
+}
+
 func Start(conf config.Config) (*Server, error) {
 	udpListener, err := net.ListenPacket("udp4", conf.TurnAddress)
 	if err != nil {
@@ -44,26 +56,16 @@ func Start(conf config.Config) (*Server, error) {
 		strictIPCheck: conf.TurnStrictAuth,
 	}
 
+	loggedGenerator := &LoggedGenerator{RelayAddressGenerator: generator(conf)}
+
 	_, err = turn.NewServer(turn.ServerConfig{
 		Realm:       Realm,
 		AuthHandler: svr.authenticate,
 		ListenerConfigs: []turn.ListenerConfig{
-			{
-				Listener: tcpListener,
-				RelayAddressGenerator: &turn.RelayAddressGeneratorStatic{
-					RelayAddress: net.ParseIP(conf.ExternalIP),
-					Address:      "0.0.0.0",
-				},
-			},
+			{Listener: tcpListener, RelayAddressGenerator: loggedGenerator},
 		},
 		PacketConnConfigs: []turn.PacketConnConfig{
-			{
-				PacketConn: udpListener,
-				RelayAddressGenerator: &turn.RelayAddressGeneratorStatic{
-					RelayAddress: net.ParseIP(conf.ExternalIP),
-					Address:      "0.0.0.0",
-				},
-			},
+			{PacketConn: udpListener, RelayAddressGenerator: loggedGenerator},
 		},
 	})
 	if err != nil {
@@ -72,6 +74,23 @@ func Start(conf config.Config) (*Server, error) {
 
 	log.Info().Str("addr", conf.TurnAddress).Msg("Start TURN/STUN")
 	return svr, nil
+}
+
+func generator(conf config.Config) turn.RelayAddressGenerator {
+	min, max, useRange := conf.PortRange()
+	if useRange {
+		log.Debug().Uint16("min", min).Uint16("max", max).Msg("Using Port Range")
+		return &turn.RelayAddressGeneratorPortRange{
+			RelayAddress: net.ParseIP(conf.ExternalIP),
+			Address:      "0.0.0.0",
+			MinPort:      min,
+			MaxPort:      max,
+		}
+	}
+	return &turn.RelayAddressGeneratorStatic{
+		RelayAddress: net.ParseIP(conf.ExternalIP),
+		Address:      "0.0.0.0",
+	}
 }
 
 func (a *Server) Allow(username, password string, addr net.IP) {
