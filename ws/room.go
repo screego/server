@@ -37,6 +37,7 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		Host:   host,
 		Client: client,
 	}
+	sessionCreatedTotal.Inc()
 
 	iceHost := []outgoing.ICEServer{}
 	iceClient := []outgoing.ICEServer{}
@@ -72,6 +73,11 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 	}
 	r.Users[host].Write <- outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost}
 	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}
+}
+
+func (r *Room) closeSession(id xid.ID) {
+	delete(r.Sessions, id)
+	sessionClosedTotal.Inc()
 }
 
 type RoomSession struct {

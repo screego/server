@@ -6,16 +6,28 @@ import (
 )
 
 var (
-	roomGauge = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "screego_room_total",
-		Help: "The total number of rooms",
+	roomsCreatedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_room_created_total",
+		Help: "The total number of rooms created",
 	})
-	userGauge = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "screego_user_total",
-		Help: "The total number of users",
+	roomsClosedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_room_closed_total",
+		Help: "The total number of rooms closed",
 	})
-	sessionGauge = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "screego_session_total",
-		Help: "The total number of sessions",
+	usersJoinedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_user_joined_total",
+		Help: "The total number of users joined",
+	})
+	usersLeftTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_user_left_total",
+		Help: "The total number of users left",
+	})
+	sessionCreatedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_session_created_total",
+		Help: "The total number of sessions created",
+	})
+	sessionClosedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "screego_session_closed_total",
+		Help: "The total number of sessions closed",
 	})
 )

@@ -72,5 +72,7 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 	rooms.Rooms[e.ID] = room
 	room.notifyInfoChanged()
+	usersJoinedTotal.Inc()
+	roomsCreatedTotal.Inc()
 	return nil
 }
