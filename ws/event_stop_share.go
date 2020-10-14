@@ -33,7 +33,7 @@ func (e *StopShare) Execute(rooms *Rooms, current ClientInfo) error {
 			if ok {
 				client.Write <- outgoing.EndShare(id)
 			}
-			delete(room.Sessions, id)
+			room.closeSession(id)
 		}
 	}
 

@@ -45,6 +45,7 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		Close:     current.Close,
 	}
 	room.notifyInfoChanged()
+	usersJoinedTotal.Inc()
 
 	for _, user := range room.Users {
 		if current.ID == user.ID || !user.Streaming {
