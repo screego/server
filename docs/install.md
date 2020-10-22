@@ -4,6 +4,9 @@ Latest Version: **GITHUB_VERSION**
 
 ?> Before starting Screego you may read [Configuration](config.md).
 
+!> TLS is required for Screego to work. Either enable TLS inside Screego or 
+   use a reverse proxy to serve Screego via TLS.
+
 ## Docker
 
 Setting up Screego with docker is pretty easy, you basically just have to start the docker container, and you are ready to go:
