@@ -33,6 +33,9 @@ export interface UseRoom {
     stopShare: () => void;
 }
 
+const relayConfig: Partial<RTCConfiguration> =
+    window.location.search.indexOf('forceTurn=true') !== -1 ? {iceTransportPolicy: 'relay'} : {};
+
 const hostSession = async ({
     sid,
     ice,
@@ -46,7 +49,7 @@ const hostSession = async ({
     done: () => void;
     stream: MediaStream;
 }): Promise<RTCPeerConnection> => {
-    const peer = new RTCPeerConnection({iceServers: ice});
+    const peer = new RTCPeerConnection({...relayConfig, iceServers: ice});
     peer.onicecandidate = (event) => {
         if (!event.candidate) {
             return;
@@ -89,7 +92,7 @@ const clientSession = async ({
     done: () => void;
 }): Promise<RTCPeerConnection> => {
     console.log('ice', ice);
-    const peer = new RTCPeerConnection({iceServers: ice});
+    const peer = new RTCPeerConnection({...relayConfig, iceServers: ice});
     peer.onicecandidate = (event) => {
         if (!event.candidate) {
             return;
