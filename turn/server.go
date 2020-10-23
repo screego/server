@@ -12,11 +12,11 @@ import (
 )
 
 type Server struct {
-	TurnAddress   string
-	StunAddress   string
-	lock          sync.RWMutex
-	strictIPCheck bool
-	lookup        map[string]Entry
+	TurnAddress string
+	StunAddress string
+	lock        sync.RWMutex
+	strictAuth  bool
+	lookup      map[string]Entry
 }
 
 type Entry struct {
@@ -50,10 +50,10 @@ func Start(conf config.Config) (*Server, error) {
 
 	split := strings.SplitN(conf.TurnAddress, ":", 2)
 	svr := &Server{
-		TurnAddress:   fmt.Sprintf("turn:%s:%s", conf.ExternalIP, split[1]),
-		StunAddress:   fmt.Sprintf("stun:%s:%s", conf.ExternalIP, split[1]),
-		lookup:        map[string]Entry{},
-		strictIPCheck: conf.TurnStrictAuth,
+		TurnAddress: fmt.Sprintf("turn:%s:%s", conf.ExternalIP, split[1]),
+		StunAddress: fmt.Sprintf("stun:%s:%s", conf.ExternalIP, split[1]),
+		lookup:      map[string]Entry{},
+		strictAuth:  conf.TurnStrictAuth,
 	}
 
 	loggedGenerator := &LoggedGenerator{RelayAddressGenerator: generator(conf)}
@@ -132,20 +132,11 @@ func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bo
 
 	authIP := entry.addr
 
-	if !connectedIp.Equal(authIP) {
-		if a.strictIPCheck {
-			log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict ip check failed")
-			return nil, false
-		}
-
-		conIPIsV4 := connectedIp.To4() != nil
-		authIPIsV4 := authIP.To4() != nil
-
-		if authIPIsV4 == conIPIsV4 {
-			log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN ip check failed")
-			return nil, false
-		}
+	if a.strictAuth && !connectedIp.Equal(authIP) {
+		log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict auth check failed")
+		return nil, false
 	}
+
 	log.Debug().Interface("addr", addr.String()).Str("realm", realm).Msg("TURN authenticated")
 	return entry.password, true
 }

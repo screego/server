@@ -27,6 +27,12 @@ SCREEGO_TURN_ADDRESS=0.0.0.0:3478
 #   50000:55000
 SCREEGO_TURN_PORT_RANGE=
 
+# If true, the TURN server will compare the remote IP of the request with the
+# remote ip of the existing WebSocket connection and deny access if it doesn't
+# match. Disable this feature, if you use some kind of proxy which changes the
+# remote ip.
+SCREEGO_TURN_STRICT_AUTH=true
+
 # If reverse proxy headers should be trusted.
 # Screego uses ip whitelisting for authentication
 # of TURN connections. When behind a proxy the ip is always the proxy server.
