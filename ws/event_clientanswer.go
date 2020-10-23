@@ -2,7 +2,7 @@ package ws
 
 import (
 	"fmt"
-
+	"github.com/rs/zerolog/log"
 	"github.com/screego/server/ws/outgoing"
 )
 
@@ -26,8 +26,13 @@ func (e *ClientAnswer) Execute(rooms *Rooms, current ClientInfo) error {
 
 	session, ok := room.Sessions[e.SID]
 
-	if !ok || session.Client != current.ID {
-		return fmt.Errorf("session with id %s does not exist", current.RoomID)
+	if !ok {
+		log.Debug().Str("id", e.SID.String()).Msg("unknown session")
+		return nil
+	}
+
+	if session.Client != current.ID {
+		return fmt.Errorf("permission denied for session %s", e.SID)
 	}
 
 	room.Users[session.Host].Write <- outgoing.ClientAnswer(*e)
