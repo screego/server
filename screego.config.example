@@ -48,6 +48,7 @@ SCREEGO_TRUST_PROXY_HEADERS=false
 SCREEGO_AUTH_MODE=turn
 
 # Defines origins that will be allowed to access Screego (HTTP + WebSocket)
+# The default value is sufficient for most use-cases.
 # Example Value: https://screego.net,https://sub.gotify.net
 SCREEGO_CORS_ALLOWED_ORIGINS=
 
