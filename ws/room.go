@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"net"
 	"sort"
 
@@ -38,14 +39,16 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		Client: client,
 	}
 	sessionCreatedTotal.Inc()
+	clientUser := r.Users[client]
+	hostUser := r.Users[host]
 
 	iceHost := []outgoing.ICEServer{}
 	iceClient := []outgoing.ICEServer{}
 	switch r.Mode {
 	case ConnectionLocal:
 	case ConnectionSTUN:
-		iceHost = []outgoing.ICEServer{{URLs: []string{rooms.turnServer.StunAddress}}}
-		iceClient = []outgoing.ICEServer{{URLs: []string{rooms.turnServer.StunAddress}}}
+		iceHost = []outgoing.ICEServer{{URLs: []string{rooms.address(hostUser, "stun")}}}
+		iceClient = []outgoing.ICEServer{{URLs: []string{rooms.address(clientUser, "stun")}}}
 	case ConnectionTURN:
 		hostPW := util.RandString(20)
 		clientPW := util.RandString(20)
@@ -55,16 +58,16 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		rooms.turnServer.Allow(clientName, clientPW, r.Users[client].Addr)
 		iceHost = []outgoing.ICEServer{{
 			URLs: []string{
-				rooms.turnServer.TurnAddress,
-				rooms.turnServer.TurnAddress + "?transport=tcp",
+				rooms.address(hostUser, "turn"),
+				rooms.address(hostUser, "turn") + "?transport=tcp",
 			},
 			Credential: hostPW,
 			Username:   hostName,
 		}}
 		iceClient = []outgoing.ICEServer{{
 			URLs: []string{
-				rooms.turnServer.TurnAddress,
-				rooms.turnServer.TurnAddress + "?transport=tcp",
+				rooms.address(clientUser, "turn"),
+				rooms.address(clientUser, "turn") + "?transport=tcp",
 			},
 			Credential: clientPW,
 			Username:   clientName,
@@ -73,6 +76,16 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 	}
 	r.Users[host].Write <- outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost}
 	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}
+}
+
+func (r *Rooms) address(user *User, prefix string) string {
+	var ip string
+	if r.config.ExternalIPV6 == nil || (user.Addr.To4() != nil && r.config.ExternalIPV4 != nil) {
+		ip = r.config.ExternalIPV4.String()
+	} else {
+		ip = fmt.Sprintf("[%s]", r.config.ExternalIPV6)
+	}
+	return fmt.Sprintf("%s:%s:%s", prefix, ip, r.turnServer.Port)
 }
 
 func (r *Room) closeSession(id xid.ID) {

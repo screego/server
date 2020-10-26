@@ -1,7 +1,10 @@
 # The external ip of the server.
+# When using a dual stack setup define both IPv4 & IPv6 separated by a comma.
 # Execute the following command on the server you want to host Screego
 # to find your external ip.
 #   curl 'https://api.ipify.org'
+# Example:
+#   192.168.178.2,2a01:c22:a87c:e500:2d8:61ff:fec7:f92a
 SCREEGO_EXTERNAL_IP=
 
 # A secret which should be unique. Is used for cookie authentication.
