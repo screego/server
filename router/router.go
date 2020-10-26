@@ -58,6 +58,7 @@ func accessLogger(r *http.Request, status, size int, dur time.Duration) {
 		Str("host", r.Host).
 		Int("status", status).
 		Int("size", size).
+		Str("ip", r.RemoteAddr).
 		Str("path", r.URL.Path).
 		Str("duration", dur.String()).
 		Msg("HTTP")
