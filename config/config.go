@@ -35,16 +35,16 @@ const (
 type Config struct {
 	LogLevel LogLevel `default:"info" split_words:"true"`
 
-	ExternalIP string `split_words:"true"`
+	ExternalIP []string `split_words:"true"`
 
 	TLSCertFile string `split_words:"true"`
 	TLSKeyFile  string `split_words:"true"`
 
 	ServerTLS     bool   `split_words:"true"`
-	ServerAddress string `default:"0.0.0.0:5050" split_words:"true"`
+	ServerAddress string `default:":5050" split_words:"true"`
 	Secret        []byte `split_words:"true"`
 
-	TurnAddress    string `default:"0.0.0.0:3478" required:"true" split_words:"true"`
+	TurnAddress    string `default:":3478" required:"true" split_words:"true"`
 	TurnStrictAuth bool   `default:"true" split_words:"true"`
 	TurnPortRange  string `split_words:"true"`
 
@@ -54,7 +54,9 @@ type Config struct {
 	UsersFile          string   `split_words:"true"`
 	Prometheus         bool     `split_words:"true"`
 
-	CheckOrigin func(string) bool `ignored:"true" json:"-"`
+	CheckOrigin  func(string) bool `ignored:"true" json:"-"`
+	ExternalIPV4 net.IP            `ignored:"true"`
+	ExternalIPV6 net.IP            `ignored:"true"`
 }
 
 func (c Config) parsePortRange() (uint16, uint16, error) {
@@ -124,10 +126,6 @@ func Get() (Config, []FutureLog) {
 			futureFatal(fmt.Sprintf("invalid SCREEGO_AUTH_MODE: %s", config.AuthMode)))
 	}
 
-	if config.ExternalIP == "" {
-		logs = append(logs, futureFatal("SCREEGO_EXTERNAL_IP must be set"))
-	}
-
 	if config.ServerTLS {
 		if config.TLSCertFile == "" {
 			logs = append(logs, futureFatal("SCREEGO_TLS_CERT_FILE must be set if TLS is enabled"))
@@ -170,9 +168,9 @@ func Get() (Config, []FutureLog) {
 		}
 	}
 
-	if net.ParseIP(config.ExternalIP) == nil || config.ExternalIP == "0.0.0.0" {
-		logs = append(logs, futureFatal(fmt.Sprintf("invalid SCREEGO_EXTERNAL_IP: %s", config.ExternalIP)))
-	}
+	var errs []FutureLog
+	config.ExternalIPV4, config.ExternalIPV6, errs = validateExternalIP(config.ExternalIP)
+	logs = append(logs, errs...)
 
 	min, max, err := config.parsePortRange()
 	if err != nil {
@@ -190,6 +188,50 @@ func Get() (Config, []FutureLog) {
 	}
 
 	return config, logs
+}
+
+func validateExternalIP(ips []string) (net.IP, net.IP, []FutureLog) {
+	if len(ips) == 0 {
+		return nil, nil, []FutureLog{futureFatal("SCREEGO_EXTERNAL_IP must be set")}
+	}
+
+	first := ips[0]
+
+	firstParsed := net.ParseIP(first)
+	if firstParsed == nil || first == "0.0.0.0" {
+		return nil, nil, []FutureLog{futureFatal(fmt.Sprintf("invalid SCREEGO_EXTERNAL_IP: %s", first))}
+	}
+	firstIsIP4 := firstParsed.To4() != nil
+
+	if len(ips) == 1 {
+		if firstIsIP4 {
+			return firstParsed, nil, nil
+		}
+		return nil, firstParsed, nil
+	}
+
+	second := ips[1]
+
+	secondParsed := net.ParseIP(second)
+	if secondParsed == nil || second == "0.0.0.0" {
+		return nil, nil, []FutureLog{futureFatal(fmt.Sprintf("invalid SCREEGO_EXTERNAL_IP: %s", second))}
+	}
+
+	secondIsIP4 := secondParsed.To4() != nil
+
+	if firstIsIP4 == secondIsIP4 {
+		return nil, nil, []FutureLog{futureFatal("invalid SCREEGO_EXTERNAL_IP: the ips must be of different type ipv4/ipv6")}
+	}
+
+	if len(ips) > 2 {
+		return nil, nil, []FutureLog{futureFatal("invalid SCREEGO_EXTERNAL_IP: too many ips supplied")}
+	}
+
+	if !firstIsIP4 {
+		return secondParsed, firstParsed, nil
+	}
+
+	return firstParsed, secondParsed, nil
 }
 
 func getExecutableOrWorkDir() (string, *FutureLog) {

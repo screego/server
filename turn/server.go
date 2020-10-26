@@ -12,11 +12,10 @@ import (
 )
 
 type Server struct {
-	TurnAddress string
-	StunAddress string
-	lock        sync.RWMutex
-	strictAuth  bool
-	lookup      map[string]Entry
+	Port       string
+	lock       sync.RWMutex
+	strictAuth bool
+	lookup     map[string]Entry
 }
 
 type Entry struct {
@@ -26,46 +25,57 @@ type Entry struct {
 
 const Realm = "screego"
 
-type LoggedGenerator struct {
+type Generator struct {
+	ipv4 net.IP
+	ipv6 net.IP
 	turn.RelayAddressGenerator
 }
 
-func (r *LoggedGenerator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
+func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
 	conn, addr, err := r.RelayAddressGenerator.AllocatePacketConn(network, requestedPort)
-	if err == nil {
-		log.Debug().Str("addr", addr.String()).Str("network", network).Msg("TURN allocated")
+	relayAddr := *addr.(*net.UDPAddr)
+	if r.ipv6 == nil || (relayAddr.IP.To4() != nil && r.ipv4 != nil) {
+		relayAddr.IP = r.ipv4
+	} else {
+		relayAddr.IP = r.ipv6
 	}
-	return conn, addr, err
+	if err == nil {
+		log.Debug().Str("addr", addr.String()).Str("relayaddr", relayAddr.String()).Msg("TURN allocated")
+	}
+	return conn, &relayAddr, err
 }
 
 func Start(conf config.Config) (*Server, error) {
-	udpListener, err := net.ListenPacket("udp4", conf.TurnAddress)
+	udpListener, err := net.ListenPacket("udp", conf.TurnAddress)
 	if err != nil {
 		return nil, fmt.Errorf("udp: could not listen on %s: %s", conf.TurnAddress, err)
 	}
-	tcpListener, err := net.Listen("tcp4", conf.TurnAddress)
+	tcpListener, err := net.Listen("tcp", conf.TurnAddress)
 	if err != nil {
 		return nil, fmt.Errorf("tcp: could not listen on %s: %s", conf.TurnAddress, err)
 	}
 
-	split := strings.SplitN(conf.TurnAddress, ":", 2)
+	split := strings.Split(conf.TurnAddress, ":")
 	svr := &Server{
-		TurnAddress: fmt.Sprintf("turn:%s:%s", conf.ExternalIP, split[1]),
-		StunAddress: fmt.Sprintf("stun:%s:%s", conf.ExternalIP, split[1]),
-		lookup:      map[string]Entry{},
-		strictAuth:  conf.TurnStrictAuth,
+		Port:       split[len(split) - 1],
+		lookup:     map[string]Entry{},
+		strictAuth: conf.TurnStrictAuth,
 	}
 
-	loggedGenerator := &LoggedGenerator{RelayAddressGenerator: generator(conf)}
+	gen := &Generator{
+		ipv4:                  conf.ExternalIPV4,
+		ipv6:                  conf.ExternalIPV6,
+		RelayAddressGenerator: generator(conf),
+	}
 
 	_, err = turn.NewServer(turn.ServerConfig{
 		Realm:       Realm,
 		AuthHandler: svr.authenticate,
 		ListenerConfigs: []turn.ListenerConfig{
-			{Listener: tcpListener, RelayAddressGenerator: loggedGenerator},
+			{Listener: tcpListener, RelayAddressGenerator: gen},
 		},
 		PacketConnConfigs: []turn.PacketConnConfig{
-			{PacketConn: udpListener, RelayAddressGenerator: loggedGenerator},
+			{PacketConn: udpListener, RelayAddressGenerator: gen},
 		},
 	})
 	if err != nil {
@@ -80,17 +90,9 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 	min, max, useRange := conf.PortRange()
 	if useRange {
 		log.Debug().Uint16("min", min).Uint16("max", max).Msg("Using Port Range")
-		return &turn.RelayAddressGeneratorPortRange{
-			RelayAddress: net.ParseIP(conf.ExternalIP),
-			Address:      "0.0.0.0",
-			MinPort:      min,
-			MaxPort:      max,
-		}
+		return &RelayAddressGeneratorPortRange{MinPort: min, MaxPort: max}
 	}
-	return &turn.RelayAddressGeneratorStatic{
-		RelayAddress: net.ParseIP(conf.ExternalIP),
-		Address:      "0.0.0.0",
-	}
+	return &RelayAddressGeneratorNone{}
 }
 
 func (a *Server) Allow(username, password string, addr net.IP) {
