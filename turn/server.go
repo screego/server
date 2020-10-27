@@ -57,7 +57,7 @@ func Start(conf config.Config) (*Server, error) {
 
 	split := strings.Split(conf.TurnAddress, ":")
 	svr := &Server{
-		Port:       split[len(split) - 1],
+		Port:       split[len(split)-1],
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}

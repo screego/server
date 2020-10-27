@@ -88,7 +88,11 @@ func (r *Rooms) address(user *User, prefix string) string {
 	return fmt.Sprintf("%s:%s:%s", prefix, ip, r.turnServer.Port)
 }
 
-func (r *Room) closeSession(id xid.ID) {
+func (r *Room) closeSession(rooms *Rooms, id xid.ID) {
+	if r.Mode == ConnectionTURN {
+		rooms.turnServer.Disallow(id.String() + "host")
+		rooms.turnServer.Disallow(id.String() + "client")
+	}
 	delete(r.Sessions, id)
 	sessionClosedTotal.Inc()
 }

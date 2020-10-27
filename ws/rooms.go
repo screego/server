@@ -79,7 +79,10 @@ func (r *Rooms) closeRoom(roomId string) {
 		return
 	}
 	usersLeftTotal.Add(float64(len(room.Users)))
-	sessionClosedTotal.Add(float64(len(room.Sessions)))
+	for id := range room.Sessions {
+		room.closeSession(r, id)
+	}
+
 	delete(r.Rooms, roomId)
 	roomsClosedTotal.Inc()
 }

@@ -36,14 +36,14 @@ func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 			if ok {
 				host.Write <- outgoing.EndShare(id)
 			}
-			room.closeSession(id)
+			room.closeSession(rooms, id)
 		}
 		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
 			client, ok := room.Users[session.Client]
 			if ok {
 				client.Write <- outgoing.EndShare(id)
 			}
-			room.closeSession(id)
+			room.closeSession(rooms, id)
 		}
 	}
 
