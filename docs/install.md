@@ -121,6 +121,15 @@ $ screego.exe
 
 TODO
 
+## FreeBSD
+
+!> Maintenance of the FreeBSD Package is not performed by the Screego team.
+   Check yourself, if you can trust it.
+
+```bash
+$ pkg install screego
+```
+
 ## Source
 
 [See Development#build](development.md#build)
