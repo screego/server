@@ -119,7 +119,11 @@ $ screego.exe
 
 ## Arch-Linux(aur)
 
-TODO
+!> Maintenance of the AUR Packages is not performed by the Screego team.
+   You should always check the PKGBUILD before installing an AUR package.
+
+Screego's latest release is available in the AUR as [screego-server](https://aur.archlinux.org/packages/screego-server/) and [screego-server-bin](https://aur.archlinux.org/packages/screego-server-bin/).
+The development-version can be installed with [screego-server-git](https://aur.archlinux.org/packages/screego-server-git/).
 
 ## FreeBSD
 
