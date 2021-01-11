@@ -3,6 +3,7 @@ package turn
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -12,7 +13,7 @@ import (
 )
 
 type Server struct {
-	Port       string
+	port       int
 	lock       sync.RWMutex
 	strictAuth bool
 	lookup     map[string]Entry
@@ -45,7 +46,15 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 	return conn, &relayAddr, err
 }
 
-func Start(conf config.Config) (*Server, error) {
+func Start(conf config.Config) (TurnServer, error) {
+	if conf.TurnExternal {
+		return newTurnREST(conf)
+	} else {
+		return newServer(conf)
+	}
+}
+
+func newServer(conf config.Config) (TurnServer, error) {
 	udpListener, err := net.ListenPacket("udp", conf.TurnAddress)
 	if err != nil {
 		return nil, fmt.Errorf("udp: could not listen on %s: %s", conf.TurnAddress, err)
@@ -56,8 +65,12 @@ func Start(conf config.Config) (*Server, error) {
 	}
 
 	split := strings.Split(conf.TurnAddress, ":")
+	p, err := strconv.Atoi(split[len(split)-1])
+	if err != nil {
+		return nil, fmt.Errorf("Turn port is not an integer : %s", split[len(split)-1])
+	}
 	svr := &Server{
-		Port:       split[len(split)-1],
+		port:       p,
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}
@@ -93,6 +106,10 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 		return &RelayAddressGeneratorPortRange{MinPort: min, MaxPort: max}
 	}
 	return &RelayAddressGeneratorNone{}
+}
+
+func (a *Server) Port() int {
+	return a.port
 }
 
 func (a *Server) Allow(username, password string, addr net.IP) {

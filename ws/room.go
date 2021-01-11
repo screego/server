@@ -72,15 +72,15 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 
 func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
 	if r.config.ExternalIPV4 != nil {
-		result = append(result, fmt.Sprintf("%s:%s:%s", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port))
+		result = append(result, fmt.Sprintf("%s:%s:%d", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port()))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:%s:%s?transport=tcp", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port))
+			result = append(result, fmt.Sprintf("%s:%s:%d?transport=tcp", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port()))
 		}
 	}
 	if r.config.ExternalIPV6 != nil {
-		result = append(result, fmt.Sprintf("%s:[%s]:%s", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port))
+		result = append(result, fmt.Sprintf("%s:[%s]:%d", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port()))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:[%s]:%s?transport=tcp", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port))
+			result = append(result, fmt.Sprintf("%s:[%s]:%d?transport=tcp", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port()))
 		}
 	}
 	return

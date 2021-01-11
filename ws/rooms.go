@@ -13,7 +13,7 @@ import (
 	"github.com/screego/server/turn"
 )
 
-func NewRooms(tServer *turn.Server, users *auth.Users, conf config.Config) *Rooms {
+func NewRooms(tServer turn.TurnServer, users *auth.Users, conf config.Config) *Rooms {
 	return &Rooms{
 		Rooms:      map[string]*Room{},
 		Incoming:   make(chan ClientMessage),
@@ -39,7 +39,7 @@ func NewRooms(tServer *turn.Server, users *auth.Users, conf config.Config) *Room
 }
 
 type Rooms struct {
-	turnServer *turn.Server
+	turnServer turn.TurnServer
 	Rooms      map[string]*Room
 	Incoming   chan ClientMessage
 	upgrader   websocket.Upgrader

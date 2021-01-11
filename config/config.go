@@ -47,6 +47,7 @@ type Config struct {
 	TurnAddress    string `default:":3478" required:"true" split_words:"true"`
 	TurnStrictAuth bool   `default:"true" split_words:"true"`
 	TurnPortRange  string `split_words:"true"`
+	TurnExternal   bool   `default:"false"`
 
 	TrustProxyHeaders  bool     `split_words:"true"`
 	AuthMode           string   `default:"turn" split_words:"true"`
