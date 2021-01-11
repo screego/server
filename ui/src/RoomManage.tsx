@@ -17,6 +17,7 @@ import {
 import {FCreateRoom, UseRoom} from './useRoom';
 import {RoomMode, UIConfig} from './message';
 import {randomRoomName} from './name';
+import {getRoomFromURL} from './useRoomID';
 import HelpIcon from '@material-ui/icons/Help';
 import logo from './logo.svg';
 import {UseConfig} from './useConfig';
@@ -38,7 +39,9 @@ const defaultMode = (authMode: UIConfig['authMode'], loggedIn: boolean): RoomMod
 };
 
 const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) => {
-    const [id, setId] = React.useState(randomRoomName);
+    const [id, setId] = React.useState(
+        () => getRoomFromURL(window.location.search) ?? randomRoomName()
+    );
     const [mode, setMode] = React.useState<RoomMode>(defaultMode(config.authMode, config.loggedIn));
     const [ownerLeave, setOwnerLeave] = React.useState(true);
     const submit = () =>
