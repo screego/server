@@ -48,3 +48,8 @@ jobs:
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      - if: startsWith(github.ref, 'refs/heads/master')
+        run: make docker-manifest-annotate-unstable docker-manifest-push-unstable
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
