@@ -1,6 +1,6 @@
 import React from 'react';
 
-const getRoomFromURL = (search: string): string | undefined =>
+export const getRoomFromURL = (search: string): string | undefined =>
     search
         .slice(1)
         .split('&')
