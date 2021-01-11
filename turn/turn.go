@@ -1,9 +1,20 @@
 package turn
 
-import "net"
+import (
+	"net"
+
+	"github.com/rs/xid"
+)
+
+type TurnAccount struct {
+	Id         xid.ID
+	Username   string
+	Credential string
+	IP         net.IP
+}
 
 type TurnServer interface {
-	Allow(username, password string, addr net.IP)
-	Disallow(username string)
+	AcceptAccounts(client, host *TurnAccount) error
+	RevokeAccounts(client, host *TurnAccount)
 	Port() int
 }

@@ -5,42 +5,50 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"net"
 	"time"
 
 	"github.com/screego/server/config"
 )
 
 type TurnREST struct {
+	ttl    time.Duration
+	secret []byte
+	port   int
 }
 
-func (t *TurnREST) Allow(username, password string, addr net.IP) {
-	//FIXME
+func (t *TurnREST) AcceptAccounts(client, host *TurnAccount) error {
+	err := buildPassword(client, t.ttl, t.secret)
+	if err != nil {
+		return err
+	}
+	return buildPassword(host, t.ttl, t.secret)
 }
 
-func buildPassword(my_user string, ttl time.Duration, secret []byte) (user, password string, err error) {
+func buildPassword(account *TurnAccount, ttl time.Duration, secret []byte) error {
 	//https://stackoverflow.com/questions/35766382/coturn-how-to-use-turn-rest-api#54725092
 	if ttl <= 0 {
-		return "", "", errors.New("Use a TTL > 0")
+		return errors.New("Use a TTL > 0")
 	}
-	user = fmt.Sprintf("%d:%s", time.Now().Add(ttl).Unix(), my_user)
+	account.Username = fmt.Sprintf("%d:%s", time.Now().Add(ttl).Unix(), account.Id.String())
 	mac := hmac.New(sha1.New, secret)
-	mac.Write([]byte(user))
-	password = string(mac.Sum(nil))
-	return user, password, nil
+	mac.Write([]byte(account.Username))
+	account.Credential = string(mac.Sum(nil))
+	return nil
 }
 
-func (t *TurnREST) Disallow(username string) {
-	//FIXME
-
+func (t *TurnREST) RevokeAccounts(client, host *TurnAccount) {
+	// do nothing, wait for peremption
 }
 
 func (t *TurnREST) Port() int {
-	//FIXME
-	return 0
+	return t.port
 }
 
 func newTurnREST(conf config.Config) (TurnServer, error) {
 	//FIXME
-	return &TurnREST{}, nil
+	return &TurnREST{
+		ttl:    12 * time.Hour,
+		secret: []byte("s3cr37"),
+		port:   3478,
+	}, nil
 }

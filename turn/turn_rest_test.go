@@ -8,20 +8,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rs/xid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPassword(t *testing.T) {
 	secret := []byte("s3cr37")
-	user, password, err := buildPassword("bob", 15*time.Minute, secret)
+	account := &TurnAccount{
+		Id: xid.New(),
+	}
+	err := buildPassword(account, 15*time.Minute, secret)
 	assert.NoError(t, err)
-	split := strings.Split(user, ":")
+	split := strings.Split(account.Username, ":")
 	assert.Len(t, split, 2)
-	assert.Equal(t, "bob", split[1])
+	assert.Equal(t, account.Id.String(), split[1])
 	u, err := strconv.Atoi(split[0])
 	assert.NoError(t, err)
 	assert.True(t, int64(u) > time.Now().Unix())
 	mac := hmac.New(sha1.New, secret)
-	mac.Write([]byte(user))
-	assert.Equal(t, string(mac.Sum(nil)), password)
+	mac.Write([]byte(account.Username))
+	assert.Equal(t, string(mac.Sum(nil)), account.Credential)
 }

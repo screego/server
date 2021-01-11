@@ -10,6 +10,7 @@ import (
 	"github.com/pion/turn/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
+	"github.com/screego/server/util"
 )
 
 type Server struct {
@@ -106,6 +107,21 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 		return &RelayAddressGeneratorPortRange{MinPort: min, MaxPort: max}
 	}
 	return &RelayAddressGeneratorNone{}
+}
+
+func (a *Server) AcceptAccounts(client, host *TurnAccount) error {
+	client.Username = client.Id.String()
+	client.Credential = util.RandString(20)
+	a.Allow(client.Username, client.Credential, client.IP)
+	host.Username = client.Id.String()
+	host.Credential = util.RandString(20)
+	a.Allow(host.Username, host.Credential, host.IP)
+	return nil
+}
+
+func (a *Server) RevokeAccounts(client, host *TurnAccount) {
+	a.Disallow(client.Username)
+	a.Disallow(host.Username)
 }
 
 func (a *Server) Port() int {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/rs/xid"
 	"github.com/screego/server/config"
-	"github.com/screego/server/util"
+	"github.com/screego/server/turn"
 	"github.com/screego/server/ws/outgoing"
 )
 
@@ -48,21 +48,25 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		iceHost = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 		iceClient = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 	case ConnectionTURN:
-		hostPW := util.RandString(20)
-		clientPW := util.RandString(20)
-		hostName := id.String() + "host"
-		rooms.turnServer.Allow(hostName, hostPW, r.Users[host].Addr)
-		clientName := id.String() + "client"
-		rooms.turnServer.Allow(clientName, clientPW, r.Users[client].Addr)
+		clientAccount := &turn.TurnAccount{
+			Id: client,
+			IP: r.Users[host].Addr,
+		}
+		hostAccount := &turn.TurnAccount{
+			Id: host,
+			IP: r.Users[client].Addr,
+		}
+		// FIXME handles error
+		rooms.turnServer.AcceptAccounts(clientAccount, hostAccount)
 		iceHost = []outgoing.ICEServer{{
 			URLs:       rooms.addresses("turn", true),
-			Credential: hostPW,
-			Username:   hostName,
+			Credential: hostAccount.Credential,
+			Username:   hostAccount.Username,
 		}}
 		iceClient = []outgoing.ICEServer{{
 			URLs:       rooms.addresses("turn", true),
-			Credential: clientPW,
-			Username:   clientName,
+			Credential: clientAccount.Credential,
+			Username:   clientAccount.Username,
 		}}
 
 	}
@@ -88,8 +92,13 @@ func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
 
 func (r *Room) closeSession(rooms *Rooms, id xid.ID) {
 	if r.Mode == ConnectionTURN {
-		rooms.turnServer.Disallow(id.String() + "host")
-		rooms.turnServer.Disallow(id.String() + "client")
+		session := r.Sessions[id]
+		rooms.turnServer.RevokeAccounts(
+			&turn.TurnAccount{
+				Username: session.Host.String()},
+			&turn.TurnAccount{
+				Username: session.Client.String(),
+			})
 	}
 	delete(r.Sessions, id)
 	sessionClosedTotal.Inc()
