@@ -26,6 +26,7 @@ func TestPassword(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, int64(u) > time.Now().Unix())
 	mac := hmac.New(sha1.New, secret)
-	mac.Write([]byte(account.Username))
+	_, err = mac.Write([]byte(account.Username))
+	assert.NoError(t, err)
 	assert.Equal(t, string(mac.Sum(nil)), account.Credential)
 }

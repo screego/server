@@ -32,7 +32,10 @@ func buildPassword(account *TurnAccount, ttl time.Duration, secret []byte) error
 	}
 	account.Username = fmt.Sprintf("%d:%s", time.Now().Add(ttl).Unix(), account.Id.String())
 	mac := hmac.New(sha1.New, secret)
-	mac.Write([]byte(account.Username))
+	_, err := mac.Write([]byte(account.Username))
+	if err != nil {
+		return err
+	}
 	account.Credential = string(mac.Sum(nil))
 	return nil
 }
