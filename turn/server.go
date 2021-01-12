@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/pion/turn/v2"
+	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
 	"github.com/screego/server/util"
@@ -119,9 +120,10 @@ func (a *Server) AcceptAccounts(client, host *TurnAccount) error {
 	return nil
 }
 
-func (a *Server) RevokeAccounts(client, host *TurnAccount) {
-	a.Disallow(client.Username)
-	a.Disallow(host.Username)
+func (a *Server) RevokeAccounts(ids ...xid.ID) {
+	for _, id := range ids {
+		a.Disallow(id.String())
+	}
 }
 
 func (a *Server) Port() int {

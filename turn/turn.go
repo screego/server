@@ -15,6 +15,6 @@ type TurnAccount struct {
 
 type TurnServer interface {
 	AcceptAccounts(client, host *TurnAccount) error
-	RevokeAccounts(client, host *TurnAccount)
+	RevokeAccounts(...xid.ID)
 	Port() int
 }

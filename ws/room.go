@@ -57,7 +57,10 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 			IP: r.Users[client].Addr,
 		}
 		// FIXME handles error
-		rooms.turnServer.AcceptAccounts(clientAccount, hostAccount)
+		err := rooms.turnServer.AcceptAccounts(clientAccount, hostAccount)
+		if err != nil {
+			panic(err)
+		}
 		iceHost = []outgoing.ICEServer{{
 			URLs:       rooms.addresses("turn", true),
 			Credential: hostAccount.Credential,
@@ -93,12 +96,7 @@ func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
 func (r *Room) closeSession(rooms *Rooms, id xid.ID) {
 	if r.Mode == ConnectionTURN {
 		session := r.Sessions[id]
-		rooms.turnServer.RevokeAccounts(
-			&turn.TurnAccount{
-				Username: session.Host.String()},
-			&turn.TurnAccount{
-				Username: session.Client.String(),
-			})
+		rooms.turnServer.RevokeAccounts(session.Host, session.Client)
 	}
 	delete(r.Sessions, id)
 	sessionClosedTotal.Inc()

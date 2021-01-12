@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rs/xid"
 	"github.com/screego/server/config"
 )
 
@@ -36,7 +37,7 @@ func buildPassword(account *TurnAccount, ttl time.Duration, secret []byte) error
 	return nil
 }
 
-func (t *TurnREST) RevokeAccounts(client, host *TurnAccount) {
+func (t *TurnREST) RevokeAccounts(...xid.ID) {
 	// do nothing, wait for peremption
 }
 
