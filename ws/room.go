@@ -77,6 +77,8 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}
 }
 
+// Rooms STUN/TURN addresses
+// prefix is `stun` or `turn`
 func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
 	if r.config.ExternalIPV4 != nil {
 		result = append(result, fmt.Sprintf("%s:%s:%d", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port()))
