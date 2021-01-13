@@ -3,6 +3,7 @@ package turn
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -36,7 +37,7 @@ func buildPassword(account *TurnAccount, ttl time.Duration, secret []byte) error
 	if err != nil {
 		return err
 	}
-	account.Credential = string(mac.Sum(nil))
+	account.Credential = base64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return nil
 }
 
