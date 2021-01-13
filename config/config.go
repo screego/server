@@ -44,10 +44,12 @@ type Config struct {
 	ServerAddress string `default:":5050" split_words:"true"`
 	Secret        []byte `split_words:"true"`
 
-	TurnAddress    string `default:":3478" required:"true" split_words:"true"`
-	TurnStrictAuth bool   `default:"true" split_words:"true"`
-	TurnPortRange  string `split_words:"true"`
-	TurnExternal   bool   `default:"false" split_words:"true"`
+	TurnAddress            string `default:":3478" required:"true" split_words:"true"`
+	TurnStrictAuth         bool   `default:"true" split_words:"true"`
+	TurnPortRange          string `split_words:"true"`
+	TurnExternal           bool   `default:"false" split_words:"true"`
+	TurnCoturnSignedTtl    string `default:"12h" split_words:"true"`
+	TurnCoturnSignedSecret string `split_words:"true"`
 
 	TrustProxyHeaders  bool     `split_words:"true"`
 	AuthMode           string   `default:"turn" split_words:"true"`

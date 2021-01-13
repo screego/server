@@ -6,6 +6,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rs/xid"
@@ -50,10 +52,24 @@ func (t *TurnREST) Port() int {
 }
 
 func newTurnREST(conf config.Config) (TurnServer, error) {
-	//FIXME
+	ttl, err := time.ParseDuration(conf.TurnCoturnSignedTtl)
+	if err != nil {
+		return nil, err
+	}
+	if conf.TurnCoturnSignedSecret == "" {
+		return nil, errors.New("TurnCoturnSignedSecret can't be empty")
+	}
+	slugs := strings.Split(conf.TurnAddress, ":")
+	if len(slugs) == 0 {
+		return nil, fmt.Errorf("Can't read CoturnAddress : %s", conf.TurnAddress)
+	}
+	port, err := strconv.Atoi(slugs[len(slugs)-1])
+	if err != nil {
+		return nil, fmt.Errorf("Can't parse TurnAddress port : %s %s", slugs[len(slugs)-1], err)
+	}
 	return &TurnREST{
-		ttl:    12 * time.Hour,
-		secret: []byte("s3cr37"),
-		port:   3478,
+		ttl:    ttl,
+		secret: []byte(conf.TurnCoturnSignedSecret),
+		port:   port,
 	}, nil
 }
