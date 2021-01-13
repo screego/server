@@ -48,7 +48,6 @@ type Config struct {
 	TurnStrictAuth         bool   `default:"true" split_words:"true"`
 	TurnPortRange          string `split_words:"true"`
 	TurnExternal           bool   `default:"false" split_words:"true"`
-	TurnCoturnSignedTtl    string `default:"12h" split_words:"true"`
 	TurnCoturnSignedSecret string `split_words:"true"`
 
 	TrustProxyHeaders  bool     `split_words:"true"`
