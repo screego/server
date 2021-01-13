@@ -3,6 +3,7 @@ package turn
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/base64"
 	"strconv"
 	"strings"
 	"testing"
@@ -28,5 +29,5 @@ func TestPassword(t *testing.T) {
 	mac := hmac.New(sha1.New, secret)
 	_, err = mac.Write([]byte(account.Username))
 	assert.NoError(t, err)
-	assert.Equal(t, string(mac.Sum(nil)), account.Credential)
+	assert.Equal(t, base64.StdEncoding.EncodeToString(mac.Sum(nil)), account.Credential)
 }
