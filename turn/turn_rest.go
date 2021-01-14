@@ -52,7 +52,7 @@ func (t *TurnREST) Port() int {
 }
 
 func newTurnREST(conf config.Config) (TurnServer, error) {
-	if conf.TurnCoturnSignedSecret == "" {
+	if conf.TurnExternalSignedSecret == "" {
 		return nil, errors.New("TurnCoturnSignedSecret can't be empty")
 	}
 	slugs := strings.Split(conf.TurnAddress, ":")
@@ -65,7 +65,7 @@ func newTurnREST(conf config.Config) (TurnServer, error) {
 	}
 	return &TurnREST{
 		ttl:    24 * time.Hour, // For now, it's hardcoded
-		secret: []byte(conf.TurnCoturnSignedSecret),
+		secret: []byte(conf.TurnExternalSignedSecret),
 		port:   port,
 	}, nil
 }
