@@ -20,15 +20,17 @@ type TurnREST struct {
 	port   int
 }
 
-func (t *TurnREST) AcceptAccounts(client, host *TurnAccount) error {
-	err := buildPassword(client, t.ttl, t.secret)
-	if err != nil {
-		return err
+func (t *TurnREST) AcceptAccounts(accounts ...*Account) error {
+	for _, account := range accounts {
+		err := buildPassword(account, t.ttl, t.secret)
+		if err != nil {
+			return err
+		}
 	}
-	return buildPassword(host, t.ttl, t.secret)
+	return nil
 }
 
-func buildPassword(account *TurnAccount, ttl time.Duration, secret []byte) error {
+func buildPassword(account *Account, ttl time.Duration, secret []byte) error {
 	//https://stackoverflow.com/questions/35766382/coturn-how-to-use-turn-rest-api#54725092
 	if ttl <= 0 {
 		return errors.New("Use a TTL > 0")

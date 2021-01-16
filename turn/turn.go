@@ -6,7 +6,7 @@ import (
 	"github.com/rs/xid"
 )
 
-type TurnAccount struct {
+type Account struct {
 	Id         xid.ID
 	Username   string
 	Credential string
@@ -14,7 +14,7 @@ type TurnAccount struct {
 }
 
 type TurnServer interface {
-	AcceptAccounts(client, host *TurnAccount) error
+	AcceptAccounts(...*Account) error
 	RevokeAccounts(...xid.ID)
 	Port() int
 }

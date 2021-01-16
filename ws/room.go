@@ -48,11 +48,11 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		iceHost = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 		iceClient = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 	case ConnectionTURN:
-		clientAccount := &turn.TurnAccount{
+		clientAccount := &turn.Account{
 			Id: client,
 			IP: r.Users[host].Addr,
 		}
-		hostAccount := &turn.TurnAccount{
+		hostAccount := &turn.Account{
 			Id: host,
 			IP: r.Users[client].Addr,
 		}

@@ -15,7 +15,7 @@ import (
 
 func TestPassword(t *testing.T) {
 	secret := []byte("s3cr37")
-	account := &TurnAccount{
+	account := &Account{
 		Id: xid.New(),
 	}
 	err := buildPassword(account, 15*time.Minute, secret)

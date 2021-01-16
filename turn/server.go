@@ -110,19 +110,18 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 	return &RelayAddressGeneratorNone{}
 }
 
-func (a *Server) AcceptAccounts(client, host *TurnAccount) error {
-	client.Username = client.Id.String()
-	client.Credential = util.RandString(20)
-	a.Allow(client.Username, client.Credential, client.IP)
-	host.Username = client.Id.String()
-	host.Credential = util.RandString(20)
-	a.Allow(host.Username, host.Credential, host.IP)
+func (a *Server) AcceptAccounts(accounts ...*Account) error {
+	for _, account := range accounts {
+		account.Username = account.Id.String()
+		account.Credential = util.RandString(20)
+		a.allow(account.Username, account.Credential, account.IP)
+	}
 	return nil
 }
 
 func (a *Server) RevokeAccounts(ids ...xid.ID) {
 	for _, id := range ids {
-		a.Disallow(id.String())
+		a.disallow(id.String())
 	}
 }
 
@@ -130,7 +129,7 @@ func (a *Server) Port() int {
 	return a.port
 }
 
-func (a *Server) Allow(username, password string, addr net.IP) {
+func (a *Server) allow(username, password string, addr net.IP) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	a.lookup[username] = Entry{
@@ -139,7 +138,7 @@ func (a *Server) Allow(username, password string, addr net.IP) {
 	}
 }
 
-func (a *Server) Disallow(username string) {
+func (a *Server) disallow(username string) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
