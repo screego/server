@@ -322,7 +322,7 @@ export const useRoom = (): UseRoom => {
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
 
         conn.current?.send(JSON.stringify({type: 'share', payload: {}}));
-    }
+    };
 
     const stopShare = async () => {
         Object.values(host.current).forEach((peer) => {
