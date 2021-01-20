@@ -20,6 +20,7 @@ import {
 } from '@material-ui/core';
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import PresentToAllIcon from '@material-ui/icons/PresentToAll';
+import VideocamIcon from '@material-ui/icons/Videocam';
 import FullScreenIcon from '@material-ui/icons/Fullscreen';
 import PeopleIcon from '@material-ui/icons/People';
 import ShowMoreIcon from '@material-ui/icons/MoreVert';
@@ -51,11 +52,13 @@ const flags = (user: RoomUser) => {
 export const Room = ({
     state,
     share,
+    shareVideoDevice,
     stopShare,
     setName,
 }: {
     state: ConnectedRoom;
     share: () => void;
+    shareVideoDevice: () => void;
     stopShare: () => void;
     setName: (name: string) => void;
 }) => {
@@ -170,6 +173,14 @@ export const Room = ({
                             </IconButton>
                         </Tooltip>
                     )}
+
+                    {!state.hostStream ? (
+                        <Tooltip title="Start Video" arrow>
+                            <IconButton onClick={shareVideoDevice}>
+                                <VideocamIcon fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
 
                     <Tooltip
                         classes={{tooltip: classes.noMaxWidth}}

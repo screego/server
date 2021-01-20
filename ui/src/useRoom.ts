@@ -29,6 +29,7 @@ export interface UseRoom {
     state: RoomState;
     room: FCreateRoom;
     share: () => void;
+    shareVideoDevice: () => void;
     setName: (name: string) => void;
     stopShare: () => void;
 }
@@ -304,6 +305,25 @@ export const useRoom = (): UseRoom => {
         conn.current?.send(JSON.stringify({type: 'share', payload: {}}));
     };
 
+    const shareVideoDevice = async () => {
+        if (!navigator.mediaDevices) {
+            enqueueSnackbar(
+                'Could not start presentation. (mediaDevices undefined) Are you using https?',
+                {
+                    variant: 'error',
+                    persist: true,
+                }
+            );
+            return;
+        }
+        stream.current = await navigator.mediaDevices
+            // @ts-ignore
+            .getUserMedia({video: true});
+        setState((current) => (current ? {...current, hostStream: stream.current} : current));
+
+        conn.current?.send(JSON.stringify({type: 'share', payload: {}}));
+    }
+
     const stopShare = async () => {
         Object.values(host.current).forEach((peer) => {
             peer.close();
@@ -326,5 +346,5 @@ export const useRoom = (): UseRoom => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return {state, room, share, stopShare, setName};
+    return {state, room, share, shareVideoDevice, stopShare, setName};
 };
