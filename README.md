@@ -23,6 +23,7 @@
     </a>
 </p>
 
+<p align="center">Huge thanks to <a href="https://www.sipgate.de/"><b>sipgate</b><a> for sponsoring this project!</p>
 
 ## Intro
 
