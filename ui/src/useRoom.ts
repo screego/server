@@ -299,6 +299,7 @@ export const useRoom = (): UseRoom => {
         stream.current = await navigator.mediaDevices
             // @ts-ignore
             .getDisplayMedia({video: true});
+        stream.current?.getVideoTracks()[0].addEventListener('ended', () => stopShare());
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
 
         conn.current?.send(JSON.stringify({type: 'share', payload: {}}));
