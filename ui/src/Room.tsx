@@ -23,9 +23,10 @@ import PresentToAllIcon from '@material-ui/icons/PresentToAll';
 import FullScreenIcon from '@material-ui/icons/Fullscreen';
 import PeopleIcon from '@material-ui/icons/People';
 import ShowMoreIcon from '@material-ui/icons/MoreVert';
+import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
 import {makeStyles} from '@material-ui/core/styles';
-import {ConnectedRoom} from './useRoom';
+import {ClientStream, ConnectedRoom} from './useRoom';
 import {useSnackbar} from 'notistack';
 import {RoomUser} from './message';
 
@@ -69,9 +70,15 @@ export const Room = ({
     const [showMore, setShowMore] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
+    const [hostStream, setHostStream] = React.useState();
+    const [clientStreams, setClientStreams] = React.useState<ClientStream[]>();
+
     useShowOnMouseMovement(setShowControl);
 
     React.useEffect(() => {
+        setHostStream(state.hostStream);
+        setClientStreams(state.clientStreams);
+
         if (selectedStream === HostStream && state.hostStream) {
             return;
         }
@@ -121,6 +128,42 @@ export const Room = ({
     );
 
     const controlVisible = showControl || open || showMore || hoverControl;
+
+    useHotkeys('s', () => (hostStream ? stopShare() : share()), [hostStream]);
+    useHotkeys(
+        'f',
+        () => {
+            if (selectedStream) {
+                videoElement?.requestFullscreen();
+            }
+        },
+        [videoElement, selectedStream]
+    );
+    useHotkeys('c', copyLink);
+    useHotkeys(
+        'h',
+        () => {
+            if (clientStreams !== undefined && clientStreams.length > 0) {
+                const currentStreamIndex = clientStreams.findIndex(({id}) => id === selectedStream);
+                const nextIndex =
+                    currentStreamIndex === clientStreams.length - 1 ? 0 : currentStreamIndex + 1;
+                setSelectedStream(clientStreams[nextIndex].id);
+            }
+        },
+        [clientStreams, selectedStream]
+    );
+    useHotkeys(
+        'l',
+        () => {
+            if (clientStreams !== undefined && clientStreams.length > 0) {
+                const currentStreamIndex = clientStreams.findIndex(({id}) => id === selectedStream);
+                const previousIndex =
+                    currentStreamIndex === 0 ? clientStreams.length - 1 : currentStreamIndex - 1;
+                setSelectedStream(clientStreams[previousIndex].id);
+            }
+        },
+        [clientStreams, selectedStream]
+    );
 
     return (
         <div className={classes.videoContainer}>

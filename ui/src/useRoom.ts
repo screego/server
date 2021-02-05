@@ -19,7 +19,7 @@ export type ConnectedRoom = {
     clientStreams: ClientStream[];
 } & RoomInfo;
 
-interface ClientStream {
+export interface ClientStream {
     id: string;
     peer_id: string;
     stream: MediaStream;
