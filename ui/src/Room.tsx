@@ -23,6 +23,7 @@ import PresentToAllIcon from '@material-ui/icons/PresentToAll';
 import FullScreenIcon from '@material-ui/icons/Fullscreen';
 import PeopleIcon from '@material-ui/icons/People';
 import ShowMoreIcon from '@material-ui/icons/MoreVert';
+import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
 import {makeStyles} from '@material-ui/core/styles';
 import {ConnectedRoom} from './useRoom';
@@ -69,6 +70,7 @@ export const Room = ({
     const [showMore, setShowMore] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
+
     useShowOnMouseMovement(setShowControl);
 
     React.useEffect(() => {
@@ -121,6 +123,50 @@ export const Room = ({
     );
 
     const controlVisible = showControl || open || showMore || hoverControl;
+
+    useHotkeys('s', () => (state.hostStream ? stopShare() : share()), [state.hostStream]);
+    useHotkeys(
+        'f',
+        () => {
+            if (selectedStream) {
+                videoElement?.requestFullscreen();
+            }
+        },
+        [videoElement, selectedStream]
+    );
+    useHotkeys('c', copyLink);
+    useHotkeys(
+        'h',
+        () => {
+            if (state.clientStreams !== undefined && state.clientStreams.length > 0) {
+                const currentStreamIndex = state.clientStreams.findIndex(
+                    ({id}) => id === selectedStream
+                );
+                const nextIndex =
+                    currentStreamIndex === state.clientStreams.length - 1
+                        ? 0
+                        : currentStreamIndex + 1;
+                setSelectedStream(state.clientStreams[nextIndex].id);
+            }
+        },
+        [state.clientStreams, selectedStream]
+    );
+    useHotkeys(
+        'l',
+        () => {
+            if (state.clientStreams !== undefined && state.clientStreams.length > 0) {
+                const currentStreamIndex = state.clientStreams.findIndex(
+                    ({id}) => id === selectedStream
+                );
+                const previousIndex =
+                    currentStreamIndex === 0
+                        ? state.clientStreams.length - 1
+                        : currentStreamIndex - 1;
+                setSelectedStream(state.clientStreams[previousIndex].id);
+            }
+        },
+        [state.clientStreams, selectedStream]
+    );
 
     return (
         <div className={classes.videoContainer}>
