@@ -28,7 +28,7 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 
 	if _, ok := rooms.Rooms[e.ID]; ok {
-		return fmt.Errorf("room with id %s does already existn", e.ID)
+		return fmt.Errorf("room with id %s does already exist", e.ID)
 	}
 
 	name := e.UserName
