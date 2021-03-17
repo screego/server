@@ -11,7 +11,7 @@ import (
 type RelayAddressGeneratorPortRange struct {
 	MinPort uint16
 	MaxPort uint16
-	Rand randutil.MathRandomGenerator
+	Rand    randutil.MathRandomGenerator
 }
 
 func (r *RelayAddressGeneratorPortRange) Validate() error {
@@ -43,7 +43,7 @@ func (r *RelayAddressGeneratorPortRange) AllocatePacketConn(network string, requ
 		return conn, relayAddr, nil
 	}
 
-	return nil, nil, errors.New("max retries exceeded")
+	return nil, nil, errors.New("could not find free port: max retries exceeded")
 }
 
 func (r *RelayAddressGeneratorPortRange) AllocateConn(network string, requestedPort int) (net.Conn, net.Addr, error) {

@@ -33,6 +33,9 @@ type Generator struct {
 
 func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
 	conn, addr, err := r.RelayAddressGenerator.AllocatePacketConn(network, requestedPort)
+	if err != nil {
+		return conn, addr, err
+	}
 	relayAddr := *addr.(*net.UDPAddr)
 	if r.ipv6 == nil || (relayAddr.IP.To4() != nil && r.ipv4 != nil) {
 		relayAddr.IP = r.ipv4
