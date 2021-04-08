@@ -21,6 +21,8 @@ import {
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import PresentToAllIcon from '@material-ui/icons/PresentToAll';
 import FullScreenIcon from '@material-ui/icons/Fullscreen';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import VolumeMuteIcon from '@material-ui/icons/VolumeMute';
 import PeopleIcon from '@material-ui/icons/People';
 import ShowMoreIcon from '@material-ui/icons/MoreVert';
 import {useHotkeys} from 'react-hotkeys-hook';
@@ -233,6 +235,22 @@ export const Room = ({
                         <Badge badgeContent={state.users.length} color="primary">
                             <PeopleIcon fontSize="large" />
                         </Badge>
+                    </Tooltip>
+                    <Tooltip title="Sound" arrow>
+                        <IconButton
+                            onClick={() => {
+                                const video = videoElement as HTMLMediaElement;
+                                if (video) {
+                                    video.muted = !video.muted;
+                                }
+                            }}
+                            disabled={!selectedStream || !!state.hostStream}>
+                            {videoElement?.muted ? (
+                                <VolumeMuteIcon fontSize="large" />
+                            ) : (
+                                <VolumeUpIcon fontSize="large" />
+                            )}
+                        </IconButton>
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
                         <IconButton
