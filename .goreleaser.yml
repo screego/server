@@ -53,7 +53,7 @@ dockers:
       - screego
     image_templates:
       - "screego/server:amd64-unstable"
-      - "screego/server:amd64-{{ .RawVersion }}"
+      - "screego/server:amd64-{{ .RawVersion }}-audio"
       - "screego/server:amd64-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
@@ -68,7 +68,7 @@ dockers:
     goarm: ''
     image_templates:
       - "screego/server:386-unstable"
-      - "screego/server:386-{{ .RawVersion }}"
+      - "screego/server:386-{{ .RawVersion }}-audio"
       - "screego/server:386-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
@@ -83,7 +83,7 @@ dockers:
       - screego
     image_templates:
       - "screego/server:arm64-unstable"
-      - "screego/server:arm64-{{ .RawVersion }}"
+      - "screego/server:arm64-{{ .RawVersion }}-audio"
       - "screego/server:arm64-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
@@ -98,7 +98,7 @@ dockers:
       - screego
     image_templates:
       - "screego/server:armv7-unstable"
-      - "screego/server:armv7-{{ .RawVersion }}"
+      - "screego/server:armv7-{{ .RawVersion }}-audio"
       - "screego/server:armv7-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
@@ -113,7 +113,7 @@ dockers:
       - screego
     image_templates:
       - "screego/server:armv6-unstable"
-      - "screego/server:armv6-{{ .RawVersion }}"
+      - "screego/server:armv6-{{ .RawVersion }}-audio"
       - "screego/server:armv6-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
@@ -128,7 +128,7 @@ dockers:
       - screego
     image_templates:
       - "screego/server:ppc64le-unstable"
-      - "screego/server:ppc64le-{{ .RawVersion }}"
+      - "screego/server:ppc64le-{{ .RawVersion }}-audio"
       - "screego/server:ppc64le-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
