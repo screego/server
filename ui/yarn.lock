@@ -6172,10 +6172,10 @@ hosted-git-info@^2.1.4:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
   integrity sha512-f/wzC2QaWBs7t9IYqB4T3sR1xviIViXJRJTWBlx2Gf3g0Xi5vI7Yy4koXQ1c9OYDGHN9sBy1DQ2AB8fqZBWhUg==
 
-hotkeys-js@3.8.1:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.1.tgz#fa7051f73bf1dc92a8b8d580a40b247f91966376"
-  integrity sha512-YlhVQtyG9f1b7GhtzdhR0Pl+cImD1ZrKI6zYUa7QLd0zuThiL7RzZ+ANJyy7z+kmcCpNYBf5PjBa3CjiQ5PFpw==
+hotkeys-js@3.8.3:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.3.tgz#0331c2cde770e62d51d5d023133f7c4395f59008"
+  integrity sha512-rUmoryG4lEAtkjF5tcYaihrVoE86Fdw1BLqO/UiBWOOF56h32a6ax8oV4urBlinVtNNtArLlBq8igGfZf2tQnw==
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -8427,10 +8427,10 @@ normalize-url@^3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-3.3.0.tgz#b2e1c4dc4f7c6d57743df733a4f5978d18650559"
   integrity sha512-U+JJi7duF1o+u2pynbp2zXDW2/PADgC30f0GsHZtRh+HOcXHnw137TrNlyxxRvWW5fjKd3bcLHPxofWuCjaeZg==
 
-notistack@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.0.tgz#849ac58fad484852833284ee40bda5e04fbfe649"
-  integrity sha512-kIGwVy8qs2hpcDegLhjTQMlGkJvr7OVUg6mnOcjqwKOCZhCnkMt5h53kP9bPRKQQ3UckCzhkvuEPbyMbyYyRNQ==
+notistack@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.5.tgz#239d5888105c89a9a7f26d75a07d279446dc1624"
+  integrity sha512-xCMG0OhzEdczmDs2lDABEiphKQMZUavdOIRAJhfIcyJkCA4UqBDANL3YCLt+mz8VbAPCeKTn76kbCmYQIqksnA==
   dependencies:
     clsx "^1.1.0"
     hoist-non-react-statics "^3.3.0"
@@ -10056,12 +10056,12 @@ react-error-overlay@^6.0.9:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.9.tgz#3c743010c9359608c375ecd6bc76f35d93995b0a"
   integrity sha512-nQTTcUu+ATDbrSD1BZHr5kgSD4oF8OFjxun8uAaL8RwPBacGBNPf/yAuVVdx17N8XNzRDMrZ9XcKZHCjPW+9ew==
 
-react-hotkeys-hook@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-3.0.3.tgz#5967486a4f569eb7045d2384ed0c35687ac7bdfa"
-  integrity sha512-kbnb820AUITXxK3qRHq612ivoNvMidIEaVAG7rUDuJMBTlJdSniJjjFl0jddL4iSKJK1d0Vqgn80uPW+spq6yQ==
+react-hotkeys-hook@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-3.3.0.tgz#356428769fa990c333d4ee4998b866bbd45e54b8"
+  integrity sha512-DbxcZpswAcJKc0Fw5oTWeRImGLVerDlMU8ndIAH5Waed8wvpafk/F2i43BZo2O3Ftn/RzQsD4EFU8e8FSjVFTg==
   dependencies:
-    hotkeys-js "3.8.1"
+    hotkeys-js "3.8.3"
 
 react-is@^16.12.0, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4:
   version "16.13.1"
@@ -11969,10 +11969,10 @@ unique-filename@^1.1.1:
   dependencies:
     unique-slug "^2.0.0"
 
-unique-names-generator@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/unique-names-generator/-/unique-names-generator-4.3.0.tgz#34d680c9f25dbf2552437d6ef6cf145ac99916c1"
-  integrity sha512-uNX6jVFjBXfZtsc7B8jVPJ3QdfCF/Sjde4gxsy3rNQmHuWGFarnU7IFGdxZKJ4h4uRjANQc6rG7GiGolRW9fgA==
+unique-names-generator@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/unique-names-generator/-/unique-names-generator-4.4.0.tgz#8adc33aaff899beaa36247965090bb154370df3f"
+  integrity sha512-0noP+m59TGwolNqnmXfiqMA5KiTudIk6D0VgzNkk2C1Jv3Lr+sY3T07nEWBg8Uq92/FjGca1klsRR6CXFriqFw==
 
 unique-slug@^2.0.0:
   version "2.0.2"
@@ -12066,24 +12066,24 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-urs@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/urs/-/urs-0.0.7.tgz#2dbf320a68a54bbd67ab9c5ac103b0f2227ca6be"
-  integrity sha512-NDwuby5BP7D60RjHlow8Gch4yfglLdCpZagGeVDZNcL+jsA2v6RcBhPTJraqq1oQ1U3LT1bQfgmwgNUUIFht+g==
+urs@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/urs/-/urs-0.0.8.tgz#8a0e0b792073cdb7eec926d08ab1e017ffab3f66"
+  integrity sha512-LaSSPpr91XrVA3vW2zPupw4K6DSQEDKdL4yQZX1mO2fpljIMpB5zctrjRvxLurelWSgKsHsCmfHNCImscryirQ==
 
-use-http@^1.0.13:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/use-http/-/use-http-1.0.13.tgz#bc8abb06b7debab6a11c14bf81a1762fed783ee0"
-  integrity sha512-H1pR9DeqDBSbbmssQWc5bXP1wCvKbg0T6B2lIJjZxKc54jcerKTUwLAnT48sxrSEkQiUgdCb1aRqfOCWIkRJ0A==
+use-http@^1.0.19:
+  version "1.0.19"
+  resolved "https://registry.yarnpkg.com/use-http/-/use-http-1.0.19.tgz#94fdef1c1f462559ce7caedd46660bc978fd06c3"
+  integrity sha512-5UnR9YVudd1m4rIdfc2eem5ilzl4pvUTSvBsqXXsFZR/xgBqJkO5MJBCB7WG7cqlch/PNUGylDeH105xrJpGPg==
   dependencies:
-    urs "^0.0.7"
-    use-ssr "^1.0.22"
+    urs "^0.0.8"
+    use-ssr "^1.0.24"
     utility-types "^3.10.0"
 
-use-ssr@^1.0.22:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/use-ssr/-/use-ssr-1.0.23.tgz#3bde1e10cd01b3b61ab6386d7cddb72e74828bf8"
-  integrity sha512-5bvlssgROgPgIrnILJe2mJch4e2Id0/bVm1SQzqvPvEAXmlsinCCVHWK3a2iHcPat7PkdJHBo0gmSmODIz6tNA==
+use-ssr@^1.0.24:
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/use-ssr/-/use-ssr-1.0.24.tgz#213a3df58f5ab9268e6fe1a57ad0a9de91e514d1"
+  integrity sha512-0MFps7ezL57/3o0yl4CvrHLlp9z20n1rQZV/lSRz7if+TUoM6POU1XdOvEjIgjgKeIhTEye1U0khrIYWCTWw4g==
 
 use@^3.1.0:
   version "3.1.1"
