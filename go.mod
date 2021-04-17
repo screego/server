@@ -1,6 +1,6 @@
 module github.com/screego/server
 
-go 1.14
+go 1.16
 
 require (
 	github.com/gobuffalo/packr/v2 v2.2.0
