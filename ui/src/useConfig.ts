@@ -19,8 +19,8 @@ export const useConfig = (): UseConfig => {
         version: 'unknown',
     });
 
-    const refetch = React.useCallback(() => {
-        fetch(`config`)
+    const refetch = React.useCallback(async () => {
+        return fetch(`config`)
             .then((data) => data.json())
             .then(setConfig);
     }, [setConfig]);
@@ -49,7 +49,8 @@ export const useConfig = (): UseConfig => {
         }
     };
 
-    React.useEffect(refetch, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    React.useEffect(() => void refetch(), []);
 
     return {...config, refetch, loading, login, logout};
 };
