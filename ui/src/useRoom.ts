@@ -119,7 +119,7 @@ const clientSession = async ({
     return peer;
 };
 
-export type FCreateRoom = (room: RoomCreate | JoinRoom) => Promise<string | true>;
+export type FCreateRoom = (room: RoomCreate | JoinRoom) => Promise<void>;
 
 export const useRoom = (): UseRoom => {
     const [roomID, setRoomID] = useRoomID();
@@ -133,7 +133,7 @@ export const useRoom = (): UseRoom => {
 
     const room: FCreateRoom = React.useCallback(
         (create) => {
-            return new Promise<true | string>((resolve) => {
+            return new Promise<void>((resolve) => {
                 const ws = (conn.current = new WebSocket(
                     urlWithSlash.replace('http', 'ws') + 'stream'
                 ));

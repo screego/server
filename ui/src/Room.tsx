@@ -66,7 +66,7 @@ export const Room = ({
     const [nameInput, setNameInput] = React.useState('');
     const [permanent, setPermanent] = React.useState(false);
     const [showControl, setShowControl] = React.useState(true);
-    const [hoverControl, setHoverControl] = React.useState();
+    const [hoverControl, setHoverControl] = React.useState(false);
     const [showMore, setShowMore] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
@@ -251,7 +251,7 @@ export const Room = ({
                         anchorEl={showMore}
                         keepMounted
                         open={Boolean(showMore)}
-                        onClose={(e) => setShowMore(undefined)}>
+                        onClose={() => setShowMore(undefined)}>
                         <MenuItem
                             onClick={() => {
                                 setShowMore(undefined);
