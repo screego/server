@@ -67,6 +67,10 @@ SCREEGO_CORS_ALLOWED_ORIGINS=
 #   screego hash --name "user1" --pass "your password"
 SCREEGO_USERS_FILE=
 
+# Defines the default value for the checkbox in the room creation dialog to select
+# if the room should be closed when the room owner leaves
+SCREEGO_CLOSE_ROOM_WHEN_OWNER_LEAVES=true
+
 # The loglevel (one of: debug, info, warn, error)
 SCREEGO_LOG_LEVEL=info
 

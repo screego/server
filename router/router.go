@@ -17,10 +17,11 @@ import (
 )
 
 type UIConfig struct {
-	AuthMode string `json:"authMode"`
-	User     string `json:"user"`
-	LoggedIn bool   `json:"loggedIn"`
-	Version  string `json:"version"`
+	AuthMode                 string `json:"authMode"`
+	User                     string `json:"user"`
+	LoggedIn                 bool   `json:"loggedIn"`
+	Version                  string `json:"version"`
+	CloseRoomWhenOwnerLeaves bool   `json:"closeRoomWhenOwnerLeaves"`
 }
 
 func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version string) *mux.Router {
@@ -37,10 +38,11 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version stri
 	router.Methods("GET").Path("/config").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, loggedIn := users.CurrentUser(r)
 		_ = json.NewEncoder(w).Encode(&UIConfig{
-			AuthMode: conf.AuthMode,
-			LoggedIn: loggedIn,
-			User:     user,
-			Version:  version,
+			AuthMode:                 conf.AuthMode,
+			LoggedIn:                 loggedIn,
+			User:                     user,
+			Version:                  version,
+			CloseRoomWhenOwnerLeaves: conf.CloseRoomWhenOwnerLeaves,
 		})
 	})
 	if conf.Prometheus {

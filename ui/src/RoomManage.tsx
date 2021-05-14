@@ -43,7 +43,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
         () => getRoomFromURL(window.location.search) ?? randomRoomName()
     );
     const [mode, setMode] = React.useState<RoomMode>(defaultMode(config.authMode, config.loggedIn));
-    const [ownerLeave, setOwnerLeave] = React.useState(true);
+    const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
     const submit = () =>
         room({
             type: 'create',
