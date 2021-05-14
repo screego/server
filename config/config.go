@@ -57,6 +57,8 @@ type Config struct {
 	CheckOrigin  func(string) bool `ignored:"true" json:"-"`
 	ExternalIPV4 net.IP            `ignored:"true"`
 	ExternalIPV6 net.IP            `ignored:"true"`
+
+	CloseRoomWhenOwnerLeaves bool `default:"true" split_words:"true"`
 }
 
 func (c Config) parsePortRange() (uint16, uint16, error) {

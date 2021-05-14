@@ -17,6 +17,7 @@ export const useConfig = (): UseConfig => {
         loggedIn: false,
         loading: true,
         version: 'unknown',
+        closeRoomWhenOwnerLeaves: true,
     });
 
     const refetch = React.useCallback(async () => {
