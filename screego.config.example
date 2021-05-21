@@ -1,4 +1,4 @@
-# The external ip of the TURN server.
+# The external ip of the server.
 # When using a dual stack setup define both IPv4 & IPv6 separated by a comma.
 # Execute the following command on the server you want to host Screego
 # to find your external ip.
