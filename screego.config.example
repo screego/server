@@ -1,4 +1,5 @@
-# The external ip of the server.
+# The external ip of the TURN server (which is where screego is hosted,
+# unless you use external TURN server).
 # When using a dual stack setup define both IPv4 & IPv6 separated by a comma.
 # Execute the following command on the server you want to host Screego
 # to find your external ip.
@@ -35,6 +36,13 @@ SCREEGO_TURN_PORT_RANGE=
 # match. Disable this feature, if you use some kind of proxy which changes the
 # remote ip.
 SCREEGO_TURN_STRICT_AUTH=true
+
+# If true, screego will not start TURN server and instead use an external one
+# hosted on the address you specify via SCREEGO_EXTERNAL_IP.
+SCREEGO_TURN_EXTERNAL=false
+
+# Authentication secret for the external TURN server.
+SCREEGO_TURN_EXTERNAL_SECRET=
 
 # If reverse proxy headers should be trusted.
 # Screego uses ip whitelisting for authentication

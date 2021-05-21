@@ -44,9 +44,11 @@ type Config struct {
 	ServerAddress string `default:":5050" split_words:"true"`
 	Secret        []byte `split_words:"true"`
 
-	TurnAddress    string `default:":3478" required:"true" split_words:"true"`
-	TurnStrictAuth bool   `default:"true" split_words:"true"`
-	TurnPortRange  string `split_words:"true"`
+	TurnAddress        string `default:":3478" required:"true" split_words:"true"`
+	TurnStrictAuth     bool   `default:"true" split_words:"true"`
+	TurnPortRange      string `split_words:"true"`
+	TurnExternal       bool   `default:"false" split_words:"true"`
+	TurnExternalSecret string `split_words:"true"`
 
 	TrustProxyHeaders  bool     `split_words:"true"`
 	AuthMode           string   `default:"turn" split_words:"true"`
@@ -135,6 +137,12 @@ func Get() (Config, []FutureLog) {
 
 		if config.TLSKeyFile == "" {
 			logs = append(logs, futureFatal("SCREEGO_TLS_KEY_FILE must be set if TLS is enabled"))
+		}
+	}
+
+	if config.TurnExternal {
+		if config.TurnExternalSecret == "" {
+			logs = append(logs, futureFatal("SCREEGO_TURN_EXTERNAL_SECRET must be set if external TURN server is used"))
 		}
 	}
 
