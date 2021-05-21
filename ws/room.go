@@ -47,10 +47,8 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		iceHost = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 		iceClient = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 	case ConnectionTURN:
-		hostName, hostPW := rooms.turnServer.Credentials(id.String() + "host")
-		rooms.turnServer.Allow(hostName, hostPW, r.Users[host].Addr)
-		clientName, clientPW := rooms.turnServer.Credentials(id.String() + "client")
-		rooms.turnServer.Allow(clientName, clientPW, r.Users[client].Addr)
+		hostName, hostPW := rooms.turnServer.Credentials(id.String()+"host", r.Users[host].Addr)
+		clientName, clientPW := rooms.turnServer.Credentials(id.String()+"client", r.Users[client].Addr)
 		iceHost = []outgoing.ICEServer{{
 			URLs:       rooms.addresses("turn", true),
 			Credential: hostPW,

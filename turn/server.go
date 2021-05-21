@@ -17,8 +17,7 @@ import (
 )
 
 type Server interface {
-	Credentials(id string) (string, string)
-	Allow(username, password string, addr net.IP)
+	Credentials(id string, addr net.IP) (string, string)
 	Disallow(username string)
 	Port() string
 }
@@ -142,10 +141,6 @@ func (a *InternalServer) Allow(username, password string, addr net.IP) {
 	}
 }
 
-func (a *ExternalServer) Allow(username, password string, addr net.IP) {
-	// correctly generated username and password are already allowed
-}
-
 func (a *InternalServer) Disallow(username string) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
@@ -189,11 +184,13 @@ func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]
 	return entry.password, true
 }
 
-func (a *InternalServer) Credentials(id string) (string, string) {
-	return id, util.RandString(20)
+func (a *InternalServer) Credentials(id string, addr net.IP) (string, string) {
+	password := util.RandString(20)
+	a.Allow(id, password, addr)
+	return id, password
 }
 
-func (a *ExternalServer) Credentials(id string) (string, string) {
+func (a *ExternalServer) Credentials(id string, addr net.IP) (string, string) {
 	username := fmt.Sprintf("%d:%s", time.Now().Add(a.ttl).Unix(), id)
 	mac := hmac.New(sha1.New, a.secret)
 	_, _ = mac.Write([]byte(username))
