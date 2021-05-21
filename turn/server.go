@@ -19,10 +19,14 @@ import (
 type Server interface {
 	Credentials(id string, addr net.IP) (string, string)
 	Disallow(username string)
+	IPV4() net.IP
+	IPV6() net.IP
 	Port() string
 }
 
 type InternalServer struct {
+	ipV4       net.IP
+	ipV6       net.IP
 	port       string
 	lock       sync.RWMutex
 	strictAuth bool
@@ -30,9 +34,11 @@ type InternalServer struct {
 }
 
 type ExternalServer struct {
-	ttl    time.Duration
-	secret []byte
+	ipV4   net.IP
+	ipV6   net.IP
 	port   string
+	secret []byte
+	ttl    time.Duration
 }
 
 type Entry struct {
@@ -43,8 +49,8 @@ type Entry struct {
 const Realm = "screego"
 
 type Generator struct {
-	ipv4 net.IP
-	ipv6 net.IP
+	ipV4 net.IP
+	ipV6 net.IP
 	turn.RelayAddressGenerator
 }
 
@@ -54,10 +60,10 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 		return conn, addr, err
 	}
 	relayAddr := *addr.(*net.UDPAddr)
-	if r.ipv6 == nil || (relayAddr.IP.To4() != nil && r.ipv4 != nil) {
-		relayAddr.IP = r.ipv4
+	if r.ipV6 == nil || (relayAddr.IP.To4() != nil && r.ipV4 != nil) {
+		relayAddr.IP = r.ipV4
 	} else {
-		relayAddr.IP = r.ipv6
+		relayAddr.IP = r.ipV6
 	}
 	if err == nil {
 		log.Debug().Str("addr", addr.String()).Str("relayaddr", relayAddr.String()).Msg("TURN allocated")
@@ -66,7 +72,7 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 }
 
 func Start(conf config.Config) (Server, error) {
-	if conf.TurnExternal {
+	if conf.TurnExternalIPV4 != nil || conf.TurnExternalIPV6 != nil {
 		return newExternalServer(conf)
 	} else {
 		return newInternalServer(conf)
@@ -74,9 +80,10 @@ func Start(conf config.Config) (Server, error) {
 }
 
 func newExternalServer(conf config.Config) (Server, error) {
-	slugs := strings.Split(conf.TurnAddress, ":")
 	return &ExternalServer{
-		port:   slugs[len(slugs)-1],
+		ipV4:   conf.TurnExternalIPV4,
+		ipV6:   conf.TurnExternalIPV6,
+		port:   conf.TurnExternalPort,
 		secret: []byte(conf.TurnExternalSecret),
 		ttl:    24 * time.Hour,
 	}, nil
@@ -94,14 +101,16 @@ func newInternalServer(conf config.Config) (Server, error) {
 
 	split := strings.Split(conf.TurnAddress, ":")
 	svr := &InternalServer{
+		ipV4:       conf.ExternalIPV4,
+		ipV6:       conf.ExternalIPV6,
 		port:       split[len(split)-1],
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}
 
 	gen := &Generator{
-		ipv4:                  conf.ExternalIPV4,
-		ipv6:                  conf.ExternalIPV6,
+		ipV4:                  conf.ExternalIPV4,
+		ipV6:                  conf.ExternalIPV6,
 		RelayAddressGenerator: generator(conf),
 	}
 
@@ -196,6 +205,22 @@ func (a *ExternalServer) Credentials(id string, addr net.IP) (string, string) {
 	_, _ = mac.Write([]byte(username))
 	password := base64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return username, password
+}
+
+func (a *InternalServer) IPV4() net.IP {
+	return a.ipV4
+}
+
+func (a *ExternalServer) IPV4() net.IP {
+	return a.ipV4
+}
+
+func (a *InternalServer) IPV6() net.IP {
+	return a.ipV6
+}
+
+func (a *ExternalServer) IPV6() net.IP {
+	return a.ipV6
 }
 
 func (a *InternalServer) Port() string {
