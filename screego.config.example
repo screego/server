@@ -36,9 +36,9 @@ SCREEGO_TURN_PORT_RANGE=
 # remote ip.
 SCREEGO_TURN_STRICT_AUTH=true
 
-# If set, screego will not start TURN server and instead use a external TURN server.
+# If set, screego will not start TURN server and instead use an external TURN server.
 # When using a dual stack setup define both IPv4 & IPv6 separated by a comma.
-# Execute the following command on the server you host TURN server
+# Execute the following command on the server where you host TURN server
 # to find your external ip.
 #   curl 'https://api.ipify.org'
 # Example:

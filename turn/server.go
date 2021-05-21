@@ -25,8 +25,8 @@ type Server interface {
 }
 
 type InternalServer struct {
-	ipV4       net.IP
-	ipV6       net.IP
+	ipv4       net.IP
+	ipv6       net.IP
 	port       string
 	lock       sync.RWMutex
 	strictAuth bool
@@ -34,8 +34,8 @@ type InternalServer struct {
 }
 
 type ExternalServer struct {
-	ipV4   net.IP
-	ipV6   net.IP
+	ipv4   net.IP
+	ipv6   net.IP
 	port   string
 	secret []byte
 	ttl    time.Duration
@@ -49,8 +49,8 @@ type Entry struct {
 const Realm = "screego"
 
 type Generator struct {
-	ipV4 net.IP
-	ipV6 net.IP
+	ipv4 net.IP
+	ipv6 net.IP
 	turn.RelayAddressGenerator
 }
 
@@ -60,10 +60,10 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 		return conn, addr, err
 	}
 	relayAddr := *addr.(*net.UDPAddr)
-	if r.ipV6 == nil || (relayAddr.IP.To4() != nil && r.ipV4 != nil) {
-		relayAddr.IP = r.ipV4
+	if r.ipv6 == nil || (relayAddr.IP.To4() != nil && r.ipv4 != nil) {
+		relayAddr.IP = r.ipv4
 	} else {
-		relayAddr.IP = r.ipV6
+		relayAddr.IP = r.ipv6
 	}
 	if err == nil {
 		log.Debug().Str("addr", addr.String()).Str("relayaddr", relayAddr.String()).Msg("TURN allocated")
@@ -81,8 +81,8 @@ func Start(conf config.Config) (Server, error) {
 
 func newExternalServer(conf config.Config) (Server, error) {
 	return &ExternalServer{
-		ipV4:   conf.TurnExternalIPV4,
-		ipV6:   conf.TurnExternalIPV6,
+		ipv4:   conf.TurnExternalIPV4,
+		ipv6:   conf.TurnExternalIPV6,
 		port:   conf.TurnExternalPort,
 		secret: []byte(conf.TurnExternalSecret),
 		ttl:    24 * time.Hour,
@@ -101,16 +101,16 @@ func newInternalServer(conf config.Config) (Server, error) {
 
 	split := strings.Split(conf.TurnAddress, ":")
 	svr := &InternalServer{
-		ipV4:       conf.ExternalIPV4,
-		ipV6:       conf.ExternalIPV6,
+		ipv4:       conf.ExternalIPV4,
+		ipv6:       conf.ExternalIPV6,
 		port:       split[len(split)-1],
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}
 
 	gen := &Generator{
-		ipV4:                  conf.ExternalIPV4,
-		ipV6:                  conf.ExternalIPV6,
+		ipv4:                  conf.ExternalIPV4,
+		ipv6:                  conf.ExternalIPV6,
 		RelayAddressGenerator: generator(conf),
 	}
 
@@ -208,19 +208,19 @@ func (a *ExternalServer) Credentials(id string, addr net.IP) (string, string) {
 }
 
 func (a *InternalServer) IPV4() net.IP {
-	return a.ipV4
+	return a.ipv4
 }
 
 func (a *ExternalServer) IPV4() net.IP {
-	return a.ipV4
+	return a.ipv4
 }
 
 func (a *InternalServer) IPV6() net.IP {
-	return a.ipV6
+	return a.ipv6
 }
 
 func (a *ExternalServer) IPV6() net.IP {
-	return a.ipV6
+	return a.ipv6
 }
 
 func (a *InternalServer) Port() string {
