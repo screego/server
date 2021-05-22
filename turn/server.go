@@ -124,7 +124,7 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 	return &RelayAddressGeneratorNone{}
 }
 
-func (a *InternalServer) Allow(username, password string, addr net.IP) {
+func (a *InternalServer) allow(username, password string, addr net.IP) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	a.lookup[username] = Entry{
@@ -178,7 +178,7 @@ func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]
 
 func (a *InternalServer) Credentials(id string, addr net.IP) (string, string) {
 	password := util.RandString(20)
-	a.Allow(id, password, addr)
+	a.allow(id, password, addr)
 	return id, password
 }
 
