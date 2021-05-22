@@ -66,16 +66,16 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 }
 
 func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
-	if r.turnServer.IPV4() != nil {
-		result = append(result, fmt.Sprintf("%s:%s:%s", prefix, r.turnServer.IPV4().String(), r.turnServer.Port()))
+	if r.config.TurnIPV4 != nil {
+		result = append(result, fmt.Sprintf("%s:%s:%s", prefix, r.config.TurnIPV4.String(), r.config.TurnPort))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:%s:%s?transport=tcp", prefix, r.turnServer.IPV4().String(), r.turnServer.Port()))
+			result = append(result, fmt.Sprintf("%s:%s:%s?transport=tcp", prefix, r.config.TurnIPV4.String(), r.config.TurnPort))
 		}
 	}
-	if r.turnServer.IPV6() != nil {
-		result = append(result, fmt.Sprintf("%s:[%s]:%s", prefix, r.turnServer.IPV6().String(), r.turnServer.Port()))
+	if r.config.TurnIPV6 != nil {
+		result = append(result, fmt.Sprintf("%s:[%s]:%s", prefix, r.config.TurnIPV6.String(), r.config.TurnPort))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:[%s]:%s?transport=tcp", prefix, r.turnServer.IPV6().String(), r.turnServer.Port()))
+			result = append(result, fmt.Sprintf("%s:[%s]:%s?transport=tcp", prefix, r.config.TurnIPV6.String(), r.config.TurnPort))
 		}
 	}
 	return

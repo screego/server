@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -19,24 +18,15 @@ import (
 type Server interface {
 	Credentials(id string, addr net.IP) (string, string)
 	Disallow(username string)
-	IPV4() net.IP
-	IPV6() net.IP
-	Port() string
 }
 
 type InternalServer struct {
-	ipv4       net.IP
-	ipv6       net.IP
-	port       string
 	lock       sync.RWMutex
 	strictAuth bool
 	lookup     map[string]Entry
 }
 
 type ExternalServer struct {
-	ipv4   net.IP
-	ipv6   net.IP
-	port   string
 	secret []byte
 	ttl    time.Duration
 }
@@ -72,7 +62,7 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 }
 
 func Start(conf config.Config) (Server, error) {
-	if conf.TurnExternalIPV4 != nil || conf.TurnExternalIPV6 != nil {
+	if conf.TurnExternal {
 		return newExternalServer(conf)
 	} else {
 		return newInternalServer(conf)
@@ -81,9 +71,6 @@ func Start(conf config.Config) (Server, error) {
 
 func newExternalServer(conf config.Config) (Server, error) {
 	return &ExternalServer{
-		ipv4:   conf.TurnExternalIPV4,
-		ipv6:   conf.TurnExternalIPV6,
-		port:   conf.TurnExternalPort,
 		secret: []byte(conf.TurnExternalSecret),
 		ttl:    24 * time.Hour,
 	}, nil
@@ -99,18 +86,14 @@ func newInternalServer(conf config.Config) (Server, error) {
 		return nil, fmt.Errorf("tcp: could not listen on %s: %s", conf.TurnAddress, err)
 	}
 
-	split := strings.Split(conf.TurnAddress, ":")
 	svr := &InternalServer{
-		ipv4:       conf.ExternalIPV4,
-		ipv6:       conf.ExternalIPV6,
-		port:       split[len(split)-1],
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}
 
 	gen := &Generator{
-		ipv4:                  conf.ExternalIPV4,
-		ipv6:                  conf.ExternalIPV6,
+		ipv4:                  conf.TurnIPV4,
+		ipv6:                  conf.TurnIPV6,
 		RelayAddressGenerator: generator(conf),
 	}
 
@@ -205,28 +188,4 @@ func (a *ExternalServer) Credentials(id string, addr net.IP) (string, string) {
 	_, _ = mac.Write([]byte(username))
 	password := base64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return username, password
-}
-
-func (a *InternalServer) IPV4() net.IP {
-	return a.ipv4
-}
-
-func (a *ExternalServer) IPV4() net.IP {
-	return a.ipv4
-}
-
-func (a *InternalServer) IPV6() net.IP {
-	return a.ipv6
-}
-
-func (a *ExternalServer) IPV6() net.IP {
-	return a.ipv6
-}
-
-func (a *InternalServer) Port() string {
-	return a.port
-}
-
-func (a *ExternalServer) Port() string {
-	return a.port
 }

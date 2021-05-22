@@ -59,11 +59,10 @@ type Config struct {
 	Prometheus         bool     `split_words:"true"`
 
 	CheckOrigin  func(string) bool `ignored:"true" json:"-"`
-	ExternalIPV4 net.IP            `ignored:"true"`
-	ExternalIPV6 net.IP            `ignored:"true"`
-
-	TurnExternalIPV4 net.IP `ignored:"true"`
-	TurnExternalIPV6 net.IP `ignored:"true"`
+	TurnExternal bool              `ignored:"true"`
+	TurnIPV4     net.IP            `ignored:"true"`
+	TurnIPV6     net.IP            `ignored:"true"`
+	TurnPort     string            `ignored:"true"`
 
 	CloseRoomWhenOwnerLeaves bool `default:"true" split_words:"true"`
 }
@@ -178,22 +177,26 @@ func Get() (Config, []FutureLog) {
 	}
 
 	var errs []FutureLog
-	config.ExternalIPV4, config.ExternalIPV6, errs = validateExternalIP(config.ExternalIP, "SCREEGO_EXTERNAL_IP")
-	logs = append(logs, errs...)
 
-	config.TurnExternalIPV4, config.TurnExternalIPV6, errs = validateExternalIP(config.TurnExternalIP, "SCREEGO_TURN_EXTERNAL_IP")
-	logs = append(logs, errs...)
+	if len(config.TurnExternalIP) > 0 {
+		if len(config.ExternalIP) > 0 {
+			logs = append(logs, futureFatal("SCREEGO_EXTERNAL_IP and SCREEGO_TURN_EXTERNAL_IP must not be both set"))
+		}
 
-	if config.ExternalIPV4 == nil && config.ExternalIPV6 == nil && config.TurnExternalIPV4 == nil && config.TurnExternalIPV6 == nil {
+		config.TurnIPV4, config.TurnIPV6, errs = validateExternalIP(config.TurnExternalIP, "SCREEGO_TURN_EXTERNAL_IP")
+		config.TurnPort = config.TurnExternalPort
+		config.TurnExternal = true
+		logs = append(logs, errs...)
+		if config.TurnExternalSecret == "" {
+			logs = append(logs, futureFatal("SCREEGO_TURN_EXTERNAL_SECRET must be set if external TURN server is used"))
+		}
+	} else if len(config.ExternalIP) > 0 {
+		config.TurnIPV4, config.TurnIPV6, errs = validateExternalIP(config.ExternalIP, "SCREEGO_EXTERNAL_IP")
+		logs = append(logs, errs...)
+		split := strings.Split(config.TurnAddress, ":")
+		config.TurnPort = split[len(split)-1]
+	} else {
 		logs = append(logs, futureFatal("SCREEGO_EXTERNAL_IP or SCREEGO_TURN_EXTERNAL_IP must be set"))
-	}
-
-	if (config.ExternalIPV4 != nil || config.ExternalIPV6 != nil) && (config.TurnExternalIPV4 != nil || config.TurnExternalIPV6 != nil) {
-		logs = append(logs, futureFatal("SCREEGO_EXTERNAL_IP and SCREEGO_TURN_EXTERNAL_IP must not be both set"))
-	}
-
-	if (config.TurnExternalIPV4 != nil || config.TurnExternalIPV6 != nil) && config.TurnExternalSecret == "" {
-		logs = append(logs, futureFatal("SCREEGO_TURN_EXTERNAL_SECRET must be set if external TURN server is used"))
 	}
 
 	min, max, err := config.parsePortRange()
