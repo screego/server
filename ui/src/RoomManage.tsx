@@ -68,7 +68,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <Box paddingBottom={2}>
+                <Box paddingBottom={0.5}>
                     <Typography>
                         Nat Traversal via:{' '}
                         <Link
