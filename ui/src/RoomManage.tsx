@@ -1,15 +1,12 @@
 import React from 'react';
 import {
+    Box,
     Button,
     Checkbox,
     FormControl,
     FormControlLabel,
     Grid,
-    IconButton,
-    InputLabel,
-    MenuItem,
     Paper,
-    Select,
     TextField,
     Typography,
     Link,
@@ -18,7 +15,6 @@ import {FCreateRoom, UseRoom} from './useRoom';
 import {RoomMode, UIConfig} from './message';
 import {randomRoomName} from './name';
 import {getRoomFromURL} from './useRoomID';
-import HelpIcon from '@material-ui/icons/Help';
 import logo from './logo.svg';
 import {UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
@@ -42,7 +38,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
     const [id, setId] = React.useState(
         () => getRoomFromURL(window.location.search) ?? randomRoomName()
     );
-    const [mode, setMode] = React.useState<RoomMode>(defaultMode(config.authMode, config.loggedIn));
+    const mode = defaultMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
     const submit = () =>
         room({
@@ -72,29 +68,17 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <FormControl margin="dense">
-                    <InputLabel>NAT Traversal via</InputLabel>
-                    <Select
-                        fullWidth
-                        value={mode}
-                        onChange={(x) => setMode(x.target.value as RoomMode)}
-                        endAdornment={
-                            <IconButton size="small" href="https://screego.net/#/nat-traversal">
-                                <HelpIcon />
-                            </IconButton>
-                        }>
-                        <MenuItem
-                            value={RoomMode.Stun}
-                            disabled={config.authMode === 'all' && !config.loggedIn}>
-                            STUN
-                        </MenuItem>
-                        <MenuItem
-                            value={RoomMode.Turn}
-                            disabled={config.authMode !== 'none' && !config.loggedIn}>
-                            TURN
-                        </MenuItem>
-                    </Select>
-                </FormControl>
+                <Box paddingBottom={0.5}>
+                    <Typography>
+                        Nat Traversal via:{' '}
+                        <Link
+                            href="https://screego.net/#/nat-traversal"
+                            target="_blank"
+                            rel="noreferrer">
+                            {mode.toUpperCase()}
+                        </Link>
+                    </Typography>
+                </Box>
                 <Button onClick={submit} fullWidth variant="contained">
                     Create Room
                 </Button>
