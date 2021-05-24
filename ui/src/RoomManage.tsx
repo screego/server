@@ -5,7 +5,6 @@ import {
     FormControl,
     FormControlLabel,
     Grid,
-    IconButton,
     Paper,
     TextField,
     Typography,
@@ -15,7 +14,6 @@ import {FCreateRoom, UseRoom} from './useRoom';
 import {RoomMode, UIConfig} from './message';
 import {randomRoomName} from './name';
 import {getRoomFromURL} from './useRoomID';
-import HelpIcon from '@material-ui/icons/Help';
 import logo from './logo.svg';
 import {UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
