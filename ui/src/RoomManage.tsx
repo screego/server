@@ -69,20 +69,12 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <TextField
-                    fullWidth
-                    label="NAT Traversal via"
-                    value={mode.toUpperCase()}
-                    margin="dense"
-                    InputProps={{
-                        readOnly: true,
-                        endAdornment: (
-                            <IconButton size="small" href="https://screego.net/#/nat-traversal">
-                                <HelpIcon />
-                            </IconButton>
-                        ),
-                    }}
-                />
+                <Typography style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <span>Nat Traversal via: {mode.toUpperCase()}</span>
+                    <IconButton size="small" href="https://screego.net/#/nat-traversal">
+                        <HelpIcon />
+                    </IconButton>
+                </Typography>
                 <Button onClick={submit} fullWidth variant="contained">
                     Create Room
                 </Button>
