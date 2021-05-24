@@ -7,7 +7,6 @@ import (
 
 	"github.com/rs/xid"
 	"github.com/screego/server/config"
-	"github.com/screego/server/util"
 	"github.com/screego/server/ws/outgoing"
 )
 
@@ -48,12 +47,8 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 		iceHost = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 		iceClient = []outgoing.ICEServer{{URLs: rooms.addresses("stun", false)}}
 	case ConnectionTURN:
-		hostPW := util.RandString(20)
-		clientPW := util.RandString(20)
-		hostName := id.String() + "host"
-		rooms.turnServer.Allow(hostName, hostPW, r.Users[host].Addr)
-		clientName := id.String() + "client"
-		rooms.turnServer.Allow(clientName, clientPW, r.Users[client].Addr)
+		hostName, hostPW := rooms.turnServer.Credentials(id.String()+"host", r.Users[host].Addr)
+		clientName, clientPW := rooms.turnServer.Credentials(id.String()+"client", r.Users[client].Addr)
 		iceHost = []outgoing.ICEServer{{
 			URLs:       rooms.addresses("turn", true),
 			Credential: hostPW,
@@ -71,16 +66,16 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 }
 
 func (r *Rooms) addresses(prefix string, tcp bool) (result []string) {
-	if r.config.ExternalIPV4 != nil {
-		result = append(result, fmt.Sprintf("%s:%s:%s", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port))
+	if r.config.TurnIPV4 != nil {
+		result = append(result, fmt.Sprintf("%s:%s:%s", prefix, r.config.TurnIPV4.String(), r.config.TurnPort))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:%s:%s?transport=tcp", prefix, r.config.ExternalIPV4.String(), r.turnServer.Port))
+			result = append(result, fmt.Sprintf("%s:%s:%s?transport=tcp", prefix, r.config.TurnIPV4.String(), r.config.TurnPort))
 		}
 	}
-	if r.config.ExternalIPV6 != nil {
-		result = append(result, fmt.Sprintf("%s:[%s]:%s", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port))
+	if r.config.TurnIPV6 != nil {
+		result = append(result, fmt.Sprintf("%s:[%s]:%s", prefix, r.config.TurnIPV6.String(), r.config.TurnPort))
 		if tcp {
-			result = append(result, fmt.Sprintf("%s:[%s]:%s?transport=tcp", prefix, r.config.ExternalIPV6.String(), r.turnServer.Port))
+			result = append(result, fmt.Sprintf("%s:[%s]:%s?transport=tcp", prefix, r.config.TurnIPV6.String(), r.config.TurnPort))
 		}
 	}
 	return

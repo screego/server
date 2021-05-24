@@ -1,21 +1,34 @@
 package turn
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"net"
-	"strings"
 	"sync"
+	"time"
 
 	"github.com/pion/turn/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
+	"github.com/screego/server/util"
 )
 
-type Server struct {
-	Port       string
+type Server interface {
+	Credentials(id string, addr net.IP) (string, string)
+	Disallow(username string)
+}
+
+type InternalServer struct {
 	lock       sync.RWMutex
 	strictAuth bool
 	lookup     map[string]Entry
+}
+
+type ExternalServer struct {
+	secret []byte
+	ttl    time.Duration
 }
 
 type Entry struct {
@@ -48,7 +61,22 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 	return conn, &relayAddr, err
 }
 
-func Start(conf config.Config) (*Server, error) {
+func Start(conf config.Config) (Server, error) {
+	if conf.TurnExternal {
+		return newExternalServer(conf)
+	} else {
+		return newInternalServer(conf)
+	}
+}
+
+func newExternalServer(conf config.Config) (Server, error) {
+	return &ExternalServer{
+		secret: []byte(conf.TurnExternalSecret),
+		ttl:    24 * time.Hour,
+	}, nil
+}
+
+func newInternalServer(conf config.Config) (Server, error) {
 	udpListener, err := net.ListenPacket("udp", conf.TurnAddress)
 	if err != nil {
 		return nil, fmt.Errorf("udp: could not listen on %s: %s", conf.TurnAddress, err)
@@ -58,16 +86,14 @@ func Start(conf config.Config) (*Server, error) {
 		return nil, fmt.Errorf("tcp: could not listen on %s: %s", conf.TurnAddress, err)
 	}
 
-	split := strings.Split(conf.TurnAddress, ":")
-	svr := &Server{
-		Port:       split[len(split)-1],
+	svr := &InternalServer{
 		lookup:     map[string]Entry{},
 		strictAuth: conf.TurnStrictAuth,
 	}
 
 	gen := &Generator{
-		ipv4:                  conf.ExternalIPV4,
-		ipv6:                  conf.ExternalIPV6,
+		ipv4:                  conf.TurnIPV4,
+		ipv6:                  conf.TurnIPV6,
 		RelayAddressGenerator: generator(conf),
 	}
 
@@ -98,7 +124,7 @@ func generator(conf config.Config) turn.RelayAddressGenerator {
 	return &RelayAddressGeneratorNone{}
 }
 
-func (a *Server) Allow(username, password string, addr net.IP) {
+func (a *InternalServer) allow(username, password string, addr net.IP) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	a.lookup[username] = Entry{
@@ -107,14 +133,18 @@ func (a *Server) Allow(username, password string, addr net.IP) {
 	}
 }
 
-func (a *Server) Disallow(username string) {
+func (a *InternalServer) Disallow(username string) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
 	delete(a.lookup, username)
 }
 
-func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bool) {
+func (a *ExternalServer) Disallow(username string) {
+	// not supported, will expire on TTL
+}
+
+func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]byte, bool) {
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 
@@ -144,4 +174,18 @@ func (a *Server) authenticate(username, realm string, addr net.Addr) ([]byte, bo
 
 	log.Debug().Interface("addr", addr.String()).Str("realm", realm).Msg("TURN authenticated")
 	return entry.password, true
+}
+
+func (a *InternalServer) Credentials(id string, addr net.IP) (string, string) {
+	password := util.RandString(20)
+	a.allow(id, password, addr)
+	return id, password
+}
+
+func (a *ExternalServer) Credentials(id string, addr net.IP) (string, string) {
+	username := fmt.Sprintf("%d:%s", time.Now().Add(a.ttl).Unix(), id)
+	mac := hmac.New(sha1.New, a.secret)
+	_, _ = mac.Write([]byte(username))
+	password := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	return username, password
 }
