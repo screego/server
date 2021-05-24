@@ -69,11 +69,14 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <Typography style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <span>Nat Traversal via: {mode.toUpperCase()}</span>
-                    <IconButton size="small" href="https://screego.net/#/nat-traversal">
-                        <HelpIcon />
-                    </IconButton>
+                <Typography>
+                    Nat Traversal via:{' '}
+                    <Link
+                        href="https://screego.net/#/nat-traversal"
+                        target="_blank"
+                        rel="noreferrer">
+                        {mode.toUpperCase()}
+                    </Link>
                 </Typography>
                 <Button onClick={submit} fullWidth variant="contained">
                     Create Room
