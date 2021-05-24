@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    Box,
     Button,
     Checkbox,
     FormControl,
@@ -67,15 +68,17 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <Typography>
-                    Nat Traversal via:{' '}
-                    <Link
-                        href="https://screego.net/#/nat-traversal"
-                        target="_blank"
-                        rel="noreferrer">
-                        {mode.toUpperCase()}
-                    </Link>
-                </Typography>
+                <Box paddingBottom={2}>
+                    <Typography>
+                        Nat Traversal via:{' '}
+                        <Link
+                            href="https://screego.net/#/nat-traversal"
+                            target="_blank"
+                            rel="noreferrer">
+                            {mode.toUpperCase()}
+                        </Link>
+                    </Typography>
+                </Box>
                 <Button onClick={submit} fullWidth variant="contained">
                     Create Room
                 </Button>
