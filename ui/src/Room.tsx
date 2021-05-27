@@ -49,6 +49,26 @@ const flags = (user: RoomUser) => {
     return ` (${result.join(', ')})`;
 };
 
+enum VideoDisplayMode {
+    FitToWindow = 'FitToWindow',
+    FitWidth = 'FitWidth',
+    FitHeight = 'FitHeight',
+    OriginalSize = 'OriginalSize',
+}
+
+const defaultVideoDisplayMode = (): VideoDisplayMode => {
+    switch (localStorage.getItem('videoDisplayMode')) {
+        case 'FitWidth':
+            return VideoDisplayMode.FitWidth;
+        case 'FitHeight':
+            return VideoDisplayMode.FitHeight;
+        case 'OriginalSize':
+            return VideoDisplayMode.OriginalSize;
+        default:
+            return VideoDisplayMode.FitToWindow;
+    }
+};
+
 export const Room = ({
     state,
     share,
@@ -68,8 +88,17 @@ export const Room = ({
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
     const [showMore, setShowMore] = React.useState<Element>();
+    const [showDisplayOptions, setShowDisplayOptions] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
+    const [videoDisplayMode, setVideoDisplayMode] = React.useState<VideoDisplayMode>(
+        defaultVideoDisplayMode()
+    );
+
+    React.useEffect(
+        () => localStorage.setItem('videoDisplayMode', videoDisplayMode),
+        [videoDisplayMode]
+    );
 
     useShowOnMouseMovement(setShowControl);
 
@@ -168,6 +197,19 @@ export const Room = ({
         [state.clientStreams, selectedStream]
     );
 
+    const videoClasses = () => {
+        switch (videoDisplayMode) {
+            case VideoDisplayMode.FitToWindow:
+                return `${classes.video} ${classes.videoWindowFit}`;
+            case VideoDisplayMode.OriginalSize:
+                return `${classes.video}`;
+            case VideoDisplayMode.FitWidth:
+                return `${classes.video} ${classes.videoWindowWidth}`;
+            case VideoDisplayMode.FitHeight:
+                return `${classes.video} ${classes.videoWindowHeight}`;
+        }
+    };
+
     return (
         <div className={classes.videoContainer}>
             {controlVisible && (
@@ -185,7 +227,7 @@ export const Room = ({
             )}
 
             {stream ? (
-                <video muted ref={setVideoElement} className={classes.video} />
+                <video muted ref={setVideoElement} className={videoClasses()} />
             ) : (
                 <Typography
                     variant="h4"
@@ -243,6 +285,7 @@ export const Room = ({
                             </IconButton>
                         </span>
                     </Tooltip>
+
                     <Tooltip title="More" arrow>
                         <IconButton onClick={(e) => setShowMore(e.currentTarget)}>
                             <ShowMoreIcon fontSize="large" />
@@ -254,12 +297,56 @@ export const Room = ({
                         keepMounted
                         open={Boolean(showMore)}
                         onClose={() => setShowMore(undefined)}>
+                        <MenuItem onClick={(e) => setShowDisplayOptions(e.currentTarget)}>
+                            Display Mode
+                        </MenuItem>
+
                         <MenuItem
                             onClick={() => {
                                 setShowMore(undefined);
                                 setOpen(true);
                             }}>
                             Change Name
+                        </MenuItem>
+                    </Menu>
+
+                    <Menu
+                        anchorEl={showDisplayOptions}
+                        keepMounted
+                        open={Boolean(showDisplayOptions)}
+                        onClose={() => setShowDisplayOptions(undefined)}
+                        anchorOrigin={{horizontal: 'right', vertical: 'center'}}>
+                        <MenuItem
+                            onClick={() => {
+                                setVideoDisplayMode(VideoDisplayMode.FitToWindow);
+                                setShowDisplayOptions(undefined);
+                                setShowMore(undefined);
+                            }}>
+                            Fit to window
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                setVideoDisplayMode(VideoDisplayMode.FitWidth);
+                                setShowDisplayOptions(undefined);
+                                setShowMore(undefined);
+                            }}>
+                            Fit width
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                setVideoDisplayMode(VideoDisplayMode.FitHeight);
+                                setShowDisplayOptions(undefined);
+                                setShowMore(undefined);
+                            }}>
+                            Fit height
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                setVideoDisplayMode(VideoDisplayMode.OriginalSize);
+                                setShowDisplayOptions(undefined);
+                                setShowMore(undefined);
+                            }}>
+                            Original size
                         </MenuItem>
                     </Menu>
                 </Paper>
@@ -402,15 +489,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         zIndex: 30,
     },
     video: {
-        maxWidth: '100%',
-        maxHeight: '100%',
-        width: 'auto',
-        height: 'auto',
-
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%,-50%)',
 
         '&::-webkit-media-controls-start-playback-button': {
             display: 'none!important',
@@ -426,6 +505,23 @@ const useStyles = makeStyles((theme: Theme) => ({
         maxWidth: '300px',
 
         maxHeight: '200px',
+    },
+    videoWindowFit: {
+        width: '100%',
+        height: '100%',
+
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%,-50%)',
+    },
+    videoWindowWidth: {
+        height: 'auto',
+        width: '100%',
+    },
+    videoWindowHeight: {
+        height: '100%',
+        width: 'auto',
     },
     smallVideoLabel: {
         position: 'absolute',
@@ -450,6 +546,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         bottom: 0,
         width: '100%',
         height: '100%',
-        overflow: 'hidden',
+
+        overflow: 'auto',
     },
 }));
