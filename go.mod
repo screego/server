@@ -15,10 +15,10 @@ require (
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pion/randutil v0.1.0
 	github.com/pion/turn/v2 v2.0.5
-	github.com/prometheus/client_golang v1.7.1
-	github.com/rs/xid v1.2.1
-	github.com/rs/zerolog v1.19.0
-	github.com/stretchr/testify v1.6.1
-	github.com/urfave/cli v1.20.0
+	github.com/prometheus/client_golang v1.11.0
+	github.com/rs/xid v1.3.0
+	github.com/rs/zerolog v1.23.0
+	github.com/stretchr/testify v1.7.0
+	github.com/urfave/cli v1.22.5
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )
