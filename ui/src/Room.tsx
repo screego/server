@@ -223,7 +223,7 @@ export const Room = ({
                             <div>
                                 <Typography variant="h5">Member List</Typography>
                                 {state.users.map((user) => (
-                                    <Typography>
+                                    <Typography key={user.id}>
                                         {user.name} {flags(user)}
                                     </Typography>
                                 ))}
@@ -235,11 +235,13 @@ export const Room = ({
                         </Badge>
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
-                        <IconButton
-                            onClick={() => videoElement?.requestFullscreen()}
-                            disabled={!selectedStream}>
-                            <FullScreenIcon fontSize="large" />
-                        </IconButton>
+                        <span>
+                            <IconButton
+                                onClick={() => videoElement?.requestFullscreen()}
+                                disabled={!selectedStream}>
+                                <FullScreenIcon fontSize="large" />
+                            </IconButton>
+                        </span>
                     </Tooltip>
                     <Tooltip title="More" arrow>
                         <IconButton onClick={(e) => setShowMore(e.currentTarget)}>
@@ -269,6 +271,7 @@ export const Room = ({
                     .map((client) => {
                         return (
                             <Paper
+                                key={client.id}
                                 elevation={4}
                                 className={classes.smallVideoContainer}
                                 onClick={() => setSelectedStream(client.id)}>
