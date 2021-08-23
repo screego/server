@@ -49,8 +49,6 @@ dockers:
   - goos: linux
     goarch: amd64
     goarm: ''
-    binaries:
-      - screego
     image_templates:
       - "screego/server:amd64-unstable"
       - "screego/server:amd64-{{ .RawVersion }}"
@@ -63,8 +61,6 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
   - goos: linux
     goarch: 386
-    binaries:
-      - screego
     goarm: ''
     image_templates:
       - "screego/server:386-unstable"
@@ -79,8 +75,6 @@ dockers:
   - goos: linux
     goarch: arm64
     goarm: ''
-    binaries:
-      - screego
     image_templates:
       - "screego/server:arm64-unstable"
       - "screego/server:arm64-{{ .RawVersion }}"
@@ -94,8 +88,6 @@ dockers:
   - goos: linux
     goarch: arm
     goarm: 7
-    binaries:
-      - screego
     image_templates:
       - "screego/server:armv7-unstable"
       - "screego/server:armv7-{{ .RawVersion }}"
@@ -109,8 +101,6 @@ dockers:
   - goos: linux
     goarch: arm
     goarm: 6
-    binaries:
-      - screego
     image_templates:
       - "screego/server:armv6-unstable"
       - "screego/server:armv6-{{ .RawVersion }}"
@@ -124,8 +114,6 @@ dockers:
   - goos: linux
     goarch: ppc64le
     goarm: ''
-    binaries:
-      - screego
     image_templates:
       - "screego/server:ppc64le-unstable"
       - "screego/server:ppc64le-{{ .RawVersion }}"
