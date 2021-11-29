@@ -4,7 +4,6 @@ project_name: screego
 before:
   hooks:
     - go mod download
-    - go run hack/packr/packr.go
 builds:
   - env:
       - CGO_ENABLED=0
