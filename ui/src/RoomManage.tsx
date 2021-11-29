@@ -10,7 +10,7 @@ import {
     TextField,
     Typography,
     Link,
-} from '@material-ui/core';
+} from '@mui/material';
 import {FCreateRoom, UseRoom} from './useRoom';
 import {RoomMode, UIConfig} from './message';
 import {randomRoomName} from './name';
@@ -74,7 +74,8 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                         <Link
                             href="https://screego.net/#/nat-traversal"
                             target="_blank"
-                            rel="noreferrer">
+                            rel="noreferrer"
+                        >
                             {mode.toUpperCase()}
                         </Link>
                     </Typography>
@@ -96,9 +97,10 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
     return (
         <Grid
             container={true}
-            justify="center"
+            justifyContent="center"
             style={{paddingTop: 50, maxWidth: 400, width: '100%', margin: '0 auto'}}
-            spacing={4}>
+            spacing={4}
+        >
             <Grid item xs={12}>
                 <Typography align="center" gutterBottom>
                     <img src={logo} style={{width: 230}} alt="logo" />
@@ -121,7 +123,8 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
                                     <Button
                                         variant="outlined"
                                         size="small"
-                                        onClick={() => setShowLogin(true)}>
+                                        onClick={() => setShowLogin(true)}
+                                    >
                                         Login
                                     </Button>
                                 )}
