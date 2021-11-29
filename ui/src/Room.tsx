@@ -17,15 +17,15 @@ import {
     Theme,
     Tooltip,
     Typography,
-} from '@material-ui/core';
-import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
-import PresentToAllIcon from '@material-ui/icons/PresentToAll';
-import FullScreenIcon from '@material-ui/icons/Fullscreen';
-import PeopleIcon from '@material-ui/icons/People';
-import ShowMoreIcon from '@material-ui/icons/MoreVert';
+} from '@mui/material';
+import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
+import PresentToAllIcon from '@mui/icons-material/PresentToAll';
+import FullScreenIcon from '@mui/icons-material/Fullscreen';
+import PeopleIcon from '@mui/icons-material/People';
+import ShowMoreIcon from '@mui/icons-material/MoreVert';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
-import {makeStyles} from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import {ConnectedRoom} from './useRoom';
 import {useSnackbar} from 'notistack';
 import {RoomUser} from './message';
@@ -219,7 +219,8 @@ export const Room = ({
                             variant="h4"
                             component="h4"
                             style={{cursor: 'pointer'}}
-                            onClick={copyLink}>
+                            onClick={copyLink}
+                        >
                             {state.id}
                         </Typography>
                     </Tooltip>
@@ -238,7 +239,8 @@ export const Room = ({
                         left: '50%',
                         position: 'absolute',
                         transform: 'translate(-50%, -50%)',
-                    }}>
+                    }}
+                >
                     no stream available
                 </Typography>
             )}
@@ -247,13 +249,13 @@ export const Room = ({
                 <Paper className={classes.control} elevation={10} {...setHoverState}>
                     {state.hostStream ? (
                         <Tooltip title="Cancel Presentation" arrow>
-                            <IconButton onClick={stopShare}>
+                            <IconButton onClick={stopShare} size="large">
                                 <CancelPresentationIcon fontSize="large" />
                             </IconButton>
                         </Tooltip>
                     ) : (
                         <Tooltip title="Start Presentation" arrow>
-                            <IconButton onClick={share}>
+                            <IconButton onClick={share} size="large">
                                 <PresentToAllIcon fontSize="large" />
                             </IconButton>
                         </Tooltip>
@@ -271,7 +273,8 @@ export const Room = ({
                                 ))}
                             </div>
                         }
-                        arrow>
+                        arrow
+                    >
                         <Badge badgeContent={state.users.length} color="primary">
                             <PeopleIcon fontSize="large" />
                         </Badge>
@@ -280,14 +283,16 @@ export const Room = ({
                         <span>
                             <IconButton
                                 onClick={() => videoElement?.requestFullscreen()}
-                                disabled={!selectedStream}>
+                                disabled={!selectedStream}
+                                size="large"
+                            >
                                 <FullScreenIcon fontSize="large" />
                             </IconButton>
                         </span>
                     </Tooltip>
 
                     <Tooltip title="More" arrow>
-                        <IconButton onClick={(e) => setShowMore(e.currentTarget)}>
+                        <IconButton onClick={(e) => setShowMore(e.currentTarget)} size="large">
                             <ShowMoreIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
@@ -296,7 +301,8 @@ export const Room = ({
                         anchorEl={showMore}
                         keepMounted
                         open={Boolean(showMore)}
-                        onClose={() => setShowMore(undefined)}>
+                        onClose={() => setShowMore(undefined)}
+                    >
                         <MenuItem onClick={(e) => setShowDisplayOptions(e.currentTarget)}>
                             Display Mode
                         </MenuItem>
@@ -305,7 +311,8 @@ export const Room = ({
                             onClick={() => {
                                 setShowMore(undefined);
                                 setOpen(true);
-                            }}>
+                            }}
+                        >
                             Change Name
                         </MenuItem>
                     </Menu>
@@ -315,13 +322,15 @@ export const Room = ({
                         keepMounted
                         open={Boolean(showDisplayOptions)}
                         onClose={() => setShowDisplayOptions(undefined)}
-                        anchorOrigin={{horizontal: 'right', vertical: 'center'}}>
+                        anchorOrigin={{horizontal: 'right', vertical: 'center'}}
+                    >
                         <MenuItem
                             onClick={() => {
                                 setVideoDisplayMode(VideoDisplayMode.FitToWindow);
                                 setShowDisplayOptions(undefined);
                                 setShowMore(undefined);
-                            }}>
+                            }}
+                        >
                             Fit to window
                         </MenuItem>
                         <MenuItem
@@ -329,7 +338,8 @@ export const Room = ({
                                 setVideoDisplayMode(VideoDisplayMode.FitWidth);
                                 setShowDisplayOptions(undefined);
                                 setShowMore(undefined);
-                            }}>
+                            }}
+                        >
                             Fit width
                         </MenuItem>
                         <MenuItem
@@ -337,7 +347,8 @@ export const Room = ({
                                 setVideoDisplayMode(VideoDisplayMode.FitHeight);
                                 setShowDisplayOptions(undefined);
                                 setShowMore(undefined);
-                            }}>
+                            }}
+                        >
                             Fit height
                         </MenuItem>
                         <MenuItem
@@ -345,7 +356,8 @@ export const Room = ({
                                 setVideoDisplayMode(VideoDisplayMode.OriginalSize);
                                 setShowDisplayOptions(undefined);
                                 setShowMore(undefined);
-                            }}>
+                            }}
+                        >
                             Original size
                         </MenuItem>
                     </Menu>
@@ -361,7 +373,8 @@ export const Room = ({
                                 key={client.id}
                                 elevation={4}
                                 className={classes.smallVideoContainer}
-                                onClick={() => setSelectedStream(client.id)}>
+                                onClick={() => setSelectedStream(client.id)}
+                            >
                                 <Video
                                     key={client.id}
                                     src={client.stream}
@@ -371,7 +384,8 @@ export const Room = ({
                                     variant="subtitle1"
                                     component="div"
                                     align="center"
-                                    className={classes.smallVideoLabel}>
+                                    className={classes.smallVideoLabel}
+                                >
                                     {state.users.find(({id}) => client.peer_id === id)?.name ??
                                         'unknown'}
                                 </Typography>
@@ -382,13 +396,15 @@ export const Room = ({
                     <Paper
                         elevation={4}
                         className={classes.smallVideoContainer}
-                        onClick={() => setSelectedStream(HostStream)}>
+                        onClick={() => setSelectedStream(HostStream)}
+                    >
                         <Video src={state.hostStream} className={classes.smallVideo} />
                         <Typography
                             variant="subtitle1"
                             component="div"
                             align="center"
-                            className={classes.smallVideoLabel}>
+                            className={classes.smallVideoLabel}
+                        >
                             You
                         </Typography>
                     </Paper>

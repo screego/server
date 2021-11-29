@@ -1,15 +1,16 @@
 import {UseConfig} from './useConfig';
 import React from 'react';
 import {
+    Box,
     Button,
     ButtonProps,
     CircularProgress,
     FormControl,
     TextField,
     Typography,
-} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
-import {green} from '@material-ui/core/colors';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import {green} from '@mui/material/colors';
 
 export const LoginForm = ({config: {login}, hide}: {config: UseConfig; hide?: () => void}) => {
     const [user, setUser] = React.useState('');
@@ -41,6 +42,7 @@ export const LoginForm = ({config: {login}, hide}: {config: UseConfig; hide?: ()
                         value={user}
                         onChange={(e) => setUser(e.target.value)}
                         label="Username"
+                        size="small"
                         margin="dense"
                     />
                     <TextField
@@ -49,16 +51,20 @@ export const LoginForm = ({config: {login}, hide}: {config: UseConfig; hide?: ()
                         type="password"
                         onChange={(e) => setPass(e.target.value)}
                         label="Password"
+                        size="small"
                         margin="dense"
                     />
-                    <LoadingButton
-                        type="submit"
-                        loading={loading}
-                        onClick={submit}
-                        fullWidth
-                        variant="contained">
-                        Login
-                    </LoadingButton>
+                    <Box marginTop={1}>
+                        <LoadingButton
+                            type="submit"
+                            loading={loading}
+                            onClick={submit}
+                            fullWidth
+                            variant="contained"
+                        >
+                            Login
+                        </LoadingButton>
+                    </Box>
                 </form>
             </FormControl>
         </div>
