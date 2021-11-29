@@ -10,7 +10,7 @@ import (
 	"github.com/screego/server/logger"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 var hashCmd = cli.Command{
@@ -30,7 +30,7 @@ var hashCmd = cli.Command{
 		if len(pass) == 0 {
 			var err error
 			_, _ = fmt.Fprint(os.Stderr, "Enter Password: ")
-			pass, err = terminal.ReadPassword(int(syscall.Stdin))
+			pass, err = term.ReadPassword(int(syscall.Stdin))
 			if err != nil {
 				log.Fatal().Err(err).Msg("could not read stdin")
 			}
