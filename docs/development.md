@@ -88,14 +88,6 @@ $ golangci-lint run
    $ (cd ui && yarn build)
    ```
 
-1. Generate static assets for go.
-
-   Run [packr](https://github.com/gobuffalo/packr) (embeds static assets in go binaries)
-
-   ```bash
-   $ go run hack/packr/packr.go
-   ```
-
 1. Build the binary
    ```bash
    CGO_ENABLED=0 go build \
