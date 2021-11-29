@@ -2,7 +2,6 @@ package ui
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"net/http"
@@ -19,19 +18,14 @@ var files, _ = fs.Sub(buildFiles, "build")
 func Register(r *mux.Router) {
 	r.Handle("/", serveFile("index.html", "text/html"))
 	r.Handle("/index.html", serveFile("index.html", "text/html"))
-	r.Handle("/service-worker.js", serveFile("service-worker.js", "text/javascript"))
-	r.Handle("/assets-manifest.json", serveFile("asserts-manifest.json", "application/json"))
+	r.Handle("/asset-manifest.json", serveFile("asset-manifest.json", "application/json"))
 	r.Handle("/static/{type}/{resource}", http.FileServer(http.FS(files)))
 
 	r.Handle("/favicon.ico", serveFile("favicon.ico", "image/x-icon"))
-	for _, size := range []string{"16x16", "32x32", "192x192", "256x256"} {
-		fileName := fmt.Sprintf("/favicon-%s.png", size)
-		r.Handle(fileName, serveFile(fileName, "image/png"))
-	}
+	r.Handle("/apple-touch-icon.png", serveFile("apple-touch-icon.png", "image/png"))
 }
 
 func serveFile(name, contentType string) http.HandlerFunc {
-
 	file, err := files.Open(name)
 	if err != nil {
 		log.Panic().Err(err).Msgf("could not find %s", file)
