@@ -14,9 +14,9 @@ Setting up Screego with docker is pretty easy, you basically just have to start 
 The [screego/server](https://hub.docker.com/r/screego/server) docker images are multi-arch docker images. 
 This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64`, `arm v7` (Raspberry PI).
 
-When using [TURN](nat-traversal.md), Screego will allocate ports for relay connections.
-
-The ports must be mapped that the host system forwards them to the screego container.
+When using [TURN](nat-traversal.md), Screego will allocate ports for relay
+connections, this currently only works with network mode host inside docker.
+See [#56](https://github.com/screego/server/issues/56)
 
 By default, Screego runs on port 5050.
 
@@ -25,7 +25,7 @@ By default, Screego runs on port 5050.
    $ curl 'https://api.ipify.org'
    ```
 
-### Network Host (recommended)
+### Network Host
 
 ```bash
 $ docker run --net=host -e SCREEGO_EXTERNAL_IP=YOUREXTERNALIP screego/server:GITHUB_VERSION
@@ -41,40 +41,6 @@ services:
     network_mode: host
     environment:
       SCREEGO_EXTERNAL_IP: "YOUREXTERNALIP"
-```
-
-### Port Range
-
-`SCREEGO_TURN_STRICT_AUTH` should only be disabled if you enable TLS inside
-Screego and not use a reverse proxy with `SCREEGO_TRUST_PROXY_HEADERS=true`.
-
-
-```bash
-$ docker run \
-    -e SCREEGO_TURN_PORT_RANGE=50000:50100 \
-    -e SCREEGO_TURN_STRICT_AUTH=false \
-    -e SCREEGO_EXTERNAL_IP=YOUREXTERNALIP \
-    -p 5050:5050 \
-    -p 3478:3478 \
-    -p 50000-50100:50000-50100/udp \
-    screego/server:GITHUB_VERSION
-```
-
-#### docker-compose.yml
-
-```yaml
-version: "3.7"
-services:
-  screego:
-    image: screego/server:GITHUB_VERSION
-    ports:
-      - 5050:5050
-      - 3478:3478
-      - 50000-50100:50000-50100/udp
-    environment:
-      SCREEGO_TURN_PORT_RANGE: "50000:50100"
-      SCREEGO_EXTERNAL_IP: "YOUREXTERNALIP"
-      SCREEGO_TURN_STRICT_AUTH: "false"
 ```
 
 ## Binary
