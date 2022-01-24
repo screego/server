@@ -1,7 +1,5 @@
 # screego/server
 
-> Huge thanks to [**sipgate**](https://www.sipgate.de/) for sponsoring this project!
-
 In the past I've had some problems sharing my screen with coworkers using
 corporate chatting solutions like Microsoft Teams. I wanted to show them some
 of my code, but either the stream lagged several seconds behind or the quality
