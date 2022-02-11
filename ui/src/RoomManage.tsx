@@ -12,33 +12,18 @@ import {
     Link,
 } from '@mui/material';
 import {FCreateRoom, UseRoom} from './useRoom';
-import {RoomMode, UIConfig} from './message';
+import {UIConfig} from './message';
 import {randomRoomName} from './name';
 import {getRoomFromURL} from './useRoomID';
 import logo from './logo.svg';
-import {UseConfig} from './useConfig';
+import {authModeToRoomMode, UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
-
-const defaultMode = (authMode: UIConfig['authMode'], loggedIn: boolean): RoomMode => {
-    if (loggedIn) {
-        return RoomMode.Turn;
-    }
-    switch (authMode) {
-        case 'all':
-            return RoomMode.Turn;
-        case 'turn':
-            return RoomMode.Stun;
-        case 'none':
-        default:
-            return RoomMode.Turn;
-    }
-};
 
 const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) => {
     const [id, setId] = React.useState(
         () => getRoomFromURL(window.location.search) ?? randomRoomName()
     );
-    const mode = defaultMode(config.authMode, config.loggedIn);
+    const mode = authModeToRoomMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
     const submit = () =>
         room({

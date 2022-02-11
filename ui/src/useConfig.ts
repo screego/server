@@ -1,4 +1,4 @@
-import {UIConfig} from './message';
+import {RoomMode, UIConfig} from './message';
 import {useSnackbar} from 'notistack';
 import React from 'react';
 
@@ -54,4 +54,19 @@ export const useConfig = (): UseConfig => {
     React.useEffect(() => void refetch(), []);
 
     return {...config, refetch, loading, login, logout};
+};
+
+export const authModeToRoomMode = (authMode: UIConfig['authMode'], loggedIn: boolean): RoomMode => {
+    if (loggedIn) {
+        return RoomMode.Turn;
+    }
+    switch (authMode) {
+        case 'all':
+            return RoomMode.Turn;
+        case 'turn':
+            return RoomMode.Stun;
+        case 'none':
+        default:
+            return RoomMode.Turn;
+    }
 };
