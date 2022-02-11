@@ -1,18 +1,21 @@
 import React from 'react';
 
-export const getRoomFromURL = (search: string): string | undefined =>
+export const getRoomFromURL = (): string | undefined => getFromURL('room');
+
+export const getFromURL = (
+    key: string,
+    search: string = window.location.search
+): string | undefined =>
     search
         .slice(1)
         .split('&')
-        .find((param) => param.startsWith('room='))
+        .find((param) => param.startsWith(`${key}=`))
         ?.split('=')[1];
 
 export const useRoomID = (): [string | undefined, (v?: string) => void] => {
-    const [state, setState] = React.useState<string | undefined>(() =>
-        getRoomFromURL(window.location.search)
-    );
+    const [state, setState] = React.useState<string | undefined>(() => getRoomFromURL());
     React.useEffect(() => {
-        const onChange = (): void => setState(getRoomFromURL(window.location.search));
+        const onChange = (): void => setState(getRoomFromURL());
         window.addEventListener('popstate', onChange);
         return () => window.removeEventListener('popstate', onChange);
     }, [setState]);

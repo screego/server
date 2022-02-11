@@ -20,9 +20,7 @@ import {authModeToRoomMode, UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
 
 const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) => {
-    const [id, setId] = React.useState(
-        () => getRoomFromURL(window.location.search) ?? randomRoomName()
-    );
+    const [id, setId] = React.useState(() => getRoomFromURL() ?? randomRoomName());
     const mode = authModeToRoomMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
     const submit = () =>
