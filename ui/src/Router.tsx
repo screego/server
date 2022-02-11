@@ -2,16 +2,20 @@ import React from 'react';
 import {RoomManage} from './RoomManage';
 import {useRoom} from './useRoom';
 import {Room} from './Room';
-import {useConfig} from './useConfig';
+import {UseConfig, useConfig} from './useConfig';
 
 export const Router = () => {
-    const {room, state, ...other} = useRoom();
     const config = useConfig();
 
     if (config.loading) {
         // show spinner
         return null;
     }
+    return <RouterLoadedConfig config={config} />;
+};
+
+const RouterLoadedConfig = ({config}: {config: UseConfig}) => {
+    const {room, state, ...other} = useRoom(config);
 
     if (state) {
         return <Room state={state} {...other} />;

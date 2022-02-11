@@ -20,6 +20,7 @@ type Create struct {
 	Mode              ConnectionMode `json:"mode"`
 	CloseOnOwnerLeave bool           `json:"closeOnOwnerLeave"`
 	UserName          string         `json:"username"`
+	JoinIfExist       bool           `json:"joinIfExist,omitempty"`
 }
 
 func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
@@ -28,6 +29,11 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 
 	if _, ok := rooms.Rooms[e.ID]; ok {
+		if e.JoinIfExist {
+			join := &Join{UserName: e.UserName, ID: e.ID}
+			return join.Execute(rooms, current)
+		}
+
 		return fmt.Errorf("room with id %s does already exist", e.ID)
 	}
 

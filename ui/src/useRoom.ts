@@ -6,11 +6,13 @@ import {
     OutgoingMessage,
     RoomCreate,
     RoomInfo,
+    UIConfig,
 } from './message';
 import {getPermanentName} from './name';
 import {urlWithSlash} from './url';
 import {useSnackbar} from 'notistack';
-import {useRoomID} from './useRoomID';
+import {getFromURL, useRoomID} from './useRoomID';
+import {authModeToRoomMode} from './useConfig';
 
 export type RoomState = false | ConnectedRoom;
 export type ConnectedRoom = {
@@ -121,7 +123,7 @@ const clientSession = async ({
 
 export type FCreateRoom = (room: RoomCreate | JoinRoom) => Promise<void>;
 
-export const useRoom = (): UseRoom => {
+export const useRoom = (config: UIConfig): UseRoom => {
     const [roomID, setRoomID] = useRoomID();
     const {enqueueSnackbar} = useSnackbar();
     const conn = React.useRef<WebSocket>();
@@ -147,9 +149,6 @@ export const useRoom = (): UseRoom => {
                         first = false;
                         if (event.type === 'room') {
                             resolve();
-                            enqueueSnackbar(create.type === 'join' ? 'Joined' : 'Room Created', {
-                                variant: 'success',
-                            });
                             setState({ws, ...event.payload, clientStreams: []});
                             setRoomID(event.payload.id);
                         } else {
@@ -322,7 +321,25 @@ export const useRoom = (): UseRoom => {
 
     React.useEffect(() => {
         if (roomID) {
-            room({type: 'join', payload: {id: roomID}});
+            const create = getFromURL('create') === 'true';
+            if (create) {
+                const closeOnOwnerLeaveString = getFromURL('closeOnOwnerLeave');
+                const closeOnOwnerLeave =
+                    closeOnOwnerLeaveString === undefined
+                        ? config.closeRoomWhenOwnerLeaves
+                        : closeOnOwnerLeaveString === 'true';
+                room({
+                    type: 'create',
+                    payload: {
+                        joinIfExist: true,
+                        closeOnOwnerLeave,
+                        id: roomID,
+                        mode: authModeToRoomMode(config.authMode, config.loggedIn),
+                    },
+                });
+            } else {
+                room({type: 'join', payload: {id: roomID}});
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
