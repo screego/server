@@ -15,7 +15,6 @@ func init() {
 type Join struct {
 	ID       string `json:"id"`
 	UserName string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
 }
 
 func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
