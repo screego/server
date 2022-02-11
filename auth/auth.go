@@ -15,8 +15,9 @@ import (
 )
 
 type Users struct {
-	Lookup map[string]string
-	store  sessions.Store
+	Lookup         map[string]string
+	store          sessions.Store
+	sessionTimeout int
 }
 
 type UserPW struct {
@@ -46,10 +47,11 @@ func read(r io.Reader) ([]UserPW, error) {
 	return result, nil
 }
 
-func ReadPasswordsFile(path string, secret []byte) (*Users, error) {
+func ReadPasswordsFile(path string, secret []byte, sessionTimeout int) (*Users, error) {
 	users := &Users{
-		Lookup: map[string]string{},
-		store:  sessions.NewCookieStore(secret),
+		Lookup:         map[string]string{},
+		sessionTimeout: sessionTimeout,
+		store:          sessions.NewCookieStore(secret),
 	}
 	if path == "" {
 		log.Info().Msg("Users file not specified")
@@ -113,6 +115,7 @@ func (u *Users) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	session := sessions.NewSession(u.store, "user")
 	session.IsNew = true
+	session.Options.MaxAge = u.sessionTimeout
 	session.Values["user"] = user
 	if err := u.store.Save(r, w, session); err != nil {
 		w.WriteHeader(500)
