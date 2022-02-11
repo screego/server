@@ -34,7 +34,7 @@ func serveCmd(version string) cli.Command {
 			if exit {
 				os.Exit(1)
 			}
-			users, err := auth.ReadPasswordsFile(conf.UsersFile, conf.Secret)
+			users, err := auth.ReadPasswordsFile(conf.UsersFile, conf.Secret, conf.SessionTimeoutSeconds)
 			if err != nil {
 				log.Fatal().Str("file", conf.UsersFile).Err(err).Msg("While loading users file")
 			}

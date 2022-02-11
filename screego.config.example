@@ -82,6 +82,10 @@ SCREEGO_CORS_ALLOWED_ORIGINS=
 #   screego hash --name "user1" --pass "your password"
 SCREEGO_USERS_FILE=
 
+# Defines how long a user session is valid in seconds.
+# 0 = session invalides after browser session ends
+SCEEGO_SESSION_TIMEOUT_SECONDS=0
+
 # Defines the default value for the checkbox in the room creation dialog to select
 # if the room should be closed when the room owner leaves
 SCREEGO_CLOSE_ROOM_WHEN_OWNER_LEAVES=true
