@@ -92,7 +92,7 @@ The following modules are required:
 
 ```apache
 <VirtualHost *:80>
-    ServerName sceego.example.com
+    ServerName screego.example.com
     Keepalive On
 
     # The proxy must preserve the host because screego verifies it with the origin
