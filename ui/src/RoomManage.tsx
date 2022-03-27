@@ -15,7 +15,6 @@ import {FCreateRoom, UseRoom} from './useRoom';
 import {UIConfig} from './message';
 import {randomRoomName} from './name';
 import {getRoomFromURL} from './useRoomID';
-import logo from './logo.svg';
 import {authModeToRoomMode, UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
 
@@ -86,7 +85,7 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
         >
             <Grid item xs={12}>
                 <Typography align="center" gutterBottom>
-                    <img src={logo} style={{width: 230}} alt="logo" />
+                    <img src="./logo.svg" style={{width: 230}} alt="logo" />
                 </Typography>
                 <Paper elevation={3} style={{padding: 20}}>
                     {loginVisible ? (
