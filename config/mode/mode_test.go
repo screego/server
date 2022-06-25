@@ -3,15 +3,15 @@ package mode
 import (
 	"testing"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGet(t *testing.T) {
 	mode = Prod
-	assert.Equal(t, Prod, Get())
+	require.Equal(t, Prod, Get())
 }
 
 func TestSet(t *testing.T) {
 	Set(Prod)
-	assert.Equal(t, Prod, mode)
+	require.Equal(t, Prod, mode)
 }
