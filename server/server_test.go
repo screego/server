@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/phayes/freeport"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +25,7 @@ func TestShutdownOnErrorWhileShutdown(t *testing.T) {
 	finished := make(chan error)
 
 	go func() {
-		finished <- Start(mux.NewRouter(), ":"+strconv.Itoa(freeport.GetPort()), "", "")
+		finished <- Start(mux.NewRouter(), ":"+strconv.Itoa(port()), "", "")
 	}()
 
 	select {
@@ -58,7 +58,7 @@ func TestShutdown(t *testing.T) {
 	finished := make(chan error)
 
 	go func() {
-		finished <- Start(mux.NewRouter(), ":"+strconv.Itoa(freeport.GetPort()), "", "")
+		finished <- Start(mux.NewRouter(), ":"+strconv.Itoa(port()), "", "")
 	}()
 
 	select {
@@ -91,4 +91,18 @@ func fakeShutdownError(err error) func() {
 	return func() {
 		serverShutdown = old
 	}
+}
+
+func port() int {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		panic(err)
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		panic(err)
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port
 }
