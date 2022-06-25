@@ -61,7 +61,7 @@ const theme = createTheme(
     })
 );
 
-const Snackbar: React.FC = ({children}) => {
+const Snackbar: React.FC<React.PropsWithChildren> = ({children}) => {
     const notistackRef = React.createRef<any>();
     const onClickDismiss = (key: unknown) => () => {
         notistackRef.current?.closeSnackbar(key);

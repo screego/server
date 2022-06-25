@@ -272,7 +272,7 @@ export const useRoom = (config: UIConfig): UseRoom => {
                         resolve();
                         first = false;
                     }
-                    enqueueSnackbar(err, {variant: 'error', persist: true});
+                    enqueueSnackbar(err?.toString(), {variant: 'error', persist: true});
                     setState(false);
                 };
                 ws.onopen = () => {
