@@ -90,7 +90,5 @@ $ golangci-lint run
 
 1. Build the binary
    ```bash
-   CGO_ENABLED=0 go build \
-     -ldflags '-s -w -X main.version=`git describe --tags HEAD` -X main.mode=Prod' \
-     -buildmode=pie -trimpath -tags 'netgo osusergo' main.go
+   go build -ldflags "-X main.version=$(git describe --tags HEAD) -X main.mode=prod" -o screego ./main.go
    ```
