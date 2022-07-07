@@ -73,6 +73,19 @@ const hostSession = async ({
 
     stream.getTracks().forEach((track) => peer.addTrack(track, stream));
 
+    const transceiver = peer
+        .getTransceivers()
+        .find((t) => t.sender && t.sender.track === stream.getVideoTracks()[0])
+    if (!!transceiver && 'setCodecPreferences' in transceiver) {
+        const codecs = RTCRtpSender.getCapabilities('video')?.codecs || []
+        const sortedCodecs: RTCRtpCodecCapability[] = []
+        codecs.forEach((c) => {
+            if (c.mimeType.toLowerCase() === 'video/vp9') sortedCodecs.unshift(c)
+            else sortedCodecs.push(c)
+        })
+        transceiver.setCodecPreferences(sortedCodecs)
+    }
+
     const hostOffer = await peer.createOffer({offerToReceiveVideo: true});
     await peer.setLocalDescription(hostOffer);
     send({type: 'hostoffer', payload: {value: hostOffer, sid: sid}});
