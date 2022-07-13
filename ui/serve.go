@@ -24,6 +24,7 @@ func Register(r *mux.Router) {
 	r.Handle("/favicon.ico", serveFile("favicon.ico", "image/x-icon"))
 	r.Handle("/logo.svg", serveFile("logo.svg", "image/svg+xml"))
 	r.Handle("/apple-touch-icon.png", serveFile("apple-touch-icon.png", "image/png"))
+	r.Handle("/og-banner.png", serveFile("og-banner.png", "image/png"))
 }
 
 func serveFile(name, contentType string) http.HandlerFunc {
