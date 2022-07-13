@@ -6,6 +6,3 @@ const roomConfig: gen.Config = {
     separator: '-',
 };
 export const randomRoomName = () => gen.uniqueNamesGenerator(roomConfig);
-
-export const getPermanentName = () => localStorage.getItem('screego_name') ?? undefined;
-export const setPermanentName = (name: string) => localStorage.setItem('screego_name', name);

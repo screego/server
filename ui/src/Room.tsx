@@ -1,23 +1,5 @@
 import React from 'react';
-import {setPermanentName} from './name';
-import {
-    Badge,
-    Button,
-    Checkbox,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControlLabel,
-    IconButton,
-    Menu,
-    MenuItem,
-    Paper,
-    TextField,
-    Theme,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import {Badge, IconButton, Paper, Theme, Tooltip, Typography} from '@mui/material';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import FullScreenIcon from '@mui/icons-material/Fullscreen';
@@ -29,6 +11,8 @@ import makeStyles from '@mui/styles/makeStyles';
 import {ConnectedRoom} from './useRoom';
 import {useSnackbar} from 'notistack';
 import {RoomUser} from './message';
+import {useSettings, VideoDisplayMode} from './settings';
+import {SettingDialog} from './SettingDialog';
 
 const HostStream: unique symbol = Symbol('mystream');
 
@@ -49,26 +33,6 @@ const flags = (user: RoomUser) => {
     return ` (${result.join(', ')})`;
 };
 
-enum VideoDisplayMode {
-    FitToWindow = 'FitToWindow',
-    FitWidth = 'FitWidth',
-    FitHeight = 'FitHeight',
-    OriginalSize = 'OriginalSize',
-}
-
-const defaultVideoDisplayMode = (): VideoDisplayMode => {
-    switch (localStorage.getItem('videoDisplayMode')) {
-        case 'FitWidth':
-            return VideoDisplayMode.FitWidth;
-        case 'FitHeight':
-            return VideoDisplayMode.FitHeight;
-        case 'OriginalSize':
-            return VideoDisplayMode.OriginalSize;
-        default:
-            return VideoDisplayMode.FitToWindow;
-    }
-};
-
 export const Room = ({
     state,
     share,
@@ -83,22 +47,11 @@ export const Room = ({
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const {enqueueSnackbar} = useSnackbar();
-    const [nameInput, setNameInput] = React.useState('');
-    const [permanent, setPermanent] = React.useState(false);
+    const [settings, setSettings] = useSettings();
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
-    const [showMore, setShowMore] = React.useState<Element>();
-    const [showDisplayOptions, setShowDisplayOptions] = React.useState<Element>();
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
-    const [videoDisplayMode, setVideoDisplayMode] = React.useState<VideoDisplayMode>(
-        defaultVideoDisplayMode()
-    );
-
-    React.useEffect(
-        () => localStorage.setItem('videoDisplayMode', videoDisplayMode),
-        [videoDisplayMode]
-    );
 
     useShowOnMouseMovement(setShowControl);
 
@@ -120,14 +73,6 @@ export const Room = ({
         selectedStream === HostStream
             ? state.hostStream
             : state.clientStreams.find(({id}) => selectedStream === id)?.stream;
-
-    const submitName = () => {
-        if (permanent) {
-            setPermanentName(nameInput);
-        }
-        setName(nameInput);
-        setOpen(false);
-    };
 
     React.useEffect(() => {
         if (videoElement && stream) {
@@ -151,7 +96,7 @@ export const Room = ({
         [setHoverControl]
     );
 
-    const controlVisible = showControl || open || showMore || hoverControl;
+    const controlVisible = showControl || open || hoverControl;
 
     useHotkeys('s', () => (state.hostStream ? stopShare() : share()), [state.hostStream]);
     useHotkeys(
@@ -198,7 +143,7 @@ export const Room = ({
     );
 
     const videoClasses = () => {
-        switch (videoDisplayMode) {
+        switch (settings.displayMode) {
             case VideoDisplayMode.FitToWindow:
                 return `${classes.video} ${classes.videoWindowFit}`;
             case VideoDisplayMode.OriginalSize:
@@ -292,75 +237,10 @@ export const Room = ({
                     </Tooltip>
 
                     <Tooltip title="More" arrow>
-                        <IconButton onClick={(e) => setShowMore(e.currentTarget)} size="large">
+                        <IconButton onClick={() => setOpen(true)} size="large">
                             <ShowMoreIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
-
-                    <Menu
-                        anchorEl={showMore}
-                        keepMounted
-                        open={Boolean(showMore)}
-                        onClose={() => setShowMore(undefined)}
-                    >
-                        <MenuItem onClick={(e) => setShowDisplayOptions(e.currentTarget)}>
-                            Display Mode
-                        </MenuItem>
-
-                        <MenuItem
-                            onClick={() => {
-                                setShowMore(undefined);
-                                setOpen(true);
-                            }}
-                        >
-                            Change Name
-                        </MenuItem>
-                    </Menu>
-
-                    <Menu
-                        anchorEl={showDisplayOptions}
-                        keepMounted
-                        open={Boolean(showDisplayOptions)}
-                        onClose={() => setShowDisplayOptions(undefined)}
-                        anchorOrigin={{horizontal: 'right', vertical: 'center'}}
-                    >
-                        <MenuItem
-                            onClick={() => {
-                                setVideoDisplayMode(VideoDisplayMode.FitToWindow);
-                                setShowDisplayOptions(undefined);
-                                setShowMore(undefined);
-                            }}
-                        >
-                            Fit to window
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setVideoDisplayMode(VideoDisplayMode.FitWidth);
-                                setShowDisplayOptions(undefined);
-                                setShowMore(undefined);
-                            }}
-                        >
-                            Fit width
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setVideoDisplayMode(VideoDisplayMode.FitHeight);
-                                setShowDisplayOptions(undefined);
-                                setShowMore(undefined);
-                            }}
-                        >
-                            Fit height
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setVideoDisplayMode(VideoDisplayMode.OriginalSize);
-                                setShowDisplayOptions(undefined);
-                                setShowMore(undefined);
-                            }}
-                        >
-                            Original size
-                        </MenuItem>
-                    </Menu>
                 </Paper>
             )}
 
@@ -409,41 +289,13 @@ export const Room = ({
                         </Typography>
                     </Paper>
                 )}
+                <SettingDialog
+                    open={open}
+                    setOpen={setOpen}
+                    updateName={setName}
+                    saveSettings={setSettings}
+                />
             </div>
-
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Change Name</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={submitName}>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Username"
-                            value={nameInput}
-                            onChange={(e) => setNameInput(e.target.value)}
-                            fullWidth
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={permanent}
-                                    onChange={(_, checked) => setPermanent(checked)}
-                                />
-                            }
-                            label="Remember"
-                        />
-                    </form>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={submitName} color="primary">
-                        Change
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 };

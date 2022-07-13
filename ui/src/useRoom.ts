@@ -1,4 +1,6 @@
+import {useSnackbar} from 'notistack';
 import React from 'react';
+
 import {
     ICEServer,
     IncomingMessage,
@@ -8,11 +10,10 @@ import {
     RoomInfo,
     UIConfig,
 } from './message';
-import {getPermanentName} from './name';
+import {loadSettings, resolveCodecPlaceholder} from './settings';
 import {urlWithSlash} from './url';
-import {useSnackbar} from 'notistack';
-import {getFromURL, useRoomID} from './useRoomID';
 import {authModeToRoomMode} from './useConfig';
+import {getFromURL, useRoomID} from './useRoomID';
 
 export type RoomState = false | ConnectedRoom;
 export type ConnectedRoom = {
@@ -72,6 +73,36 @@ const hostSession = async ({
     };
 
     stream.getTracks().forEach((track) => peer.addTrack(track, stream));
+
+    const preferCodec = resolveCodecPlaceholder(loadSettings().preferCodec);
+    if (preferCodec) {
+        const transceiver = peer
+            .getTransceivers()
+            .find((t) => t.sender && t.sender.track === stream.getVideoTracks()[0]);
+
+        if (!!transceiver && 'setCodecPreferences' in transceiver) {
+            const exactMatch: RTCRtpCodecCapability[] = [];
+            const mimeMatch: RTCRtpCodecCapability[] = [];
+            const others: RTCRtpCodecCapability[] = [];
+
+            RTCRtpSender.getCapabilities('video')?.codecs.forEach((codec) => {
+                if (codec.mimeType === preferCodec.mimeType) {
+                    if (codec.sdpFmtpLine === preferCodec.sdpFmtpLine) {
+                        exactMatch.push(codec);
+                    } else {
+                        mimeMatch.push(codec);
+                    }
+                } else {
+                    others.push(codec);
+                }
+            });
+
+            const sortedCodecs = [...exactMatch, ...mimeMatch, ...others];
+
+            console.log('Setting codec preferences', sortedCodecs);
+            transceiver.setCodecPreferences(sortedCodecs);
+        }
+    }
 
     const hostOffer = await peer.createOffer({offerToReceiveVideo: true});
     await peer.setLocalDescription(hostOffer);
@@ -276,7 +307,7 @@ export const useRoom = (config: UIConfig): UseRoom => {
                     setState(false);
                 };
                 ws.onopen = () => {
-                    create.payload.username = getPermanentName();
+                    create.payload.username = loadSettings().name;
                     send(create);
                 };
             });
