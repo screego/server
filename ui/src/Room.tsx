@@ -4,7 +4,7 @@ import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import FullScreenIcon from '@mui/icons-material/Fullscreen';
 import PeopleIcon from '@mui/icons-material/People';
-import ShowMoreIcon from '@mui/icons-material/MoreVert';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
 import makeStyles from '@mui/styles/makeStyles';
@@ -225,20 +225,18 @@ export const Room = ({
                         </Badge>
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
-                        <span>
-                            <IconButton
-                                onClick={() => videoElement?.requestFullscreen()}
-                                disabled={!selectedStream}
-                                size="large"
-                            >
-                                <FullScreenIcon fontSize="large" />
-                            </IconButton>
-                        </span>
+                        <IconButton
+                            onClick={() => videoElement?.requestFullscreen()}
+                            disabled={!selectedStream}
+                            size="large"
+                        >
+                            <FullScreenIcon fontSize="large" />
+                        </IconButton>
                     </Tooltip>
 
-                    <Tooltip title="More" arrow>
+                    <Tooltip title="Settings" arrow>
                         <IconButton onClick={() => setOpen(true)} size="large">
-                            <ShowMoreIcon fontSize="large" />
+                            <SettingsIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
                 </Paper>
