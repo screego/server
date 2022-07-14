@@ -357,7 +357,8 @@ const useStyles = makeStyles((theme: Theme) => ({
         zIndex: 30,
     },
     video: {
-        position: 'absolute',
+        display: 'block',
+        margin: '0 auto',
 
         '&::-webkit-media-controls-start-playback-button': {
             display: 'none!important',
@@ -416,9 +417,5 @@ const useStyles = makeStyles((theme: Theme) => ({
         height: '100%',
 
         overflow: 'auto',
-
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 }));
