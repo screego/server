@@ -65,7 +65,7 @@ export const loadSettings = (): Settings => {
             displayMode:
                 Object.values(VideoDisplayMode).find((mode) => mode === settings.displayMode) ??
                 VideoDisplayMode.FitToWindow,
-            preferCodec: settings.preferCodec ?? CodecBestQuality,
+            preferCodec: settings.preferCodec ?? CodecDefault,
         };
     }
     return defaults;
