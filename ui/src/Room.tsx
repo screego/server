@@ -33,7 +33,7 @@ const flags = (user: RoomUser) => {
     return ` (${result.join(', ')})`;
 };
 
-interface FullScreenDocumentElement extends HTMLElement {
+interface FullScreenHTMLVideoElement extends HTMLVideoElement {
     msRequestFullscreen?: () => void;
     mozRequestFullScreen?: () => void;
     webkitRequestFullscreen?: () => void;
@@ -57,7 +57,7 @@ export const Room = ({
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
-    const [videoElement, setVideoElement] = React.useState<FullScreenDocumentElement | null>(null);
+    const [videoElement, setVideoElement] = React.useState<FullScreenHTMLVideoElement | null>(null);
 
     useShowOnMouseMovement(setShowControl);
 
