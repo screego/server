@@ -67,7 +67,7 @@ export const Room = ({
             videoElement?.msRequestFullscreen ||
             videoElement?.mozRequestFullScreen ||
             videoElement?.webkitRequestFullscreen;
-        requestFullscreen && requestFullscreen();
+        requestFullscreen && requestFullscreen.call(videoElement);
     }, [videoElement]);
 
     React.useEffect(() => {
