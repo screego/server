@@ -39,6 +39,18 @@ interface FullScreenHTMLVideoElement extends HTMLVideoElement {
     webkitRequestFullscreen?: () => void;
 }
 
+const requestFullscreen = (element: FullScreenHTMLVideoElement | null) => {
+    if (element?.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element?.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element?.msRequestFullscreen) {
+        element.msRequestFullscreen();
+    } else if (element?.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    }
+};
+
 export const Room = ({
     state,
     share,
@@ -61,14 +73,7 @@ export const Room = ({
 
     useShowOnMouseMovement(setShowControl);
 
-    const handleFullscreen = useCallback(() => {
-        const requestFullscreen =
-            videoElement?.requestFullscreen ??
-            videoElement?.msRequestFullscreen ??
-            videoElement?.mozRequestFullScreen ??
-            videoElement?.webkitRequestFullscreen;
-        requestFullscreen?.call(videoElement);
-    }, [videoElement]);
+    const handleFullscreen = useCallback(() => requestFullscreen(videoElement), [videoElement]);
 
     React.useEffect(() => {
         if (selectedStream === HostStream && state.hostStream) {
