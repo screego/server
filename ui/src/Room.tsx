@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Badge, IconButton, Paper, Theme, Tooltip, Typography} from '@mui/material';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
@@ -33,6 +33,24 @@ const flags = (user: RoomUser) => {
     return ` (${result.join(', ')})`;
 };
 
+interface FullScreenHTMLVideoElement extends HTMLVideoElement {
+    msRequestFullscreen?: () => void;
+    mozRequestFullScreen?: () => void;
+    webkitRequestFullscreen?: () => void;
+}
+
+const requestFullscreen = (element: FullScreenHTMLVideoElement | null) => {
+    if (element?.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element?.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element?.msRequestFullscreen) {
+        element.msRequestFullscreen();
+    } else if (element?.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    }
+};
+
 export const Room = ({
     state,
     share,
@@ -51,9 +69,11 @@ export const Room = ({
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
-    const [videoElement, setVideoElement] = React.useState<HTMLVideoElement | null>(null);
+    const [videoElement, setVideoElement] = React.useState<FullScreenHTMLVideoElement | null>(null);
 
     useShowOnMouseMovement(setShowControl);
+
+    const handleFullscreen = useCallback(() => requestFullscreen(videoElement), [videoElement]);
 
     React.useEffect(() => {
         if (selectedStream === HostStream && state.hostStream) {
@@ -103,10 +123,10 @@ export const Room = ({
         'f',
         () => {
             if (selectedStream) {
-                videoElement?.requestFullscreen();
+                handleFullscreen();
             }
         },
-        [videoElement, selectedStream]
+        [handleFullscreen, selectedStream]
     );
     useHotkeys('c', copyLink);
     useHotkeys(
@@ -226,7 +246,7 @@ export const Room = ({
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
                         <IconButton
-                            onClick={() => videoElement?.requestFullscreen()}
+                            onClick={() => handleFullscreen()}
                             disabled={!selectedStream}
                             size="large"
                         >
