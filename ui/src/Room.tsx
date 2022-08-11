@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, {useCallback} from 'react';
 import {Badge, IconButton, Paper, Theme, Tooltip, Typography} from '@mui/material';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
@@ -37,7 +37,7 @@ interface FullScreenHTMLVideoElement extends HTMLVideoElement {
     msRequestFullscreen?: () => void;
     mozRequestFullScreen?: () => void;
     webkitRequestFullscreen?: () => void;
-  }
+}
 
 export const Room = ({
     state,
@@ -63,11 +63,11 @@ export const Room = ({
 
     const handleFullscreen = useCallback(() => {
         const requestFullscreen =
-            videoElement?.requestFullscreen ||
-            videoElement?.msRequestFullscreen ||
-            videoElement?.mozRequestFullScreen ||
+            videoElement?.requestFullscreen ??
+            videoElement?.msRequestFullscreen ??
+            videoElement?.mozRequestFullScreen ??
             videoElement?.webkitRequestFullscreen;
-        requestFullscreen && requestFullscreen.call(videoElement);
+        requestFullscreen?.call(videoElement);
     }, [videoElement]);
 
     React.useEffect(() => {
