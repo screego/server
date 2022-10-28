@@ -22,12 +22,14 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
     const [id, setId] = React.useState(() => getRoomFromURL() ?? randomRoomName());
     const mode = authModeToRoomMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
+    const [joinIfExist, setJoinIfExist] = React.useState(true);
     const submit = () =>
         room({
             type: 'create',
             payload: {
                 mode,
                 closeOnOwnerLeave: ownerLeave,
+                joinIfExist,
                 id: id || undefined,
             },
         });
@@ -50,6 +52,15 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={joinIfExist}
+                            onChange={(_, checked) => setJoinIfExist(checked)}
+                        />
+                    }
+                    label="Join if exists"
+                />
                 <Box paddingBottom={0.5}>
                     <Typography>
                         Nat Traversal via:{' '}
@@ -64,28 +75,6 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                 </Box>
                 <Button onClick={submit} fullWidth variant="contained">
                     Create Room
-                </Button>
-            </FormControl>
-        </div>
-    );
-};
-
-const JoinRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) => {
-    const [id, setId] = React.useState("");
-    const mode = authModeToRoomMode(config.authMode, config.loggedIn);
-    const submit = () =>
-        room({
-            type: 'join',
-            payload: {
-                id: id,
-            },
-        });
-    return (
-        <div>
-            <FormControl fullWidth>
-                <TextField value={id} onChange={(e) => setId(e.target.value)} margin='dense' label="id"/>
-                <Button onClick={submit} fullWidth variant="contained">
-                    Join a room
                 </Button>
             </FormControl>
         </div>
@@ -137,11 +126,6 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
                             <CreateRoom room={room} config={config} />
                         </>
                     )}
-                </Paper>
-            </Grid>
-            <Grid item xs={12} marginBottom={4}>
-                <Paper elevation={3} style={{padding: 20}}>
-                    <JoinRoom room={room} config={config} />
                 </Paper>
             </Grid>
             <div style={{position: 'absolute', margin: '0 auto', bottom: 0}}>
