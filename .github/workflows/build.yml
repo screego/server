@@ -5,10 +5,10 @@ jobs:
   screego:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: 1.18.x
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
       - uses: actions/cache@v2
@@ -23,7 +23,7 @@ jobs:
             ui/node_modules
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: ${{ runner.os }}-node_modules-
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: go mod download
       - run: (cd ui && yarn)
       - run: (cd ui && yarn build)
