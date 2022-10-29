@@ -28,6 +28,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
             payload: {
                 mode,
                 closeOnOwnerLeave: ownerLeave,
+                joinIfExist: true,
                 id: id || undefined,
             },
         });
@@ -63,7 +64,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     </Typography>
                 </Box>
                 <Button onClick={submit} fullWidth variant="contained">
-                    Create Room
+                    Create or Join a Room
                 </Button>
             </FormControl>
         </div>
