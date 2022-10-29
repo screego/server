@@ -22,14 +22,13 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
     const [id, setId] = React.useState(() => getRoomFromURL() ?? randomRoomName());
     const mode = authModeToRoomMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
-    const [joinIfExist, setJoinIfExist] = React.useState(true);
     const submit = () =>
         room({
             type: 'create',
             payload: {
                 mode,
                 closeOnOwnerLeave: ownerLeave,
-                joinIfExist,
+                joinIfExist: true,
                 id: id || undefined,
             },
         });
@@ -52,15 +51,6 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     }
                     label="Close Room after you leave"
                 />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={joinIfExist}
-                            onChange={(_, checked) => setJoinIfExist(checked)}
-                        />
-                    }
-                    label="Join if exists"
-                />
                 <Box paddingBottom={0.5}>
                     <Typography>
                         Nat Traversal via:{' '}
@@ -74,7 +64,7 @@ const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) 
                     </Typography>
                 </Box>
                 <Button onClick={submit} fullWidth variant="contained">
-                    Create Room
+                    Create or Join a Room
                 </Button>
             </FormControl>
         </div>
