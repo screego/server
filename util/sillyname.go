@@ -2,7 +2,9 @@ package util
 
 import (
 	"math/rand"
-	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var adjectives = []string{
@@ -31,5 +33,5 @@ func r(l []string) string {
 }
 
 func NewName() string {
-	return strings.Title(r(adjectives) + " " + r(animals))
+	return cases.Title(language.English).String(r(adjectives) + " " + r(animals))
 }

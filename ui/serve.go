@@ -2,8 +2,8 @@ package ui
 
 import (
 	"embed"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -33,7 +33,7 @@ func serveFile(name, contentType string) http.HandlerFunc {
 		log.Panic().Err(err).Msgf("could not find %s", file)
 	}
 	defer file.Close()
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		log.Panic().Err(err).Msgf("could not read %s", file)
 	}
