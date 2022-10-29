@@ -11,13 +11,13 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pion/randutil v0.1.0
 	github.com/pion/turn/v2 v2.0.8
-	github.com/prometheus/client_golang v1.12.2
+	github.com/prometheus/client_golang v1.13.0
 	github.com/rs/xid v1.4.0
-	github.com/rs/zerolog v1.27.0
-	github.com/stretchr/testify v1.7.5
-	github.com/urfave/cli v1.22.9
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
+	github.com/rs/zerolog v1.28.0
+	github.com/stretchr/testify v1.8.1
+	github.com/urfave/cli v1.22.10
+	golang.org/x/crypto v0.1.0
+	golang.org/x/term v0.1.0
 )
 
 require (
@@ -37,10 +37,10 @@ require (
 	github.com/pion/transport v0.13.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.32.1 // indirect
-	github.com/prometheus/procfs v0.7.3 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
+	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	golang.org/x/sys v0.0.0-20220325203850-36772127a21f // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
