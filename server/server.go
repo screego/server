@@ -2,9 +2,11 @@ package server
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -32,17 +34,32 @@ func startServer(mux *mux.Router, address, cert, key string) (*http.Server, chan
 
 	shutdown := make(chan error)
 	go func() {
-		if cert != "" || key != "" {
-			log.Info().Str("addr", address).Msg("Start HTTP with tls")
-			err := srv.ListenAndServeTLS(cert, key)
-			shutdown <- err
-		} else {
-			log.Info().Str("addr", address).Msg("Start HTTP")
-			err := srv.ListenAndServe()
-			shutdown <- err
-		}
+		err := listenAndServe(srv, address, cert, key)
+		shutdown <- err
 	}()
 	return srv, shutdown
+}
+
+func listenAndServe(srv *http.Server, address, cert, key string) error {
+	var err error
+	var listener net.Listener
+
+	if strings.HasPrefix(address, "unix:") {
+		listener, err = net.Listen("unix", strings.TrimPrefix(address, "unix:"))
+	} else {
+		listener, err = net.Listen("tcp", address)
+	}
+	if err != nil {
+		return err
+	}
+
+	if cert != "" || key != "" {
+		log.Info().Str("addr", address).Msg("Start HTTP with tls")
+		return srv.ServeTLS(listener, cert, key)
+	} else {
+		log.Info().Str("addr", address).Msg("Start HTTP")
+		return srv.Serve(listener)
+	}
 }
 
 func shutdownOnInterruptSignal(server *http.Server, timeout time.Duration, shutdown chan<- error) {

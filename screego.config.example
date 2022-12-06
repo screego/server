@@ -19,6 +19,11 @@ SCREEGO_TLS_CERT_FILE=
 SCREEGO_TLS_KEY_FILE=
 
 # The address the http server will listen on.
+# Formats:
+# - host:port
+#   Example: 127.0.0.1:5050
+# - unix socket (must be prefixed with unix:)
+#   Example: unix:/my/file/path.socket
 SCREEGO_SERVER_ADDRESS=0.0.0.0:5050
 
 # The address the TURN server will listen on.
