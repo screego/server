@@ -9,17 +9,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 )
 
-var notifySignal = signal.Notify
-var serverShutdown = func(server *http.Server, ctx context.Context) error {
-	return server.Shutdown(ctx)
-}
+var (
+	notifySignal   = signal.Notify
+	serverShutdown = func(server *http.Server, ctx context.Context) error {
+		return server.Shutdown(ctx)
+	}
+)
 
-// Start starts the http server
+// Start starts the http server.
 func Start(mux *mux.Router, address, cert, key string) error {
 	server, shutdown := startServer(mux, address, cert, key)
 	shutdownOnInterruptSignal(server, 2*time.Second, shutdown)

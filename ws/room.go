@@ -59,7 +59,6 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 			Credential: clientPW,
 			Username:   clientName,
 		}}
-
 	}
 	r.Users[host].Write <- outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost}
 	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}

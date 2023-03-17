@@ -28,9 +28,9 @@ jobs:
       - run: (cd ui && yarn)
       - run: (cd ui && yarn build)
       - run: (cd ui && yarn testformat)
-      - uses: golangci/golangci-lint-action@v2
+      - uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.50.1
+          version: v1.51.1
       - run: go build ./...
       - run: go test -race ./...
       - if: startsWith(github.ref, 'refs/tags/v')

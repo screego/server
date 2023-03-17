@@ -1,9 +1,9 @@
 package mode
 
 const (
-	// Dev for development mode
+	// Dev for development mode.
 	Dev = "dev"
-	// Prod for production mode
+	// Prod for production mode.
 	Prod = "prod"
 )
 
