@@ -54,6 +54,9 @@ dockers:
       - "screego/server:amd64-unstable"
       - "screego/server:amd64-{{ .RawVersion }}"
       - "screego/server:amd64-{{ .Major }}"
+      - "ghcr.io/screego/server:amd64-unstable"
+      - "ghcr.io/screego/server:amd64-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:amd64-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
@@ -69,6 +72,9 @@ dockers:
       - "screego/server:386-unstable"
       - "screego/server:386-{{ .RawVersion }}"
       - "screego/server:386-{{ .Major }}"
+      - "ghcr.io/screego/server:386-unstable"
+      - "ghcr.io/screego/server:386-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:386-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/386"
@@ -84,6 +90,9 @@ dockers:
       - "screego/server:arm64-unstable"
       - "screego/server:arm64-{{ .RawVersion }}"
       - "screego/server:arm64-{{ .Major }}"
+      - "ghcr.io/screego/server:arm64-unstable"
+      - "ghcr.io/screego/server:arm64-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:arm64-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/arm64"
@@ -99,6 +108,9 @@ dockers:
       - "screego/server:armv7-unstable"
       - "screego/server:armv7-{{ .RawVersion }}"
       - "screego/server:armv7-{{ .Major }}"
+      - "ghcr.io/screego/server:armv7-unstable"
+      - "ghcr.io/screego/server:armv7-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:armv7-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/arm/v7"
@@ -114,6 +126,9 @@ dockers:
       - "screego/server:armv6-unstable"
       - "screego/server:armv6-{{ .RawVersion }}"
       - "screego/server:armv6-{{ .Major }}"
+      - "ghcr.io/screego/server:armv6-unstable"
+      - "ghcr.io/screego/server:armv6-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:armv6-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/arm/v6"
@@ -129,6 +144,9 @@ dockers:
       - "screego/server:ppc64le-unstable"
       - "screego/server:ppc64le-{{ .RawVersion }}"
       - "screego/server:ppc64le-{{ .Major }}"
+      - "ghcr.io/screego/server:ppc64le-unstable"
+      - "ghcr.io/screego/server:ppc64le-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:ppc64le-{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/ppc64le"
@@ -137,6 +155,14 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
 docker_manifests:
+  - name_template: "ghcr.io/screego/server:unstable"
+    image_templates:
+      - "ghcr.io/screego/server:amd64-unstable"
+      - "ghcr.io/screego/server:386-unstable"
+      - "ghcr.io/screego/server:arm64-unstable"
+      - "ghcr.io/screego/server:armv7-unstable"
+      - "ghcr.io/screego/server:armv6-unstable"
+      - "ghcr.io/screego/server:ppc64le-unstable"
   - name_template: "screego/server:unstable"
     image_templates:
       - "screego/server:amd64-unstable"
@@ -153,6 +179,14 @@ docker_manifests:
       - "screego/server:armv7-{{ .RawVersion }}"
       - "screego/server:armv6-{{ .RawVersion }}"
       - "screego/server:ppc64le-{{ .RawVersion }}"
+  - name_template: "ghcr.io/screego/server:{{ .RawVersion }}"
+    image_templates:
+      - "ghcr.io/screego/server:amd64-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:386-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:arm64-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:armv7-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:armv6-{{ .RawVersion }}"
+      - "ghcr.io/screego/server:ppc64le-{{ .RawVersion }}"
   - name_template: "screego/server:{{ .Major }}"
     image_templates:
       - "screego/server:amd64-{{ .Major }}"
@@ -161,3 +195,11 @@ docker_manifests:
       - "screego/server:armv7-{{ .Major }}"
       - "screego/server:armv6-{{ .Major }}"
       - "screego/server:ppc64le-{{ .Major }}"
+  - name_template: "ghcr.io/screego/server:{{ .Major }}"
+    image_templates:
+      - "ghcr.io/screego/server:amd64-{{ .Major }}"
+      - "ghcr.io/screego/server:386-{{ .Major }}"
+      - "ghcr.io/screego/server:arm64-{{ .Major }}"
+      - "ghcr.io/screego/server:armv7-{{ .Major }}"
+      - "ghcr.io/screego/server:armv6-{{ .Major }}"
+      - "ghcr.io/screego/server:ppc64le-{{ .Major }}"

@@ -34,7 +34,9 @@ jobs:
       - run: go build ./...
       - run: go test -race ./...
       - if: startsWith(github.ref, 'refs/tags/v')
-        run: echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
+        run: |
+          echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
