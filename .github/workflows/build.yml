@@ -45,8 +45,3 @@ jobs:
           args: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - if: startsWith(github.ref, 'refs/tags/v')
-        run: make VERSION=${GITHUB_REF/refs\/tags\/v/} docker-manifest-annotate docker-manifest-push
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
