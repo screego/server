@@ -2,6 +2,7 @@ package ws
 
 import (
 	"fmt"
+
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/ws/outgoing"
 )

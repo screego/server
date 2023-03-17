@@ -2,11 +2,11 @@ package ws
 
 import (
 	"bytes"
+
 	"github.com/screego/server/ws/outgoing"
 )
 
-type Disconnected struct {
-}
+type Disconnected struct{}
 
 func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 	if current.RoomID == "" {

@@ -8,9 +8,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/gorilla/sessions"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -32,7 +31,6 @@ func read(r io.Reader) ([]UserPW, error) {
 	reader.TrimLeadingSpace = true
 
 	records, err := reader.ReadAll()
-
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +128,7 @@ func (u *Users) Authenticate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (u Users) Validate(user string, password string) bool {
+func (u Users) Validate(user, password string) bool {
 	realPassword, exists := u.Lookup[user]
 	return exists && bcrypt.CompareHashAndPassword([]byte(realPassword), []byte(password)) == nil
 }

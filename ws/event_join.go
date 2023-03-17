@@ -2,8 +2,6 @@ package ws
 
 import (
 	"fmt"
-
-	"github.com/screego/server/util"
 )
 
 func init() {
@@ -31,7 +29,7 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		name = current.AuthenticatedUser
 	}
 	if name == "" {
-		name = util.NewName()
+		name = rooms.RandUserName()
 	}
 
 	room.Users[current.ID] = &User{

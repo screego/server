@@ -10,8 +10,7 @@ func init() {
 	})
 }
 
-type StartShare struct {
-}
+type StartShare struct{}
 
 func (e *StartShare) Execute(rooms *Rooms, current ClientInfo) error {
 	if current.RoomID == "" {

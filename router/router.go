@@ -2,13 +2,13 @@ package router
 
 import (
 	"encoding/json"
-	"github.com/rs/zerolog/hlog"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/auth"
 	"github.com/screego/server/config"
@@ -68,13 +68,12 @@ func accessLogger(r *http.Request, status, size int, dur time.Duration) {
 
 func basicAuth(handler http.Handler, users *auth.Users) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		user, pass, ok := r.BasicAuth()
 
 		if !ok || !users.Validate(user, pass) {
 			w.Header().Set("WWW-Authenticate", `Basic realm="screego"`)
 			w.WriteHeader(401)
-			_, _ = w.Write([]byte("Unauthorised.\n"))
+			_, _ = w.Write([]byte("Unauthorized.\n"))
 			return
 		}
 

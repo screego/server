@@ -6,7 +6,6 @@ import (
 
 	"github.com/rs/xid"
 	"github.com/screego/server/config"
-	"github.com/screego/server/util"
 )
 
 func init() {
@@ -42,7 +41,7 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 		name = current.AuthenticatedUser
 	}
 	if name == "" {
-		name = util.NewName()
+		name = rooms.RandUserName()
 	}
 
 	switch rooms.config.AuthMode {

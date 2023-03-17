@@ -148,12 +148,12 @@ func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 
-	var connectedIp net.IP
+	var connectedIP net.IP
 	switch addr := addr.(type) {
 	case *net.UDPAddr:
-		connectedIp = addr.IP
+		connectedIP = addr.IP
 	case *net.TCPAddr:
-		connectedIp = addr.IP
+		connectedIP = addr.IP
 	default:
 		log.Error().Interface("type", fmt.Sprintf("%T", addr)).Msg("unknown addr type")
 		return nil, false
@@ -167,7 +167,7 @@ func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]
 
 	authIP := entry.addr
 
-	if a.strictAuth && !connectedIp.Equal(authIP) {
+	if a.strictAuth && !connectedIP.Equal(authIP) {
 		log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict auth check failed")
 		return nil, false
 	}

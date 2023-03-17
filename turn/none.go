@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type RelayAddressGeneratorNone struct {}
+type RelayAddressGeneratorNone struct{}
 
 func (r *RelayAddressGeneratorNone) Validate() error {
 	return nil

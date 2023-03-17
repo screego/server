@@ -2,6 +2,7 @@ package ws
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/screego/server/auth"
 	"github.com/screego/server/config"
 	"github.com/screego/server/turn"
+	"github.com/screego/server/util"
 )
 
 func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms {
@@ -20,6 +22,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 		turnServer: tServer,
 		users:      users,
 		config:     conf,
+		r:          rand.New(rand.NewSource(time.Now().Unix())),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -45,11 +48,15 @@ type Rooms struct {
 	upgrader   websocket.Upgrader
 	users      *auth.Users
 	config     config.Config
+	r          *rand.Rand
+}
+
+func (r *Rooms) RandUserName() string {
+	return util.NewName(r.r)
 }
 
 func (r *Rooms) Upgrade(w http.ResponseWriter, req *http.Request) {
 	conn, err := r.upgrader.Upgrade(w, req, nil)
-
 	if err != nil {
 		log.Debug().Err(err).Msg("Websocket upgrade")
 		w.WriteHeader(400)
@@ -73,8 +80,8 @@ func (r *Rooms) Start() {
 	}
 }
 
-func (r *Rooms) closeRoom(roomId string) {
-	room, ok := r.Rooms[roomId]
+func (r *Rooms) closeRoom(roomID string) {
+	room, ok := r.Rooms[roomID]
 	if !ok {
 		return
 	}
@@ -83,6 +90,6 @@ func (r *Rooms) closeRoom(roomId string) {
 		room.closeSession(r, id)
 	}
 
-	delete(r.Rooms, roomId)
+	delete(r.Rooms, roomID)
 	roomsClosedTotal.Inc()
 }

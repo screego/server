@@ -2,15 +2,16 @@ package ws
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gorilla/websocket"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/ws/outgoing"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 )
 
 var ping = func(conn *websocket.Conn) error {
@@ -48,7 +49,6 @@ type ClientInfo struct {
 }
 
 func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage, authenticatedUser string, authenticated, trustProxy bool) *Client {
-
 	ip := conn.RemoteAddr().(*net.TCPAddr).IP
 	if realIP := req.Header.Get("X-Real-IP"); trustProxy && realIP != "" {
 		ip = net.ParseIP(realIP)
@@ -122,7 +122,7 @@ func (c *Client) startReading(pongWait time.Duration) {
 // startWriteHandler starts the write loop. The method has the following tasks:
 // * ping the client in the interval provided as parameter
 // * write messages send by the channel to the client
-// * on errors exit the loop
+// * on errors exit the loop.
 func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 	pingTicker := time.NewTicker(pingPeriod)
 

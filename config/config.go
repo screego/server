@@ -112,14 +112,16 @@ func Get() (Config, []FutureLog) {
 			} else {
 				logs = append(logs, FutureLog{
 					Level: zerolog.DebugLevel,
-					Msg:   fmt.Sprintf("Loading file %s", file)})
+					Msg:   fmt.Sprintf("Loading file %s", file),
+				})
 			}
 		} else if os.IsNotExist(fileErr) {
 			continue
 		} else {
 			logs = append(logs, FutureLog{
 				Level: zerolog.WarnLevel,
-				Msg:   fmt.Sprintf("cannot read file %s because %s", file, fileErr)})
+				Msg:   fmt.Sprintf("cannot read file %s because %s", file, fileErr),
+			})
 		}
 	}
 
@@ -171,7 +173,8 @@ func Get() (Config, []FutureLog) {
 		if _, err := rand.Read(config.Secret); err == nil {
 			logs = append(logs, FutureLog{
 				Level: zerolog.InfoLevel,
-				Msg:   "SCREEGO_SECRET unset, user logins will be invalidated on restart"})
+				Msg:   "SCREEGO_SECRET unset, user logins will be invalidated on restart",
+			})
 		} else {
 			logs = append(logs, futureFatal(fmt.Sprintf("cannot create secret %s", err)))
 		}
@@ -212,7 +215,8 @@ func Get() (Config, []FutureLog) {
 	} else if (max - min) < 40 {
 		logs = append(logs, FutureLog{
 			Level: zerolog.WarnLevel,
-			Msg:   "Less than 40 ports are available for turn. When using multiple TURN connections this may not be enough"})
+			Msg:   "Less than 40 ports are available for turn. When using multiple TURN connections this may not be enough",
+		})
 	}
 
 	return config, logs
@@ -277,7 +281,8 @@ func getExecutableDir() (string, *FutureLog) {
 	if err != nil {
 		return "", &FutureLog{
 			Level: zerolog.ErrorLevel,
-			Msg:   "Could not get path of executable using working directory instead. " + err.Error()}
+			Msg:   "Could not get path of executable using working directory instead. " + err.Error(),
+		}
 	}
 	return filepath.Dir(ex), nil
 }

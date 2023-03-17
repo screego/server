@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	mrand "math/rand"
 	"os"
-	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -21,8 +19,6 @@ func serveCmd(version string) cli.Command {
 	return cli.Command{
 		Name: "serve",
 		Action: func(ctx *cli.Context) {
-
-			mrand.Seed(time.Now().Unix())
 			conf, errs := config.Get()
 			logger.Init(conf.LogLevel.AsZeroLogLevel())
 

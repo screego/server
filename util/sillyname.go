@@ -18,6 +18,7 @@ var adjectives = []string{
 	"optimistic", "patient", "pioneering", "polite", "powerful", "reliable",
 	"resourceful", "sensible", "sincere", "thoughtful", "tough", "versatile",
 }
+
 var animals = []string{
 	"Dog", "Puppy", "Turtle", "Rabbit", "Parrot", "Cat", "Kitten", "Goldfish",
 	"Mouse", "Hamster", "Fish", "Cow", "Rabbit", "Duck", "Shrimp", "Pig",
@@ -28,10 +29,10 @@ var animals = []string{
 	"Coyote", "Hedgehong", "Sheep", "Deer",
 }
 
-func r(l []string) string {
-	return l[rand.Intn(len(l)-1)]
+func r(r *rand.Rand, l []string) string {
+	return l[r.Intn(len(l)-1)]
 }
 
-func NewName() string {
-	return cases.Title(language.English).String(r(adjectives) + " " + r(animals))
+func NewName(s *rand.Rand) string {
+	return cases.Title(language.English).String(r(s, adjectives) + " " + r(s, animals))
 }
