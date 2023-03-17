@@ -11,8 +11,10 @@ Latest Version: **GITHUB_VERSION**
 
 Setting up Screego with docker is pretty easy, you basically just have to start the docker container, and you are ready to go:
 
-The [screego/server](https://hub.docker.com/r/screego/server) docker images are multi-arch docker images. 
-This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64`, `arm v7` (Raspberry PI).
+[ghcr.io/screego/server](https://github.com/orgs/screego/packages/container/package/server) and
+[screego/server](https://hub.docker.com/r/screego/server)
+docker images are multi-arch docker images.
+This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64`, `armv7` (Raspberry PI) and `armv6`.
 
 When using [TURN](nat-traversal.md), Screego will allocate ports for relay
 connections, this currently only works with network mode host inside docker.
@@ -20,7 +22,8 @@ See [#56](https://github.com/screego/server/issues/56)
 
 By default, Screego runs on port 5050.
 
-?> Replace `YOUREXTERNALIP` with your external IP. One way to find your external ip is with ipify.
+?> Replace `EXTERNALIP` with your external IP. One way to find your external ip is with ipify.
+
    ```bash
    $ curl 'https://api.ipify.org'
    ```
@@ -28,7 +31,7 @@ By default, Screego runs on port 5050.
 ### Network Host
 
 ```bash
-$ docker run --net=host -e SCREEGO_EXTERNAL_IP=YOUREXTERNALIP screego/server:GITHUB_VERSION
+$ docker run --net=host -e SCREEGO_EXTERNAL_IP=EXTERNALIP ghcr.io/screego/server:GITHUB_VERSION
 ```
 
 #### docker-compose.yml
@@ -37,25 +40,25 @@ $ docker run --net=host -e SCREEGO_EXTERNAL_IP=YOUREXTERNALIP screego/server:GIT
 version: "3.7"
 services:
   screego:
-    image: screego/server:GITHUB_VERSION
+    image: ghcr.io/screego/server:GITHUB_VERSION
     network_mode: host
     environment:
-      SCREEGO_EXTERNAL_IP: "YOUREXTERNALIP"
+      SCREEGO_EXTERNAL_IP: "EXTERNALIP"
 ```
 
 ## Binary
 
 ### Supported Platforms:
 
-* linux_amd64 (64bit)
-* linux_i386 (32bit)
-* armv7 (32bit used for Raspberry Pi)
-* armv6
-* arm64 (ARMv8)
-* ppc64
-* ppc64le
-* windows_i386.exe (32bit)
-* windows_amd64.exe (64bit)
+- linux_amd64 (64bit)
+- linux_i386 (32bit)
+- armv7 (32bit used for Raspberry Pi)
+- armv6
+- arm64 (ARMv8)
+- ppc64
+- ppc64le
+- windows_i386.exe (32bit)
+- windows_amd64.exe (64bit)
 
 Download the zip with the binary for your platform from [screego/server Releases](https://github.com/screego/server/releases).
 
