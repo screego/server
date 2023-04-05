@@ -1,4 +1,5 @@
 FROM scratch
+USER 1001
 COPY screego /screego
 EXPOSE 3478/tcp
 EXPOSE 3478/udp
