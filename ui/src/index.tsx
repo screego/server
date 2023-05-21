@@ -1,65 +1,70 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './global.css';
-import {
-    Button,
-    createTheme,
-    CssBaseline,
-    ThemeProvider,
-    StyledEngineProvider,
-    adaptV4Theme,
-} from '@mui/material';
+import {Button, createTheme, CssBaseline, ThemeProvider, StyledEngineProvider} from '@mui/material';
 import {Router} from './Router';
 import {SnackbarProvider} from 'notistack';
 
-const theme = createTheme(
-    adaptV4Theme({
-        overrides: {
-            MuiSelect: {icon: {position: 'relative'}},
-            MuiLink: {
+const theme = createTheme({
+    components: {
+        MuiSelect: {
+            styleOverrides: {
+                icon: {position: 'relative'},
+            },
+        },
+        MuiLink: {
+            styleOverrides: {
                 root: {
                     color: '#458588',
                 },
             },
-            MuiIconButton: {
+        },
+        MuiIconButton: {
+            styleOverrides: {
                 root: {
                     color: 'inherit',
                 },
             },
-            MuiListItemIcon: {
+        },
+        MuiListItemIcon: {
+            styleOverrides: {
                 root: {
                     color: 'inherit',
                 },
             },
-            MuiToolbar: {
+        },
+        MuiToolbar: {
+            styleOverrides: {
                 root: {
                     background: '#a89984',
                 },
             },
-            MuiTooltip: {
+        },
+        MuiTooltip: {
+            styleOverrides: {
                 tooltip: {
                     fontSize: '1.6em',
                 },
             },
         },
-        palette: {
-            background: {
-                default: '#282828',
-                paper: '#32302f',
-            },
-            text: {
-                primary: '#fbf1d4',
-            },
-            primary: {
-                main: '#a89984',
-            },
-            secondary: {
-                main: '#f44336',
-            },
-            mode: 'dark',
+    },
+    palette: {
+        background: {
+            default: '#282828',
+            paper: '#32302f',
         },
-    })
-);
+        text: {
+            primary: '#fbf1d4',
+        },
+        primary: {
+            main: '#a89984',
+        },
+        secondary: {
+            main: '#f44336',
+        },
+        mode: 'dark',
+    },
+});
 
 const Snackbar: React.FC<React.PropsWithChildren> = ({children}) => {
     const notistackRef = React.createRef<any>();
@@ -82,7 +87,7 @@ const Snackbar: React.FC<React.PropsWithChildren> = ({children}) => {
     );
 };
 
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById('root')!!).render(
     <React.StrictMode>
         <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
@@ -92,6 +97,5 @@ ReactDOM.render(
                 </Snackbar>
             </ThemeProvider>
         </StyledEngineProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
 );
