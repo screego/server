@@ -6,7 +6,7 @@ export const Video = ({src, className}: {src: MediaStream; className?: string}) 
     React.useEffect(() => {
         if (element) {
             element.srcObject = src;
-            element.play();
+            element.play().catch((e) => console.log('Could not play preview video', e));
         }
     }, [element, src]);
 

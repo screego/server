@@ -97,7 +97,7 @@ export const Room = ({
     React.useEffect(() => {
         if (videoElement && stream) {
             videoElement.srcObject = stream;
-            videoElement.play();
+            videoElement.play().catch((e) => console.log('Could not play main video', e));
         }
     }, [videoElement, stream]);
 
