@@ -39,6 +39,7 @@ jobs:
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      - run: git fetch --tags origin
       - uses: goreleaser/goreleaser-action@v4
         with:
           version: 1.19.2
