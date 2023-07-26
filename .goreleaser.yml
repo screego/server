@@ -36,8 +36,7 @@ archives:
       - LICENSE
       - README.md
       - screego.config.example
-    replacements:
-      386: i386
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{- if eq .Arch "386" }}i386{{- else }}{{ .Arch }}{{ end }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     format_overrides:
       - goos: windows
         format: zip

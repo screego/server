@@ -43,7 +43,7 @@ jobs:
       - if: startsWith(github.ref, 'refs/tags/v')
         uses: goreleaser/goreleaser-action@v4
         with:
-          version: latest
+          version: 1.19.2
           args: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
