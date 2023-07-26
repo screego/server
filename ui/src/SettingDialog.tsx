@@ -18,6 +18,7 @@ import {
     Settings,
     VideoDisplayMode,
 } from './settings';
+import {NumberField} from './NumberField';
 
 export interface SettingDialogProps {
     open: boolean;
@@ -44,7 +45,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
         setOpen(false);
     };
 
-    const {name, preferCodec, displayMode} = settingsInput;
+    const {name, preferCodec, displayMode, framerate} = settingsInput;
 
     return (
         <Dialog open={open} onClose={() => setOpen(false)} maxWidth={'xs'} fullWidth>
@@ -99,6 +100,15 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                             value={displayMode}
                             fullWidth
                             renderInput={(params) => <TextField {...params} label="Display Mode" />}
+                        />
+                    </Box>
+                    <Box paddingTop={1}>
+                        <NumberField
+                            label="FrameRate"
+                            min={1}
+                            onChange={(framerate) => setSettingsInput((c) => ({...c, framerate}))}
+                            value={framerate}
+                            fullWidth
                         />
                     </Box>
                 </form>
