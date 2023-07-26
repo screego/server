@@ -45,7 +45,7 @@ checksum:
 changelog:
   skip: true
 dockers:
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: amd64
     goarm: ""
@@ -63,7 +63,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: "386"
     goarm: ""
@@ -81,7 +81,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: arm64
     goarm: ""
@@ -99,7 +99,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: arm
     goarm: 7
@@ -117,7 +117,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: arm
     goarm: 6
@@ -135,7 +135,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: docker
+  - use: buildx
     goos: linux
     goarch: ppc64le
     goarm: ""
