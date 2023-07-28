@@ -44,11 +44,16 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 	room.notifyInfoChanged()
 	usersJoinedTotal.Inc()
 
+	v4, v6, err := rooms.config.TurnIPProvider.Get()
+	if err != nil {
+		return err
+	}
+
 	for _, user := range room.Users {
 		if current.ID == user.ID || !user.Streaming {
 			continue
 		}
-		room.newSession(user.ID, current.ID, rooms)
+		room.newSession(user.ID, current.ID, rooms, v4, v6)
 	}
 
 	return nil

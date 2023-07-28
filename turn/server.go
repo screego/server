@@ -12,6 +12,7 @@ import (
 	"github.com/pion/turn/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
+	"github.com/screego/server/config/ipdns"
 	"github.com/screego/server/util"
 )
 
@@ -39,9 +40,8 @@ type Entry struct {
 const Realm = "screego"
 
 type Generator struct {
-	ipv4 net.IP
-	ipv6 net.IP
 	turn.RelayAddressGenerator
+	IPProvider ipdns.Provider
 }
 
 func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
@@ -50,10 +50,16 @@ func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.P
 		return conn, addr, err
 	}
 	relayAddr := *addr.(*net.UDPAddr)
-	if r.ipv6 == nil || (relayAddr.IP.To4() != nil && r.ipv4 != nil) {
-		relayAddr.IP = r.ipv4
+
+	v4, v6, err := r.IPProvider.Get()
+	if err != nil {
+		return conn, addr, err
+	}
+
+	if v6 == nil || (relayAddr.IP.To4() != nil && v4 != nil) {
+		relayAddr.IP = v4
 	} else {
-		relayAddr.IP = r.ipv6
+		relayAddr.IP = v6
 	}
 	if err == nil {
 		log.Debug().Str("addr", addr.String()).Str("relayaddr", relayAddr.String()).Msg("TURN allocated")
@@ -92,9 +98,8 @@ func newInternalServer(conf config.Config) (Server, error) {
 	}
 
 	gen := &Generator{
-		ipv4:                  conf.TurnIPV4,
-		ipv6:                  conf.TurnIPV6,
 		RelayAddressGenerator: generator(conf),
+		IPProvider:            conf.TurnIPProvider,
 	}
 
 	_, err = turn.NewServer(turn.ServerConfig{
