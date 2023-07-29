@@ -22,9 +22,8 @@ type Server interface {
 }
 
 type InternalServer struct {
-	lock       sync.RWMutex
-	strictAuth bool
-	lookup     map[string]Entry
+	lock   sync.RWMutex
+	lookup map[string]Entry
 }
 
 type ExternalServer struct {
@@ -92,10 +91,7 @@ func newInternalServer(conf config.Config) (Server, error) {
 		return nil, fmt.Errorf("tcp: could not listen on %s: %s", conf.TurnAddress, err)
 	}
 
-	svr := &InternalServer{
-		lookup:     map[string]Entry{},
-		strictAuth: conf.TurnStrictAuth,
-	}
+	svr := &InternalServer{lookup: map[string]Entry{}}
 
 	gen := &Generator{
 		RelayAddressGenerator: generator(conf),
@@ -153,27 +149,10 @@ func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 
-	var connectedIP net.IP
-	switch addr := addr.(type) {
-	case *net.UDPAddr:
-		connectedIP = addr.IP
-	case *net.TCPAddr:
-		connectedIP = addr.IP
-	default:
-		log.Error().Interface("type", fmt.Sprintf("%T", addr)).Msg("unknown addr type")
-		return nil, false
-	}
 	entry, ok := a.lookup[username]
 
 	if !ok {
 		log.Debug().Interface("addr", addr).Str("username", username).Msg("TURN username not found")
-		return nil, false
-	}
-
-	authIP := entry.addr
-
-	if a.strictAuth && !connectedIP.Equal(authIP) {
-		log.Debug().Interface("allowedIp", addr.String()).Interface("connectingIp", entry.addr.String()).Msg("TURN strict auth check failed")
 		return nil, false
 	}
 

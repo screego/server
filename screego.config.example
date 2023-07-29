@@ -40,12 +40,6 @@ SCREEGO_TURN_ADDRESS=0.0.0.0:3478
 #   50000:55000
 SCREEGO_TURN_PORT_RANGE=
 
-# If true, the TURN server will compare the remote IP of the request with the
-# remote ip of the existing WebSocket connection and deny access if it doesn't
-# match. Disable this feature, if you use some kind of proxy which changes the
-# remote ip.
-SCREEGO_TURN_STRICT_AUTH=true
-
 # If set, screego will not start TURN server and instead use an external TURN server.
 # When using a dual stack setup define both IPv4 & IPv6 separated by a comma.
 # Execute the following command on the server where you host TURN server
