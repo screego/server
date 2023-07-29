@@ -45,9 +45,8 @@ type Config struct {
 	Secret                []byte `split_words:"true"`
 	SessionTimeoutSeconds int    `default:"0" split_words:"true"`
 
-	TurnAddress    string `default:":3478" required:"true" split_words:"true"`
-	TurnStrictAuth bool   `default:"true" split_words:"true"`
-	TurnPortRange  string `split_words:"true"`
+	TurnAddress   string `default:":3478" required:"true" split_words:"true"`
+	TurnPortRange string `split_words:"true"`
 
 	TurnExternalIP     []string `split_words:"true"`
 	TurnExternalPort   string   `default:"3478" split_words:"true"`
@@ -217,8 +216,16 @@ func Get() (Config, []FutureLog) {
 			Msg:   "Less than 40 ports are available for turn. When using multiple TURN connections this may not be enough",
 		})
 	}
+	logs = append(logs, logDeprecated()...)
 
 	return config, logs
+}
+
+func logDeprecated() []FutureLog {
+	if os.Getenv("SCREEGO_TURN_STRICT_AUTH") != "" {
+		return []FutureLog{{Level: zerolog.WarnLevel, Msg: "The setting SCREEGO_TURN_STRICT_AUTH has been removed."}}
+	}
+	return nil
 }
 
 func getExecutableOrWorkDir() (string, *FutureLog) {
