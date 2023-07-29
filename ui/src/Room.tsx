@@ -193,7 +193,12 @@ export const Room = ({
             )}
 
             {stream ? (
-                <video muted ref={setVideoElement} className={videoClasses()} />
+                <video
+                    muted
+                    ref={setVideoElement}
+                    className={videoClasses()}
+                    onDoubleClick={handleFullscreen}
+                />
             ) : (
                 <Typography
                     variant="h4"
