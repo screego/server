@@ -9,7 +9,7 @@
 # If the server doesn't have a static ip, the ip can be obtained via a domain:
 #   SCREEGO_EXTERNAL_IP=dns:app.screego.net
 # You can also specify the dns server to use
-#   SCREEGO_EXTERNAL_IP=dns:app.screego.net@9.9.9.9
+#   SCREEGO_EXTERNAL_IP=dns:app.screego.net@9.9.9.9:53
 SCREEGO_EXTERNAL_IP=
 
 # A secret which should be unique. Is used for cookie authentication.
@@ -51,7 +51,7 @@ SCREEGO_TURN_PORT_RANGE=
 # If the turn server doesn't have a static ip, the ip can be obtained via a domain:
 #   SCREEGO_TURN_EXTERNAL_IP=dns:turn.screego.net
 # You can also specify the dns server to use
-#   SCREEGO_TURN_EXTERNAL_IP=dns:turn.screego.net@9.9.9.9
+#   SCREEGO_TURN_EXTERNAL_IP=dns:turn.screego.net@9.9.9.9:53
 SCREEGO_TURN_EXTERNAL_IP=
 
 # The port the external TURN server listens on.
