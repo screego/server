@@ -47,7 +47,7 @@ $ docker run -it \
     -e SCREEGO_TURN_PORT_RANGE=50000:50200 \
     -p 5050:5050 \
     -p 3478:3478 \
-    -p 50000-50100:50000-50200/udp \
+    -p 50000-50200:50000-50200/udp \
     screego/server:GITHUB_VERSION
 ```
 
@@ -61,7 +61,7 @@ services:
     ports:
       - 5050:5050
       - 3478:3478
-      - 50000-50100:50000-50200/udp
+      - 50000-50200:50000-50200/udp
     environment:
       SCREEGO_EXTERNAL_IP: "192.168.178.2"
       SCREEGO_TURN_PORT_RANGE: "50000:50200"
