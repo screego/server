@@ -18,8 +18,7 @@ var files, _ = fs.Sub(buildFiles, "build")
 func Register(r *mux.Router) {
 	r.Handle("/", serveFile("index.html", "text/html"))
 	r.Handle("/index.html", serveFile("index.html", "text/html"))
-	r.Handle("/asset-manifest.json", serveFile("asset-manifest.json", "application/json"))
-	r.Handle("/static/{type}/{resource}", http.FileServer(http.FS(files)))
+	r.Handle("/assets/{resource}", http.FileServer(http.FS(files)))
 
 	r.Handle("/favicon.ico", serveFile("favicon.ico", "image/x-icon"))
 	r.Handle("/logo.svg", serveFile("logo.svg", "image/svg+xml"))

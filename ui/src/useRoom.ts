@@ -260,9 +260,8 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                 await client.current[event.payload.sid]?.setRemoteDescription(
                                     event.payload.value
                                 );
-                                const answer = await client.current[
-                                    event.payload.sid
-                                ]?.createAnswer();
+                                const answer =
+                                    await client.current[event.payload.sid]?.createAnswer();
                                 await client.current[event.payload.sid]?.setLocalDescription(
                                     answer
                                 );
