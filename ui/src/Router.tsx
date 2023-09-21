@@ -1,4 +1,3 @@
-import React from 'react';
 import {RoomManage} from './RoomManage';
 import {useRoom} from './useRoom';
 import {Room} from './Room';
