@@ -20,19 +20,35 @@ var adjectives = []string{
 }
 
 var animals = []string{
-	"Dog", "Puppy", "Turtle", "Rabbit", "Parrot", "Cat", "Kitten", "Goldfish",
-	"Mouse", "Hamster", "Fish", "Cow", "Rabbit", "Duck", "Shrimp", "Pig",
-	"Goat", "Crab", "Deer", "Bee", "Sheep", "Fish", "Turkey", "Dove",
-	"Chicken", "Horse", "Squirrel", "Dog", "Chimpanzee", "Ox", "Lion", "Panda",
-	"Walrus", "Otter", "Mouse", "Kangaroo", "Goat", "Horse", "Monkey", "Cow",
-	"Koala", "Mole", "Elephant", "Leopard", "Hippopotamus", "Giraffe", "Fox",
-	"Coyote", "Hedgehong", "Sheep", "Deer",
+	"dog", "puppy", "turtle", "rabbit", "parrot", "cat", "kitten", "goldfish",
+	"mouse", "hamster", "fish", "cow", "rabbit", "duck", "shrimp", "pig",
+	"goat", "crab", "deer", "bee", "sheep", "fish", "turkey", "dove",
+	"chicken", "horse", "squirrel", "dog", "chimpanzee", "ox", "lion", "panda",
+	"walrus", "otter", "mouse", "kangaroo", "goat", "horse", "monkey", "cow",
+	"koala", "mole", "elephant", "leopard", "hippopotamus", "giraffe", "fox",
+	"coyote", "hedgehong", "sheep", "deer",
+}
+
+var colors = []string{
+	"amaranth", "amber", "amethyst", "apricot", "aqua", "aquamarine", "azure",
+	"beige", "black", "blue", "blush", "bronze", "brown", "chocolate",
+	"coffee", "copper", "coral", "crimson", "cyan", "emerald", "fuchsia",
+	"gold", "gray", "green", "harlequin", "indigo", "ivory", "jade",
+	"lavender", "lime", "magenta", "maroon", "moccasin", "olive", "orange",
+	"peach", "pink", "plum", "purple", "red", "rose", "salmon", "sapphire",
+	"scarlet", "silver", "tan", "teal", "tomato", "turquoise", "violet",
+	"white", "yellow",
 }
 
 func r(r *rand.Rand, l []string) string {
 	return l[r.Intn(len(l)-1)]
 }
 
-func NewName(s *rand.Rand) string {
-	return cases.Title(language.English).String(r(s, adjectives) + " " + r(s, animals))
+func NewUserName(s *rand.Rand) string {
+	title := cases.Title(language.English)
+	return title.String(r(s, adjectives)) + " " + title.String(r(s, animals))
+}
+
+func NewRoomName(s *rand.Rand) string {
+	return r(s, adjectives) + "-" + r(s, colors) + "-" + r(s, animals)
 }

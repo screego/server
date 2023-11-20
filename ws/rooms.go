@@ -52,7 +52,11 @@ type Rooms struct {
 }
 
 func (r *Rooms) RandUserName() string {
-	return util.NewName(r.r)
+	return util.NewUserName(r.r)
+}
+
+func (r *Rooms) RandRoomName() string {
+	return util.NewRoomName(r.r)
 }
 
 func (r *Rooms) Upgrade(w http.ResponseWriter, req *http.Request) {

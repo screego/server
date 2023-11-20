@@ -18,6 +18,7 @@ export const useConfig = (): UseConfig => {
         loggedIn: false,
         loading: true,
         version: 'unknown',
+        roomName: 'unknown',
         closeRoomWhenOwnerLeaves: true,
     });
 

@@ -21,6 +21,7 @@ type UIConfig struct {
 	User                     string `json:"user"`
 	LoggedIn                 bool   `json:"loggedIn"`
 	Version                  string `json:"version"`
+	RoomName                 string `json:"roomName"`
 	CloseRoomWhenOwnerLeaves bool   `json:"closeRoomWhenOwnerLeaves"`
 }
 
@@ -42,6 +43,7 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version stri
 			LoggedIn:                 loggedIn,
 			User:                     user,
 			Version:                  version,
+			RoomName:                 rooms.RandRoomName(),
 			CloseRoomWhenOwnerLeaves: conf.CloseRoomWhenOwnerLeaves,
 		})
 	})

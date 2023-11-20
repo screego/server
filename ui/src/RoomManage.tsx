@@ -13,13 +13,12 @@ import {
 } from '@mui/material';
 import {FCreateRoom, UseRoom} from './useRoom';
 import {UIConfig} from './message';
-import {randomRoomName} from './name';
 import {getRoomFromURL} from './useRoomID';
 import {authModeToRoomMode, UseConfig} from './useConfig';
 import {LoginForm} from './LoginForm';
 
 const CreateRoom = ({room, config}: Pick<UseRoom, 'room'> & {config: UIConfig}) => {
-    const [id, setId] = React.useState(() => getRoomFromURL() ?? randomRoomName());
+    const [id, setId] = React.useState(() => getRoomFromURL() ?? config.roomName);
     const mode = authModeToRoomMode(config.authMode, config.loggedIn);
     const [ownerLeave, setOwnerLeave] = React.useState(config.closeRoomWhenOwnerLeaves);
     const submit = () =>

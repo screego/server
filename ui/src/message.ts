@@ -10,6 +10,7 @@ export interface UIConfig {
     user: string;
     loggedIn: boolean;
     version: string;
+    roomName: string;
     closeRoomWhenOwnerLeaves: boolean;
 }
 
