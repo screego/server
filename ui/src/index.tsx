@@ -88,14 +88,12 @@ const Snackbar: React.FC<React.PropsWithChildren> = ({children}) => {
 };
 
 ReactDOM.createRoot(document.getElementById('root')!!).render(
-    <React.StrictMode>
-        <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <Snackbar>
-                    <CssBaseline />
-                    <Router />
-                </Snackbar>
-            </ThemeProvider>
-        </StyledEngineProvider>
-    </React.StrictMode>
+    <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+            <Snackbar>
+                <CssBaseline />
+                <Router />
+            </Snackbar>
+        </ThemeProvider>
+    </StyledEngineProvider>
 );
