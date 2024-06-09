@@ -25,7 +25,8 @@ export type ConnectedRoom = {
 interface ClientStream {
     id: string;
     peer_id: string;
-    stream: MediaStream;
+    videoStream?: MediaStream;
+    audioStream?: MediaStream;
 }
 
 export interface UseRoom {
@@ -121,7 +122,7 @@ const clientSession = async ({
     sid: string;
     ice: ICEServer[];
     send: (e: OutgoingMessage) => void;
-    onTrack: (s: MediaStream) => void;
+    onTrack: (s: MediaStream, k: string) => void;
     done: () => void;
 }): Promise<RTCPeerConnection> => {
     console.log('ice', ice);
@@ -144,9 +145,10 @@ const clientSession = async ({
         }
     };
     peer.ontrack = (event) => {
+        const kind = event.track.kind;
         const stream = new MediaStream();
         stream.addTrack(event.track);
-        onTrack(stream);
+        onTrack(stream, kind);
     };
 
     return peer;
@@ -229,22 +231,38 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                             : current
                                     );
                                 },
-                                onTrack: (stream) =>
-                                    setState((current) =>
-                                        current
-                                            ? {
-                                                  ...current,
-                                                  clientStreams: [
-                                                      ...current.clientStreams,
-                                                      {
-                                                          id: sid,
-                                                          stream,
-                                                          peer_id: peer,
-                                                      },
-                                                  ],
-                                              }
-                                            : current
-                                    ),
+                                onTrack: (stream, kind) =>
+                                    setState((current) => {
+                                        if (!current) {
+                                            return current;
+                                        }
+
+                                        const isVideo = kind === 'video';
+
+                                        const existingStream = current.clientStreams.find(({id}) => id === sid);
+                                        if (existingStream) {
+                                            if (isVideo) {
+                                                existingStream.videoStream = stream;
+                                            } else {
+                                                existingStream.audioStream = stream;
+                                            }
+
+                                            return current;
+                                        }
+
+                                        return {
+                                            ...current,
+                                            clientStreams: [
+                                                ...current.clientStreams, 
+                                                {
+                                                    id: sid,
+                                                    peer_id: peer,
+                                                    videoStream: isVideo ? stream : undefined,
+                                                    audioStream: isVideo ? undefined : stream
+                                                }
+                                            ]
+                                        }
+                                    }),
                             }).then((peer) => (client.current[event.payload.id] = peer));
                             return;
                         case 'clientice':
@@ -327,6 +345,7 @@ export const useRoom = (config: UIConfig): UseRoom => {
         }
         stream.current = await navigator.mediaDevices.getDisplayMedia({
             video: {frameRate: loadSettings().framerate},
+            audio: true,
         });
         stream.current?.getVideoTracks()[0].addEventListener('ended', () => stopShare());
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
