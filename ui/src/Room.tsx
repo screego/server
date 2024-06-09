@@ -133,6 +133,7 @@ export const Room = ({
         [setHoverControl]
     );
 
+    const audioDisabled = !audioStream || selectedStream === HostStream;
     const controlVisible = showControl || open || hoverControl;
 
     useHotkeys('s', () => (state.hostStream ? stopShare() : share()), [state.hostStream]);
@@ -300,10 +301,10 @@ export const Room = ({
                     <Tooltip title={playingAudio ? "Mute Audio" : "Hear Audio"} arrow>
                         <IconButton
                             onClick={toggleAudio}
-                            disabled={!audioStream || selectedStream === HostStream}
+                            disabled={audioDisabled}
                             size="large"
                         >
-                            {playingAudio ? <HeadsetIcon fontSize="large" /> : <HeadsetOff fontSize="large" />}
+                            {playingAudio && !audioDisabled ? <HeadsetIcon fontSize="large" /> : <HeadsetOff fontSize="large" />}
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
