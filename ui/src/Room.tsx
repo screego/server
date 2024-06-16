@@ -72,7 +72,7 @@ export const Room = ({
     const [hoverControl, setHoverControl] = React.useState(false);
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<FullScreenHTMLVideoElement | null>(null);
-    const [audioElement, setAudioElement] = React.useState<HTMLAudioElement | null>(null);
+    const audioElementRef = React.useRef<HTMLAudioElement | null>(null);
     const [playingAudio, setPlayingAudio] = React.useState(false);
 
     useShowOnMouseMovement(setShowControl);
@@ -108,15 +108,15 @@ export const Room = ({
     }, [videoElement, videoStream]);
 
     React.useEffect(() => {
-        if (audioElement && audioStream) {
-            audioElement.srcObject = audioStream;
+        if (audioElementRef.current && audioStream) {
+            audioElementRef.current.srcObject = audioStream;
         }
         if (playingAudio) {
             playAudio();
         } else {
             pauseAudio();
         }
-    }, [audioElement, audioStream]);
+    }, [audioElementRef, audioStream]);
 
     const copyLink = () => {
         navigator?.clipboard?.writeText(window.location.href)?.then(
@@ -132,6 +132,30 @@ export const Room = ({
         }),
         [setHoverControl]
     );
+
+    const playAudio = () => {
+        if (audioElementRef.current) {
+            audioElementRef.current.play().then(() => {
+                setPlayingAudio(true);
+            }).catch((e) => {
+                console.log('Could not play main audio', e);
+            });
+        }
+    }
+    const pauseAudio = () => {
+        if (audioElementRef.current) {
+            audioElementRef.current.pause();
+            setPlayingAudio(false);
+        }
+    }
+
+    const toggleAudio = () => {
+        if (playingAudio) {
+            pauseAudio();
+        } else {
+            playAudio();
+        }
+    }
 
     const audioButtonVisible = audioStream && selectedStream !== HostStream;
     const controlVisible = showControl || open || hoverControl;
@@ -193,30 +217,6 @@ export const Room = ({
         }
     };
 
-    const playAudio = () => {
-        if (audioElement) {
-            audioElement.play().then(() => {
-                setPlayingAudio(true);
-            }).catch((e) => {
-                console.log('Could not play main audio', e);
-            });
-        }
-    }
-    const pauseAudio = () => {
-        if (audioElement) {
-            audioElement.pause();
-            setPlayingAudio(false);
-        }
-    }
-
-    const toggleAudio = () => {
-        if (playingAudio) {
-            pauseAudio();
-        } else {
-            playAudio();
-        }
-    }
-
     return (
         <div className={classes.videoContainer}>
             {controlVisible && (
@@ -259,7 +259,7 @@ export const Room = ({
 
             {audioStream && (
                 <audio
-                    ref={setAudioElement}
+                    ref={audioElementRef}
                     style={{ display: 'none' }}
                 />
             )}
