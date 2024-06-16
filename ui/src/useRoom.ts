@@ -25,8 +25,7 @@ export type ConnectedRoom = {
 interface ClientStream {
     id: string;
     peer_id: string;
-    videoStream?: MediaStream;
-    audioStream?: MediaStream;
+    stream: MediaStream;
 }
 
 export interface UseRoom {
@@ -122,11 +121,13 @@ const clientSession = async ({
     sid: string;
     ice: ICEServer[];
     send: (e: OutgoingMessage) => void;
-    onTrack: (s: MediaStream, k: string) => void;
+    onTrack: (s: MediaStream) => void;
     done: () => void;
 }): Promise<RTCPeerConnection> => {
     console.log('ice', ice);
     const peer = new RTCPeerConnection({...relayConfig, iceServers: ice});
+    const stream = new MediaStream();
+
     peer.onicecandidate = (event) => {
         if (!event.candidate) {
             return;
@@ -145,10 +146,18 @@ const clientSession = async ({
         }
     };
     peer.ontrack = (event) => {
-        const kind = event.track.kind;
-        const stream = new MediaStream();
-        stream.addTrack(event.track);
-        onTrack(stream, kind);
+        if (event.track.kind === 'video') {
+            if (stream.getVideoTracks().length === 0) {
+                stream.addTrack(event.track);
+            }
+        }
+        if (event.track.kind === 'audio') {
+            if (stream.getAudioTracks().length === 0) {
+                stream.addTrack(event.track);
+            }
+        }
+
+        onTrack(stream);
     };
 
     return peer;
@@ -231,22 +240,15 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                             : current
                                     );
                                 },
-                                onTrack: (stream, kind) =>
+                                onTrack: (stream) =>
                                     setState((current) => {
                                         if (!current) {
                                             return current;
                                         }
 
-                                        const isVideo = kind === 'video';
-
                                         const existingStream = current.clientStreams.find(({id}) => id === sid);
                                         if (existingStream) {
-                                            if (isVideo) {
-                                                existingStream.videoStream = stream;
-                                            } else {
-                                                existingStream.audioStream = stream;
-                                            }
-
+                                            existingStream.stream = stream;
                                             return current;
                                         }
 
@@ -257,8 +259,7 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                                 {
                                                     id: sid,
                                                     peer_id: peer,
-                                                    videoStream: isVideo ? stream : undefined,
-                                                    audioStream: isVideo ? undefined : stream
+                                                    stream,
                                                 }
                                             ]
                                         }

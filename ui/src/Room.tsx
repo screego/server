@@ -96,9 +96,9 @@ export const Room = ({
     const videoStream =
         selectedStream === HostStream
             ? state.hostStream
-            : state.clientStreams.find(({id}) => selectedStream === id)?.videoStream;
+            : state.clientStreams.find(({id}) => selectedStream === id)?.stream;
 
-    const audioStream = state.clientStreams.find(({id}) => selectedStream === id)?.audioStream;
+    const audioStream = state.clientStreams.find(({id, stream}) => selectedStream === id && stream.getAudioTracks().length != 0 )?.stream;
 
     React.useEffect(() => {
         if (videoElement && videoStream) {
@@ -336,9 +336,9 @@ export const Room = ({
                                 onClick={() => setSelectedStream(client.id)}
                             >
                                 {
-                                    client.videoStream && <Video
+                                    client.stream && <Video
                                         key={client.id}
-                                        src={client.videoStream}
+                                        src={client.stream}
                                         className={classes.smallVideo}
                                     />
                                 }
