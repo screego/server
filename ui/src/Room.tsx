@@ -203,6 +203,7 @@ export const Room = ({
         },
         [state.clientStreams, selectedStream]
     );
+    useHotkeys('a', toggleAudio, [playingAudio]);
 
     const videoClasses = () => {
         switch (settings.displayMode) {
