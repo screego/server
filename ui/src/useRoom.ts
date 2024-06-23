@@ -126,6 +126,8 @@ const clientSession = async ({
 }): Promise<RTCPeerConnection> => {
     console.log('ice', ice);
     const peer = new RTCPeerConnection({...relayConfig, iceServers: ice});
+    const stream = new MediaStream();
+
     peer.onicecandidate = (event) => {
         if (!event.candidate) {
             return;
@@ -144,8 +146,17 @@ const clientSession = async ({
         }
     };
     peer.ontrack = (event) => {
-        const stream = new MediaStream();
-        stream.addTrack(event.track);
+        if (event.track.kind === 'video') {
+            if (stream.getVideoTracks().length === 0) {
+                stream.addTrack(event.track);
+            }
+        }
+        if (event.track.kind === 'audio') {
+            if (stream.getAudioTracks().length === 0) {
+                stream.addTrack(event.track);
+            }
+        }
+
         onTrack(stream);
     };
 
@@ -230,21 +241,29 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                     );
                                 },
                                 onTrack: (stream) =>
-                                    setState((current) =>
-                                        current
-                                            ? {
-                                                  ...current,
-                                                  clientStreams: [
-                                                      ...current.clientStreams,
-                                                      {
-                                                          id: sid,
-                                                          stream,
-                                                          peer_id: peer,
-                                                      },
-                                                  ],
-                                              }
-                                            : current
-                                    ),
+                                    setState((current) => {
+                                        if (!current) {
+                                            return current;
+                                        }
+
+                                        const existingStream = current.clientStreams.find(({id}) => id === sid);
+                                        if (existingStream) {
+                                            existingStream.stream = stream;
+                                            return current;
+                                        }
+
+                                        return {
+                                            ...current,
+                                            clientStreams: [
+                                                ...current.clientStreams, 
+                                                {
+                                                    id: sid,
+                                                    peer_id: peer,
+                                                    stream,
+                                                }
+                                            ]
+                                        }
+                                    }),
                             }).then((peer) => (client.current[event.payload.id] = peer));
                             return;
                         case 'clientice':
@@ -327,6 +346,10 @@ export const useRoom = (config: UIConfig): UseRoom => {
         }
         stream.current = await navigator.mediaDevices.getDisplayMedia({
             video: {frameRate: loadSettings().framerate},
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: false
+            }
         });
         stream.current?.getVideoTracks()[0].addEventListener('ended', () => stopShare());
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
