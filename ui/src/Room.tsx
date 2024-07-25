@@ -13,6 +13,9 @@ import {useSnackbar} from 'notistack';
 import {RoomUser} from './message';
 import {useSettings, VideoDisplayMode} from './settings';
 import {SettingDialog} from './SettingDialog';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import VolumeMuteIcon from '@material-ui/icons/VolumeMute';
+
 
 const HostStream: unique symbol = Symbol('mystream');
 
@@ -248,6 +251,22 @@ export const Room = ({
                         <Badge badgeContent={state.users.length} color="primary">
                             <PeopleIcon fontSize="large" />
                         </Badge>
+                    </Tooltip>
+                    <Tooltip title="Sound" arrow>
+                        <IconButton
+                            onClick={() => {
+                                const video = videoElement as HTMLMediaElement;
+                                if (video) {
+                                    video.muted = !video.muted;
+                                }
+                            }}
+                            disabled={!selectedStream || !!state.hostStream}>
+                            {videoElement?.muted ? (
+                                <VolumeMuteIcon fontSize="large" />
+                            ) : (
+                                <VolumeUpIcon fontSize="large" />
+                            )}
+                        </IconButton>
                     </Tooltip>
                     <Tooltip title="Fullscreen" arrow>
                         <IconButton

@@ -52,6 +52,7 @@ dockers:
     image_templates:
       - "screego/server:amd64-unstable"
       - "screego/server:amd64-{{ .RawVersion }}"
+      - "screego/audio/server:amd64-{{ .RawVersion }}-audio"
       - "screego/server:amd64-{{ .Major }}"
       - "ghcr.io/screego/server:amd64-unstable"
       - "ghcr.io/screego/server:amd64-{{ .RawVersion }}"
@@ -70,6 +71,7 @@ dockers:
     image_templates:
       - "screego/server:386-unstable"
       - "screego/server:386-{{ .RawVersion }}"
+      - "screego/audio/server:386-{{ .RawVersion }}-audio"
       - "screego/server:386-{{ .Major }}"
       - "ghcr.io/screego/server:386-unstable"
       - "ghcr.io/screego/server:386-{{ .RawVersion }}"
@@ -88,6 +90,7 @@ dockers:
     image_templates:
       - "screego/server:arm64-unstable"
       - "screego/server:arm64-{{ .RawVersion }}"
+      - "screego/audio/server:arm64-{{ .RawVersion }}-audio"
       - "screego/server:arm64-{{ .Major }}"
       - "ghcr.io/screego/server:arm64-unstable"
       - "ghcr.io/screego/server:arm64-{{ .RawVersion }}"
@@ -106,6 +109,7 @@ dockers:
     image_templates:
       - "screego/server:armv7-unstable"
       - "screego/server:armv7-{{ .RawVersion }}"
+      - "screego/audio/server:armv7-{{ .RawVersion }}"
       - "screego/server:armv7-{{ .Major }}"
       - "ghcr.io/screego/server:armv7-unstable"
       - "ghcr.io/screego/server:armv7-{{ .RawVersion }}"
@@ -124,6 +128,7 @@ dockers:
     image_templates:
       - "screego/server:armv6-unstable"
       - "screego/server:armv6-{{ .RawVersion }}"
+      - "screego/audio/server:armv6-{{ .RawVersion }}-audio"
       - "screego/server:armv6-{{ .Major }}"
       - "ghcr.io/screego/server:armv6-unstable"
       - "ghcr.io/screego/server:armv6-{{ .RawVersion }}"
@@ -142,6 +147,7 @@ dockers:
     image_templates:
       - "screego/server:ppc64le-unstable"
       - "screego/server:ppc64le-{{ .RawVersion }}"
+      - "screego/audio/server:ppc64le-{{ .RawVersion }}-audio"
       - "screego/server:ppc64le-{{ .Major }}"
       - "ghcr.io/screego/server:ppc64le-unstable"
       - "ghcr.io/screego/server:ppc64le-{{ .RawVersion }}"
