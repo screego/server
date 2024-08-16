@@ -317,17 +317,31 @@ export const useRoom = (config: UIConfig): UseRoom => {
     const share = async () => {
         if (!navigator.mediaDevices) {
             enqueueSnackbar(
-                'Could not start presentation. (mediaDevices undefined) Are you using https?',
-                {
-                    variant: 'error',
-                    persist: true,
-                }
+                'Could not start presentation. Are you using https? (mediaDevices undefined)',
+                {variant: 'error', persist: true}
             );
             return;
         }
-        stream.current = await navigator.mediaDevices.getDisplayMedia({
-            video: {frameRate: loadSettings().framerate},
-        });
+        if (typeof navigator.mediaDevices.getDisplayMedia !== 'function') {
+            enqueueSnackbar(
+                `Could not start presentation. Your browser likely doesn't support screensharing. (mediaDevices.getDeviceMedia ${typeof navigator.mediaDevices.getDisplayMedia})`,
+                {variant: 'error', persist: true}
+            );
+            return;
+        }
+        try {
+            stream.current = await navigator.mediaDevices.getDisplayMedia({
+                video: {frameRate: loadSettings().framerate},
+            });
+        } catch (e) {
+            console.log('Could not getDisplayMedia', e);
+            enqueueSnackbar(`Could not start presentation. (getDisplayMedia error). ${e}`, {
+                variant: 'error',
+                persist: true,
+            });
+            return;
+        }
+
         stream.current?.getVideoTracks()[0].addEventListener('ended', () => stopShare());
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
 
