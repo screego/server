@@ -114,7 +114,7 @@ func (c *Client) startReading(pongWait time.Duration) {
 			_ = c.conn.CloseHandler()(websocket.CloseNormalClosure, fmt.Sprintf("malformed message: %s", err))
 			return
 		}
-		c.debug().Interface("event", fmt.Sprintf("%T", incoming)).Msg("WebSocket Receive")
+		c.debug().Interface("event", fmt.Sprintf("%T", incoming)).Interface("payload", incoming).Msg("WebSocket Receive")
 		c.read <- ClientMessage{Info: c.info, Incoming: incoming}
 	}
 }
@@ -153,7 +153,7 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			typed, err := ToTypedOutgoing(message)
-			c.debug().Interface("event", typed.Type).Msg("WebSocket Send")
+			c.debug().Interface("event", typed.Type).Interface("payload", typed.Payload).Msg("WebSocket Send")
 			if err != nil {
 				c.debug().Err(err).Msg("could not get typed message, exiting connection.")
 				conClosed()
