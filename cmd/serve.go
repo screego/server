@@ -41,12 +41,12 @@ func serveCmd(version string) cli.Command {
 				log.Fatal().Str("file", conf.UsersFile).Err(err).Msg("While loading users file")
 			}
 
-			auth, err := turn.Start(conf)
+			tServer, err := turn.Start(conf)
 			if err != nil {
 				log.Fatal().Err(err).Msg("could not start turn server")
 			}
 
-			rooms := ws.NewRooms(auth, users, conf)
+			rooms := ws.NewRooms(tServer, users, conf)
 
 			go rooms.Start()
 
