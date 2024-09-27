@@ -39,7 +39,6 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		Owner:     false,
 		Addr:      current.Addr,
 		Write:     current.Write,
-		Close:     current.Close,
 	}
 	room.notifyInfoChanged()
 	usersJoinedTotal.Inc()

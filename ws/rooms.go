@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/auth"
 	"github.com/screego/server/config"
@@ -19,6 +20,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 	return &Rooms{
 		Rooms:      map[string]*Room{},
 		Incoming:   make(chan ClientMessage),
+		connected:  map[xid.ID]bool{},
 		turnServer: tServer,
 		users:      users,
 		config:     conf,
@@ -49,6 +51,7 @@ type Rooms struct {
 	users      *auth.Users
 	config     config.Config
 	r          *rand.Rand
+	connected  map[xid.ID]bool
 }
 
 func (r *Rooms) RandUserName() string {
@@ -70,16 +73,22 @@ func (r *Rooms) Upgrade(w http.ResponseWriter, req *http.Request) {
 
 	user, loggedIn := r.users.CurrentUser(req)
 	c := newClient(conn, req, r.Incoming, user, loggedIn, r.config.TrustProxyHeaders)
+	r.Incoming <- ClientMessage{Info: c.info, Incoming: Connected{}, SkipConnectedCheck: true}
 
 	go c.startReading(time.Second * 20)
 	go c.startWriteHandler(time.Second * 5)
 }
 
 func (r *Rooms) Start() {
-	for {
-		msg := <-r.Incoming
+	for msg := range r.Incoming {
+		if !msg.SkipConnectedCheck && !r.connected[msg.Info.ID] {
+			log.Debug().Interface("event", fmt.Sprintf("%T", msg.Incoming)).Interface("payload", msg.Incoming).Msg("WebSocket Ignore")
+			continue
+		}
+
 		if err := msg.Incoming.Execute(r, msg.Info); err != nil {
-			msg.Info.Close <- err.Error()
+			dis := Disconnected{Code: websocket.CloseNormalClosure, Reason: err.Error()}
+			dis.executeNoError(r, msg.Info)
 		}
 	}
 }
