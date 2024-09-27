@@ -96,3 +96,12 @@ const (
 	ConnectionSTUN  ConnectionMode = "stun"
 	ConnectionTURN  ConnectionMode = "turn"
 )
+
+type CloseWriter struct {
+	Code   int
+	Reason string
+}
+
+func (CloseWriter) Type() string {
+	return "closewriter"
+}

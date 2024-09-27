@@ -71,7 +71,6 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 				Owner:     true,
 				Addr:      current.Addr,
 				Write:     current.Write,
-				Close:     current.Close,
 			},
 		},
 	}

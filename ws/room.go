@@ -136,5 +136,4 @@ type User struct {
 	Streaming bool
 	Owner     bool
 	Write     chan<- outgoing.Message
-	Close     chan<- string
 }
