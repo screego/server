@@ -94,7 +94,7 @@ func (c *Client) CloseOnDone(code int, reason string) {
 
 func (c *Client) writeCloseMessage(code int, reason string) {
 	message := websocket.FormatCloseMessage(code, reason)
-	c.conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(writeWait))
+	_ = c.conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(writeWait))
 	c.conn.Close()
 }
 

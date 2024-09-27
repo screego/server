@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pion/turn/v2"
+	"github.com/pion/turn/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
 	"github.com/screego/server/config/ipdns"

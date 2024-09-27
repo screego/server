@@ -81,9 +81,9 @@ const hostSession = async ({
             .find((t) => t.sender && t.sender.track === stream.getVideoTracks()[0]);
 
         if (!!transceiver && 'setCodecPreferences' in transceiver) {
-            const exactMatch: RTCRtpCodecCapability[] = [];
-            const mimeMatch: RTCRtpCodecCapability[] = [];
-            const others: RTCRtpCodecCapability[] = [];
+            const exactMatch: RTCRtpCodec[] = [];
+            const mimeMatch: RTCRtpCodec[] = [];
+            const others: RTCRtpCodec[] = [];
 
             RTCRtpSender.getCapabilities('video')?.codecs.forEach((codec) => {
                 if (codec.mimeType === preferCodec.mimeType) {

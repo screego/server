@@ -73,6 +73,4 @@ func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 	}
 
 	room.notifyInfoChanged()
-
-	return
 }
