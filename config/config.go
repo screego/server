@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -62,6 +63,9 @@ type Config struct {
 	TurnExternal   bool              `ignored:"true"`
 	TurnIPProvider ipdns.Provider    `ignored:"true"`
 	TurnPort       string            `ignored:"true"`
+
+	TurnDenyPeers       []string     `default:"0.0.0.0/8,127.0.0.1/8,::/128,::1/128,fe80::/10" split_words:"true"`
+	TurnDenyPeersParsed []*net.IPNet `ignored:"true"`
 
 	CloseRoomWhenOwnerLeaves bool `default:"true" split_words:"true"`
 }
@@ -217,6 +221,22 @@ func Get() (Config, []FutureLog) {
 		})
 	}
 	logs = append(logs, logDeprecated()...)
+
+	for _, cidrString := range config.TurnDenyPeers {
+		_, cidr, err := net.ParseCIDR(cidrString)
+		if err != nil {
+			logs = append(logs, FutureLog{
+				Level: zerolog.FatalLevel,
+				Msg:   fmt.Sprintf("Invalid SCREEGO_TURN_DENY_PEERS %q: %s", cidrString, err),
+			})
+		} else {
+			config.TurnDenyPeersParsed = append(config.TurnDenyPeersParsed, cidr)
+		}
+	}
+	logs = append(logs, FutureLog{
+		Level: zerolog.InfoLevel,
+		Msg:   fmt.Sprintf("Deny turn peers within %q", config.TurnDenyPeersParsed),
+	})
 
 	return config, logs
 }
