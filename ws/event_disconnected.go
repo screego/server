@@ -18,14 +18,15 @@ func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 }
 
 func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
+	roomID := rooms.connected[current.ID]
 	delete(rooms.connected, current.ID)
 	current.Write <- outgoing.CloseWriter{Code: e.Code, Reason: e.Reason}
 
-	if current.RoomID == "" {
+	if roomID == "" {
 		return
 	}
 
-	room, ok := rooms.Rooms[current.RoomID]
+	room, ok := rooms.Rooms[roomID]
 	if !ok {
 		// room may already be removed
 		return
@@ -63,12 +64,12 @@ func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 			delete(rooms.connected, member.ID)
 			member.Write <- outgoing.CloseWriter{Code: websocket.CloseNormalClosure, Reason: CloseOwnerLeft}
 		}
-		rooms.closeRoom(current.RoomID)
+		rooms.closeRoom(roomID)
 		return
 	}
 
 	if len(room.Users) == 0 {
-		rooms.closeRoom(current.RoomID)
+		rooms.closeRoom(roomID)
 		return
 	}
 

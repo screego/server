@@ -16,13 +16,9 @@ func init() {
 type HostOffer outgoing.P2PMessage
 
 func (e *HostOffer) Execute(rooms *Rooms, current ClientInfo) error {
-	if current.RoomID == "" {
-		return fmt.Errorf("not in a room")
-	}
-
-	room, ok := rooms.Rooms[current.RoomID]
-	if !ok {
-		return fmt.Errorf("room with id %s does not exist", current.RoomID)
+	room, err := rooms.CurrentRoom(current)
+	if err != nil {
+		return err
 	}
 
 	session, ok := room.Sessions[e.SID]
