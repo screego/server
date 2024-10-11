@@ -41,7 +41,6 @@ type ClientMessage struct {
 
 type ClientInfo struct {
 	ID                xid.ID
-	RoomID            string
 	Authenticated     bool
 	AuthenticatedUser string
 	Write             chan outgoing.Message
@@ -60,7 +59,6 @@ func newClient(conn *websocket.Conn, req *http.Request, read chan ClientMessage,
 			Authenticated:     authenticated,
 			AuthenticatedUser: authenticatedUser,
 			ID:                xid.New(),
-			RoomID:            "",
 			Addr:              ip,
 			Write:             make(chan outgoing.Message, 1),
 		},
@@ -156,10 +154,6 @@ func (c *Client) startWriteHandler(pingPeriod time.Duration) {
 				c.debug().Err(err).Msg("could not get typed message, exiting connection.")
 				c.CloseOnError(websocket.CloseNormalClosure, "malformed outgoing "+err.Error())
 				continue
-			}
-
-			if room, ok := message.(outgoing.Room); ok {
-				c.info.RoomID = room.ID
 			}
 
 			if err := writeJSON(c.conn, typed); err != nil {

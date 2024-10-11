@@ -2,7 +2,6 @@ package ws
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/screego/server/ws/outgoing"
 )
@@ -16,13 +15,9 @@ func init() {
 type StopShare struct{}
 
 func (e *StopShare) Execute(rooms *Rooms, current ClientInfo) error {
-	if current.RoomID == "" {
-		return fmt.Errorf("not in a room")
-	}
-
-	room, ok := rooms.Rooms[current.RoomID]
-	if !ok {
-		return fmt.Errorf("room with id %s does not exist", current.RoomID)
+	room, err := rooms.CurrentRoom(current)
+	if err != nil {
+		return err
 	}
 
 	room.Users[current.ID].Streaming = false

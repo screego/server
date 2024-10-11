@@ -1,9 +1,5 @@
 package ws
 
-import (
-	"fmt"
-)
-
 func init() {
 	register("share", func() Event {
 		return &StartShare{}
@@ -13,13 +9,9 @@ func init() {
 type StartShare struct{}
 
 func (e *StartShare) Execute(rooms *Rooms, current ClientInfo) error {
-	if current.RoomID == "" {
-		return fmt.Errorf("not in a room")
-	}
-
-	room, ok := rooms.Rooms[current.RoomID]
-	if !ok {
-		return fmt.Errorf("room with id %s does not exist", current.RoomID)
+	room, err := rooms.CurrentRoom(current)
+	if err != nil {
+		return err
 	}
 
 	room.Users[current.ID].Streaming = true

@@ -3,6 +3,6 @@ package ws
 type Connected struct{}
 
 func (e Connected) Execute(rooms *Rooms, current ClientInfo) error {
-	rooms.connected[current.ID] = true
+	rooms.connected[current.ID] = ""
 	return nil
 }

@@ -20,7 +20,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 	return &Rooms{
 		Rooms:      map[string]*Room{},
 		Incoming:   make(chan ClientMessage),
-		connected:  map[xid.ID]bool{},
+		connected:  map[xid.ID]string{},
 		turnServer: tServer,
 		users:      users,
 		config:     conf,
@@ -51,7 +51,23 @@ type Rooms struct {
 	users      *auth.Users
 	config     config.Config
 	r          *rand.Rand
-	connected  map[xid.ID]bool
+	connected  map[xid.ID]string
+}
+
+func (r *Rooms) CurrentRoom(info ClientInfo) (*Room, error) {
+	roomID, ok := r.connected[info.ID]
+	if !ok {
+		return nil, fmt.Errorf("not connected")
+	}
+	if roomID == "" {
+		return nil, fmt.Errorf("not in a room")
+	}
+	room, ok := r.Rooms[roomID]
+	if !ok {
+		return nil, fmt.Errorf("room with id %s does not exist", roomID)
+	}
+
+	return room, nil
 }
 
 func (r *Rooms) RandUserName() string {
@@ -81,7 +97,8 @@ func (r *Rooms) Upgrade(w http.ResponseWriter, req *http.Request) {
 
 func (r *Rooms) Start() {
 	for msg := range r.Incoming {
-		if !msg.SkipConnectedCheck && !r.connected[msg.Info.ID] {
+		_, connected := r.connected[msg.Info.ID]
+		if !msg.SkipConnectedCheck && !connected {
 			log.Debug().Interface("event", fmt.Sprintf("%T", msg.Incoming)).Interface("payload", msg.Incoming).Msg("WebSocket Ignore")
 			continue
 		}
