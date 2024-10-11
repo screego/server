@@ -16,6 +16,12 @@ import (
 	"github.com/screego/server/ws"
 )
 
+type Health struct {
+	Status  string `json:"status"`
+	Clients int    `json:"clients"`
+	Reason  string `json:"reason,omitempty"`
+}
+
 type UIConfig struct {
 	AuthMode                 string `json:"authMode"`
 	User                     string `json:"user"`
@@ -45,6 +51,19 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version stri
 			Version:                  version,
 			RoomName:                 rooms.RandRoomName(),
 			CloseRoomWhenOwnerLeaves: conf.CloseRoomWhenOwnerLeaves,
+		})
+	})
+	router.Methods("GET").Path("/health").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		i, err := rooms.Count()
+		status := "up"
+		if err != "" {
+			status = "down"
+			w.WriteHeader(500)
+		}
+		_ = json.NewEncoder(w).Encode(Health{
+			Status:  status,
+			Clients: i,
+			Reason:  err,
 		})
 	})
 	if conf.Prometheus {
