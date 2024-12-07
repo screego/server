@@ -13,20 +13,20 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pion/randutil v0.1.0
 	github.com/pion/turn/v4 v4.0.0
-	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/client_golang v1.20.5
 	github.com/rs/xid v1.6.0
 	github.com/rs/zerolog v1.33.0
-	github.com/stretchr/testify v1.9.0
-	github.com/urfave/cli v1.22.15
-	golang.org/x/crypto v0.27.0
-	golang.org/x/term v0.24.0
-	golang.org/x/text v0.18.0
+	github.com/stretchr/testify v1.10.0
+	github.com/urfave/cli v1.22.16
+	golang.org/x/crypto v0.30.0
+	golang.org/x/term v0.27.0
+	golang.org/x/text v0.21.0
 )
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/wlynxg/anet v0.0.4 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

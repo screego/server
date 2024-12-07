@@ -20,7 +20,7 @@ func (e *Disconnected) Execute(rooms *Rooms, current ClientInfo) error {
 func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 	roomID := rooms.connected[current.ID]
 	delete(rooms.connected, current.ID)
-	current.Write <- outgoing.CloseWriter{Code: e.Code, Reason: e.Reason}
+	writeTimeout[outgoing.Message](current.Write, outgoing.CloseWriter{Code: e.Code, Reason: e.Reason})
 
 	if roomID == "" {
 		return
@@ -46,14 +46,14 @@ func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 		if bytes.Equal(session.Client.Bytes(), current.ID.Bytes()) {
 			host, ok := room.Users[session.Host]
 			if ok {
-				host.Write <- outgoing.EndShare(id)
+				host.WriteTimeout(outgoing.EndShare(id))
 			}
 			room.closeSession(rooms, id)
 		}
 		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
 			client, ok := room.Users[session.Client]
 			if ok {
-				client.Write <- outgoing.EndShare(id)
+				client.WriteTimeout(outgoing.EndShare(id))
 			}
 			room.closeSession(rooms, id)
 		}
@@ -62,7 +62,7 @@ func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 	if user.Owner && room.CloseOnOwnerLeave {
 		for _, member := range room.Users {
 			delete(rooms.connected, member.ID)
-			member.Write <- outgoing.CloseWriter{Code: websocket.CloseNormalClosure, Reason: CloseOwnerLeft}
+			member.WriteTimeout(outgoing.CloseWriter{Code: websocket.CloseNormalClosure, Reason: CloseOwnerLeft})
 		}
 		rooms.closeRoom(roomID)
 		return

@@ -111,17 +111,18 @@ func (r *Rooms) Start() {
 }
 
 func (r *Rooms) Count() (int, string) {
+	timeout := time.After(5 * time.Second)
+
 	h := Health{Response: make(chan int, 1)}
 	select {
 	case r.Incoming <- ClientMessage{SkipConnectedCheck: true, Incoming: &h}:
-	case <-time.After(5 * time.Second):
+	case <-timeout:
 		return -1, "main loop didn't accept a message within 5 second"
 	}
-	r.Incoming <- ClientMessage{SkipConnectedCheck: true, Incoming: &h}
 	select {
 	case count := <-h.Response:
 		return count, ""
-	case <-time.After(5 * time.Second):
+	case <-timeout:
 		return -1, "main loop didn't respond to a message within 5 second"
 	}
 }
