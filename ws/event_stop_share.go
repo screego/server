@@ -25,7 +25,7 @@ func (e *StopShare) Execute(rooms *Rooms, current ClientInfo) error {
 		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
 			client, ok := room.Users[session.Client]
 			if ok {
-				client.Write <- outgoing.EndShare(id)
+				client.WriteTimeout(outgoing.EndShare(id))
 			}
 			room.closeSession(rooms, id)
 		}

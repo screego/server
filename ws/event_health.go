@@ -5,6 +5,6 @@ type Health struct {
 }
 
 func (e *Health) Execute(rooms *Rooms, current ClientInfo) error {
-	e.Response <- len(rooms.connected)
+	writeTimeout(e.Response, len(rooms.connected))
 	return nil
 }

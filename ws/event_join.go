@@ -38,7 +38,7 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		Streaming: false,
 		Owner:     false,
 		Addr:      current.Addr,
-		Write:     current.Write,
+		_write:    current.Write,
 	}
 	rooms.connected[current.ID] = room.ID
 	room.notifyInfoChanged()

@@ -70,7 +70,7 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 				Streaming: false,
 				Owner:     true,
 				Addr:      current.Addr,
-				Write:     current.Write,
+				_write:    current.Write,
 			},
 		},
 	}

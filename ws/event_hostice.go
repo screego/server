@@ -32,7 +32,7 @@ func (e *HostICE) Execute(rooms *Rooms, current ClientInfo) error {
 		return fmt.Errorf("permission denied for session %s", e.SID)
 	}
 
-	room.Users[session.Client].Write <- outgoing.HostICE(*e)
+	room.Users[session.Client].WriteTimeout(outgoing.HostICE(*e))
 
 	return nil
 }

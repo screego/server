@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net"
 	"sort"
+	"time"
 
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
 	"github.com/screego/server/ws/outgoing"
 )
@@ -60,8 +62,8 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms, v4, v6 net.IP) {
 			Username:   clientName,
 		}}
 	}
-	r.Users[host].Write <- outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost}
-	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}
+	r.Users[host].WriteTimeout(outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost})
+	r.Users[client].WriteTimeout(outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient})
 }
 
 func (r *Rooms) addresses(prefix string, v4, v6 net.IP, tcp bool) (result []string) {
@@ -122,10 +124,10 @@ func (r *Room) notifyInfoChanged() {
 			return left.Name < right.Name
 		})
 
-		current.Write <- outgoing.Room{
+		current.WriteTimeout(outgoing.Room{
 			ID:    r.ID,
 			Users: users,
-		}
+		})
 	}
 }
 
@@ -135,5 +137,17 @@ type User struct {
 	Name      string
 	Streaming bool
 	Owner     bool
-	Write     chan<- outgoing.Message
+	_write    chan<- outgoing.Message
+}
+
+func (u *User) WriteTimeout(msg outgoing.Message) {
+	writeTimeout(u._write, msg)
+}
+
+func writeTimeout[T any](ch chan<- T, msg T) {
+	select {
+	case <-time.After(2 * time.Second):
+		log.Warn().Interface("event", fmt.Sprintf("%T", msg)).Interface("payload", msg).Msg("Client write loop didn't accept the message.")
+	case ch <- msg:
+	}
 }
