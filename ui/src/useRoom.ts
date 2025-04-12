@@ -85,7 +85,7 @@ const hostSession = async ({
             const mimeMatch: RTCRtpCodec[] = [];
             const others: RTCRtpCodec[] = [];
 
-            RTCRtpSender.getCapabilities('video')?.codecs.forEach((codec) => {
+            RTCRtpReceiver.getCapabilities('video')?.codecs.forEach((codec) => {
                 if (codec.mimeType === preferCodec.mimeType) {
                     if (codec.sdpFmtpLine === preferCodec.sdpFmtpLine) {
                         exactMatch.push(codec);
