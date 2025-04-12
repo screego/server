@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Badge, IconButton, Paper, Theme, Tooltip, Typography} from '@mui/material';
+import {Badge, IconButton, Paper, Tooltip, Typography} from '@mui/material';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import FullScreenIcon from '@mui/icons-material/Fullscreen';
@@ -353,11 +353,10 @@ const useShowOnMouseMovement = (doShow: (s: boolean) => void) => {
     );
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
     title: {
         padding: 15,
         position: 'fixed',
-        background: theme.palette.background.paper,
         top: '30px',
         left: '50%',
         transform: 'translateX(-50%)',
@@ -373,7 +372,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     control: {
         padding: 15,
         position: 'fixed',
-        background: theme.palette.background.paper,
         bottom: '30px',
         left: '50%',
         transform: 'translateX(-50%)',

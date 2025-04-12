@@ -83,7 +83,7 @@ export const RoomManage = ({room, config}: {room: FCreateRoom; config: UseConfig
             style={{paddingTop: 50, maxWidth: 400, width: '100%', margin: '0 auto'}}
             spacing={4}
         >
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Typography align="center" gutterBottom>
                     <img src="./logo.svg" style={{width: 230}} alt="logo" />
                 </Typography>

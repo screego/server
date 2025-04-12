@@ -157,10 +157,10 @@ export type FCreateRoom = (room: RoomCreate | JoinRoom) => Promise<void>;
 export const useRoom = (config: UIConfig): UseRoom => {
     const [roomID, setRoomID] = useRoomID();
     const {enqueueSnackbar} = useSnackbar();
-    const conn = React.useRef<WebSocket>();
+    const conn = React.useRef<WebSocket | undefined>(undefined);
     const host = React.useRef<Record<string, RTCPeerConnection>>({});
     const client = React.useRef<Record<string, RTCPeerConnection>>({});
-    const stream = React.useRef<MediaStream>();
+    const stream = React.useRef<MediaStream>(undefined);
 
     const [state, setState] = React.useState<RoomState>(false);
 
