@@ -27,7 +27,6 @@ $ docker run --net=host -e SCREEGO_EXTERNAL_IP=EXTERNALIP ghcr.io/screego/server
 
 **docker-compose.yml**
 ```yaml
-version: "3.7"
 services:
   screego:
     image: ghcr.io/screego/server:GITHUB_VERSION
