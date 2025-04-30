@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -14,74 +15,95 @@ import (
 )
 
 var (
+	// These variables are extracted for testing purposes
 	notifySignal   = signal.Notify
-	serverShutdown = func(server *http.Server, ctx context.Context) error {
-		return server.Shutdown(ctx)
-	}
+	serverShutdown = (*http.Server).Shutdown
 )
 
-// Start starts the http server.
-func Start(mux *mux.Router, address, cert, key string) error {
-	server, shutdown := startServer(mux, address, cert, key)
-	shutdownOnInterruptSignal(server, 2*time.Second, shutdown)
-	return waitForServerToClose(shutdown)
+// Config holds server configuration parameters
+type Config struct {
+	Address      string
+	CertFile     string
+	KeyFile      string
+	ShutdownWait time.Duration
 }
 
-func startServer(mux *mux.Router, address, cert, key string) (*http.Server, chan error) {
-	srv := &http.Server{
-		Addr:    address,
-		Handler: mux,
+// Start initializes and runs the HTTP server with graceful shutdown capabilities.
+func Start(router *mux.Router, cfg Config) error {
+	server := &http.Server{
+		Addr:    cfg.Address,
+		Handler: router,
 	}
 
-	shutdown := make(chan error)
+	// Channel to receive server errors
+	serverErrors := make(chan error, 1)
+
+	// Start the server in a goroutine
 	go func() {
-		err := listenAndServe(srv, address, cert, key)
-		shutdown <- err
+		listener, err := createListener(cfg.Address)
+		if err != nil {
+			serverErrors <- err
+			return
+		}
+
+		log.Info().
+			Str("address", cfg.Address).
+			Bool("tls", cfg.CertFile != "" && cfg.KeyFile != "").
+			Msg("Starting server")
+
+		if cfg.CertFile != "" && cfg.KeyFile != "" {
+			serverErrors <- server.ServeTLS(listener, cfg.CertFile, cfg.KeyFile)
+		} else {
+			serverErrors <- server.Serve(listener)
+		}
 	}()
-	return srv, shutdown
-}
 
-func listenAndServe(srv *http.Server, address, cert, key string) error {
-	var err error
-	var listener net.Listener
-
-	if strings.HasPrefix(address, "unix:") {
-		listener, err = net.Listen("unix", strings.TrimPrefix(address, "unix:"))
-	} else {
-		listener, err = net.Listen("tcp", address)
-	}
-	if err != nil {
-		return err
-	}
-
-	if cert != "" || key != "" {
-		log.Info().Str("addr", address).Msg("Start HTTP with tls")
-		return srv.ServeTLS(listener, cert, key)
-	} else {
-		log.Info().Str("addr", address).Msg("Start HTTP")
-		return srv.Serve(listener)
-	}
-}
-
-func shutdownOnInterruptSignal(server *http.Server, timeout time.Duration, shutdown chan<- error) {
+	// Setup interrupt handler
 	interrupt := make(chan os.Signal, 1)
 	notifySignal(interrupt, os.Interrupt)
 
+	// Use a WaitGroup to ensure we don't exit before shutdown completes
+	var wg sync.WaitGroup
+	wg.Add(1)
+
 	go func() {
-		<-interrupt
-		log.Info().Msg("Received interrupt. Shutting down...")
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-		if err := serverShutdown(server, ctx); err != nil {
-			shutdown <- err
+		defer wg.Done()
+		
+		select {
+		case err := <-serverErrors:
+			if err != nil && err != http.ErrServerClosed {
+				log.Error().Err(err).Msg("Server error")
+			}
+		case <-interrupt:
+			log.Info().Msg("Received interrupt signal, initiating graceful shutdown")
+			
+			ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownWait)
+			defer cancel()
+			
+			if err := serverShutdown(server, ctx); err != nil {
+				log.Error().Err(err).Msg("Graceful shutdown failed")
+				serverErrors <- err
+			}
 		}
 	}()
+
+	wg.Wait()
+	return <-serverErrors
 }
 
-func waitForServerToClose(shutdown <-chan error) error {
-	err := <-shutdown
-	if err == http.ErrServerClosed {
-		return nil
+// createListener creates either a TCP or Unix socket listener based on the address format
+func createListener(address string) (net.Listener, error) {
+	if strings.HasPrefix(address, "unix:") {
+		socketPath := strings.TrimPrefix(address, "unix:")
+		
+		// Remove existing socket file if present
+		if _, err := os.Stat(socketPath); err == nil {
+			if err := os.Remove(socketPath); err != nil {
+				return nil, err
+			}
+		}
+		
+		return net.Listen("unix", socketPath)
 	}
-	return err
+	return net.Listen("tcp", address)
 }
