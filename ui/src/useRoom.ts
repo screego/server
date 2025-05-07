@@ -143,10 +143,15 @@ const clientSession = async ({
             done();
         }
     };
+
+    let notified = false;
+    const stream = new MediaStream();
     peer.ontrack = (event) => {
-        const stream = new MediaStream();
         stream.addTrack(event.track);
-        onTrack(stream);
+        if (!notified) {
+            notified = true;
+            onTrack(stream);
+        }
     };
 
     return peer;
@@ -332,6 +337,14 @@ export const useRoom = (config: UIConfig): UseRoom => {
         try {
             stream.current = await navigator.mediaDevices.getDisplayMedia({
                 video: {frameRate: loadSettings().framerate},
+                audio: {
+                    echoCancellation: false,
+                    autoGainControl: false,
+                    noiseSuppression: false,
+                    // https://medium.com/@trystonperry/why-is-getdisplaymedias-audio-quality-so-bad-b49ba9cfaa83
+                    // @ts-expect-error
+                    googAutoGainControl: false,
+                },
             });
         } catch (e) {
             console.log('Could not getDisplayMedia', e);
