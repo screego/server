@@ -1,9 +1,11 @@
 import React, {useCallback} from 'react';
-import {Badge, IconButton, Paper, Tooltip, Typography} from '@mui/material';
+import {Badge, Box, IconButton, Paper, Tooltip, Typography, Slider, Stack} from '@mui/material';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import FullScreenIcon from '@mui/icons-material/Fullscreen';
 import PeopleIcon from '@mui/icons-material/People';
+import VolumeMuteIcon from '@mui/icons-material/VolumeOff';
+import VolumeIcon from '@mui/icons-material/VolumeUp';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
@@ -97,7 +99,17 @@ export const Room = ({
     React.useEffect(() => {
         if (videoElement && stream) {
             videoElement.srcObject = stream;
-            videoElement.play().catch((e) => console.log('Could not play main video', e));
+            videoElement.play().catch((err) => {
+                console.log('Could not play main video', err);
+                if (err.name === 'NotAllowedError') {
+                    videoElement.muted = true;
+                    videoElement
+                        .play()
+                        .catch((retryErr) =>
+                            console.log('Could not play main video with mute', retryErr)
+                        );
+                }
+            });
         }
     }, [videoElement, stream]);
 
@@ -161,6 +173,15 @@ export const Room = ({
         },
         [state.clientStreams, selectedStream]
     );
+    useHotkeys(
+        'm',
+        () => {
+            if (videoElement) {
+                videoElement.muted = !videoElement.muted;
+            }
+        },
+        [videoElement]
+    );
 
     const videoClasses = () => {
         switch (settings.displayMode) {
@@ -194,7 +215,6 @@ export const Room = ({
 
             {stream ? (
                 <video
-                    muted
                     ref={setVideoElement}
                     className={videoClasses()}
                     onDoubleClick={handleFullscreen}
@@ -217,53 +237,58 @@ export const Room = ({
 
             {controlVisible && (
                 <Paper className={classes.control} elevation={10} {...setHoverState}>
-                    {state.hostStream ? (
-                        <Tooltip title="Cancel Presentation" arrow>
-                            <IconButton onClick={stopShare} size="large">
-                                <CancelPresentationIcon fontSize="large" />
-                            </IconButton>
-                        </Tooltip>
-                    ) : (
-                        <Tooltip title="Start Presentation" arrow>
-                            <IconButton onClick={share} size="large">
-                                <PresentToAllIcon fontSize="large" />
-                            </IconButton>
-                        </Tooltip>
+                    {(stream?.getAudioTracks().length ?? 0) > 0 && videoElement && (
+                        <AudioControl video={videoElement} />
                     )}
+                    <Box whiteSpace="nowrap">
+                        {state.hostStream ? (
+                            <Tooltip title="Cancel Presentation" arrow>
+                                <IconButton onClick={stopShare} size="large">
+                                    <CancelPresentationIcon fontSize="large" />
+                                </IconButton>
+                            </Tooltip>
+                        ) : (
+                            <Tooltip title="Start Presentation" arrow>
+                                <IconButton onClick={share} size="large">
+                                    <PresentToAllIcon fontSize="large" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
 
-                    <Tooltip
-                        classes={{tooltip: classes.noMaxWidth}}
-                        title={
-                            <div>
-                                <Typography variant="h5">Member List</Typography>
-                                {state.users.map((user) => (
-                                    <Typography key={user.id}>
-                                        {user.name} {flags(user)}
-                                    </Typography>
-                                ))}
-                            </div>
-                        }
-                        arrow
-                    >
-                        <Badge badgeContent={state.users.length} color="primary">
-                            <PeopleIcon fontSize="large" />
-                        </Badge>
-                    </Tooltip>
-                    <Tooltip title="Fullscreen" arrow>
-                        <IconButton
-                            onClick={() => handleFullscreen()}
-                            disabled={!selectedStream}
-                            size="large"
+                        <Tooltip
+                            classes={{tooltip: classes.noMaxWidth}}
+                            title={
+                                <div>
+                                    <Typography variant="h5">Member List</Typography>
+                                    {state.users.map((user) => (
+                                        <Typography key={user.id}>
+                                            {user.name} {flags(user)}
+                                        </Typography>
+                                    ))}
+                                </div>
+                            }
+                            arrow
                         >
-                            <FullScreenIcon fontSize="large" />
-                        </IconButton>
-                    </Tooltip>
+                            <Badge badgeContent={state.users.length} color="primary">
+                                <PeopleIcon fontSize="large" />
+                            </Badge>
+                        </Tooltip>
+                        <Tooltip title="Fullscreen" arrow>
+                            <IconButton
+                                onClick={() => handleFullscreen()}
+                                disabled={!selectedStream}
+                                size="large"
+                            >
+                                <FullScreenIcon fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
 
-                    <Tooltip title="Settings" arrow>
-                        <IconButton onClick={() => setOpen(true)} size="large">
-                            <SettingsIcon fontSize="large" />
-                        </IconButton>
-                    </Tooltip>
+                        <Tooltip title="Settings" arrow>
+                            <IconButton onClick={() => setOpen(true)} size="large">
+                                <SettingsIcon fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                 </Paper>
             )}
 
@@ -350,6 +375,40 @@ const useShowOnMouseMovement = (doShow: (s: boolean) => void) => {
             }, 1000)),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
+    );
+};
+
+const AudioControl = ({video}: {video: FullScreenHTMLVideoElement}) => {
+    // this is used to force a rerender
+    const [, setMuted] = React.useState<boolean>();
+
+    React.useEffect(() => {
+        const handler = () => setMuted(video.muted);
+        video.addEventListener('volumechange', handler);
+        setMuted(video.muted);
+        return () => video.removeEventListener('volumechange', handler);
+    });
+
+    return (
+        <Stack spacing={0.5} pr={2} direction="row" sx={{alignItems: 'center', my: 1, height: 35}}>
+            <IconButton size="large" onClick={() => (video.muted = !video.muted)}>
+                {video.muted ? (
+                    <VolumeMuteIcon fontSize="large" />
+                ) : (
+                    <VolumeIcon fontSize="large" />
+                )}
+            </IconButton>
+            <Slider
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={video.volume}
+                onChange={(_, newVolume) => {
+                    video.muted = false;
+                    video.volume = newVolume;
+                }}
+            />
+        </Stack>
     );
 };
 
