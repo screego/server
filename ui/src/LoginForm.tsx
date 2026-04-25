@@ -54,7 +54,7 @@ export const LoginForm = ({config: {login}, hide}: {config: UseConfig; hide?: ()
                         size="small"
                         margin="dense"
                     />
-                    <Box marginTop={1}>
+                    <Box sx={{marginTop: 1}}>
                         <LoadingButton
                             type="submit"
                             loading={loading}
