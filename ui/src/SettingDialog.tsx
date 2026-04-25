@@ -52,7 +52,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
             <DialogTitle>Settings</DialogTitle>
             <DialogContent>
                 <form onSubmit={doSubmit}>
-                    <Box paddingBottom={1}>
+                    <Box sx={{paddingBottom: 1}}>
                         <TextField
                             autoFocus
                             margin="dense"
@@ -65,7 +65,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                         />
                     </Box>
                     {NativeCodecs.length > 0 ? (
-                        <Box paddingY={1}>
+                        <Box sx={{paddingY: 1}}>
                             <Autocomplete<PreferredCodec>
                                 options={[CodecBestQuality, CodecDefault, ...NativeCodecs]}
                                 getOptionLabel={({mimeType, sdpFmtpLine}) =>
@@ -88,7 +88,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                             />
                         </Box>
                     ) : undefined}
-                    <Box paddingTop={1}>
+                    <Box sx={{paddingTop: 1}}>
                         <Autocomplete<VideoDisplayMode>
                             options={Object.values(VideoDisplayMode)}
                             onChange={(_, value) =>
@@ -102,7 +102,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                             renderInput={(params) => <TextField {...params} label="Display Mode" />}
                         />
                     </Box>
-                    <Box paddingTop={1}>
+                    <Box sx={{paddingTop: 1}}>
                         <NumberField
                             label="FrameRate"
                             min={1}

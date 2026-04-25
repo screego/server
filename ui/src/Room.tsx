@@ -240,7 +240,7 @@ export const Room = ({
                     {(stream?.getAudioTracks().length ?? 0) > 0 && videoElement && (
                         <AudioControl video={videoElement} />
                     )}
-                    <Box whiteSpace="nowrap">
+                    <Box sx={{whiteSpace: 'nowrap'}}>
                         {state.hostStream ? (
                             <Tooltip title="Cancel Presentation" arrow>
                                 <IconButton onClick={stopShare} size="large">
@@ -390,7 +390,7 @@ const AudioControl = ({video}: {video: FullScreenHTMLVideoElement}) => {
     });
 
     return (
-        <Stack spacing={0.5} pr={2} direction="row" sx={{alignItems: 'center', my: 1, height: 35}}>
+        <Stack spacing={0.5} direction="row" sx={{alignItems: 'center', my: 1, height: 35, pr: 2}}>
             <IconButton size="large" onClick={() => (video.muted = !video.muted)}>
                 {video.muted ? (
                     <VolumeMuteIcon fontSize="large" />
