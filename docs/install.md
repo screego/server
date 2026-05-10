@@ -14,7 +14,7 @@ Setting up Screego with docker is pretty easy, you basically just have to start 
 [ghcr.io/screego/server](https://github.com/orgs/screego/packages/container/package/server) and
 [screego/server](https://hub.docker.com/r/screego/server)
 docker images are multi-arch docker images.
-This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `arm64`, `armv7` (Raspberry PI) and `armv6`.
+This means the image will work for `amd64`, `i386`, `ppc64le` (power pc), `riscv64`, `arm64`, `armv7` (Raspberry PI) and `armv6`.
 
 By default, Screego runs on port 5050.
 
