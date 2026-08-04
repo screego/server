@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>screego SFU test client</title>
+<style>
+  body { font-family: monospace; background: #111; color: #ccc; margin: 0; padding: 16px; }
+  h2 { color: #fff; margin: 0 0 12px; }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  input { background: #222; border: 1px solid #444; color: #fff; padding: 4px 8px; font-family: monospace; }
+  button { background: #1a6; border: none; color: #fff; padding: 5px 14px; cursor: pointer; font-family: monospace; }
+  button:disabled { background: #444; cursor: default; }
+  button.red { background: #a33; }
+  #log { background: #000; border: 1px solid #333; padding: 8px; height: 260px; overflow-y: auto;
+         font-size: 12px; white-space: pre-wrap; margin-top: 12px; }
+  .ts  { color: #555; }
+  .tx  { color: #8af; }
+  .rx  { color: #af8; }
+  .err { color: #f66; }
+  .ok  { color: #8f8; }
+  .ice { color: #fa8; }
+  video { display: block; width: 100%; max-width: 960px; background: #000;
+          border: 1px solid #444; margin-top: 12px; }
+  #status { margin-top: 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+<h2>screego SFU test client</h2>
+
+<div class="row">
+  <label>Room</label>
+  <input id="room" value="test" size="12">
+  <button id="btnConnect" onclick="connect()">Connect</button>
+  <button id="btnDisconnect" class="red" onclick="disconnect()" disabled>Disconnect</button>
+</div>
+
+<div id="status">Disconnected</div>
+<video id="video" autoplay playsinline muted controls></video>
+<div id="log"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let ws = null;
+const peers = {}; // sid → RTCPeerConnection
+
+function log(cls, ...args) {
+  const ts = new Date().toISOString().slice(11, 23);
+  const line = document.createElement('div');
+  line.innerHTML = `<span class="ts">${ts}</span> <span class="${cls}">${args.join(' ')}</span>`;
+  $('log').appendChild(line);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function send(obj) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    const s = JSON.stringify(obj);
+    log('tx', '→', s.slice(0, 200));
+    ws.send(s);
+  }
+}
+
+function setStatus(msg, ok) {
+  $('status').textContent = msg;
+  $('status').style.color = ok ? '#8f8' : ok === false ? '#f66' : '#ccc';
+}
+
+function connect() {
+  const roomID = $('room').value.trim();
+  // Use a relative WebSocket URL so the Origin header matches the server and
+  // passes the screego origin check. This only works when served from screego.
+  const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const url = `${wsProto}//${location.host}/stream`;
+
+  log('ok', `Connecting to ${url}`);
+  setStatus('Connecting…');
+  $('btnConnect').disabled = true;
+
+  ws = new WebSocket(url);
+
+  ws.onopen = () => {
+    log('ok', 'WebSocket open');
+    setStatus('Connected, joining room…');
+    $('btnDisconnect').disabled = false;
+    send({ type: 'create', payload: { id: roomID, mode: 'turn', joinIfExist: true } });
+  };
+
+  ws.onmessage = ({ data }) => {
+    let msg;
+    try { msg = JSON.parse(data); } catch { log('err', 'bad JSON:', data); return; }
+    log('rx', '←', JSON.stringify(msg).slice(0, 300));
+    handle(msg);
+  };
+
+  ws.onerror = e => {
+    log('err', 'WebSocket error', e);
+    setStatus('Error', false);
+  };
+
+  ws.onclose = e => {
+    log('err', `WebSocket closed: ${e.code} ${e.reason}`);
+    setStatus(`Closed: ${e.reason || e.code}`, false);
+    $('btnConnect').disabled = false;
+    $('btnDisconnect').disabled = true;
+  };
+}
+
+function disconnect() {
+  if (ws) { ws.close(1000, 'user disconnect'); ws = null; }
+  Object.values(peers).forEach(pc => pc.close());
+  for (const k in peers) delete peers[k];
+  $('video').srcObject = null;
+  setStatus('Disconnected');
+  $('btnConnect').disabled = false;
+  $('btnDisconnect').disabled = true;
+}
+
+async function handle(msg) {
+  switch (msg.type) {
+
+    case 'room':
+      setStatus(`In room "${msg.payload.id}" (mode: ${msg.payload.mode})`, true);
+      log('ok', `Joined room. Users: ${msg.payload.users.map(u => u.name + (u.streaming ? '▶' : '')).join(', ')}`);
+      break;
+
+    case 'clientsession': {
+      const { id: sid, iceServers } = msg.payload;
+      log('ice', `clientsession sid=${sid}  ICE servers: ${JSON.stringify(iceServers)}`);
+      const pc = new RTCPeerConnection({ iceServers });
+      peers[sid] = pc;
+
+      pc.onicecandidate = ({ candidate }) => {
+        if (!candidate) return;
+        log('ice', `local candidate → server  sid=${sid}`);
+        send({ type: 'clientice', payload: { sid, value: candidate } });
+      };
+
+      pc.oniceconnectionstatechange = () =>
+        log('ice', `ICE state: ${pc.iceConnectionState}  sid=${sid}`);
+
+      pc.onconnectionstatechange = () => {
+        log('ice', `connection state: ${pc.connectionState}  sid=${sid}`);
+        if (pc.connectionState === 'connected')
+          setStatus('Stream connected ✓', true);
+        if (pc.connectionState === 'failed')
+          log('err', `connection failed sid=${sid}`);
+      };
+
+      pc.ontrack = ({ track, streams }) => {
+        log('ok', `ontrack: kind=${track.kind}  sid=${sid}`);
+        const v = $('video');
+        if (streams && streams[0]) {
+          v.srcObject = streams[0];
+        } else {
+          if (!v.srcObject) v.srcObject = new MediaStream();
+          v.srcObject.addTrack(track);
+        }
+        v.play().catch(e => log('err', 'play():', e));
+        setStatus('Receiving stream ✓', true);
+      };
+      break;
+    }
+
+    case 'hostoffer': {
+      const { sid, value } = msg.payload;
+      const pc = peers[sid];
+      if (!pc) { log('err', `hostoffer: no peer for sid=${sid}`); break; }
+
+      log('ok', `hostoffer  sid=${sid}  type=${value.type}`);
+      await pc.setRemoteDescription(value);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      log('tx', `clientanswer  sid=${sid}`);
+      send({ type: 'clientanswer', payload: { sid, value: answer } });
+      break;
+    }
+
+    case 'hostice': {
+      const { sid, value } = msg.payload;
+      const pc = peers[sid];
+      if (!pc) { log('err', `hostice: no peer for sid=${sid}`); break; }
+      log('ice', `remote candidate from server  sid=${sid}`);
+      try { await pc.addIceCandidate(value); }
+      catch (e) { log('err', 'addIceCandidate:', e); }
+      break;
+    }
+
+    case 'endshare': {
+      const sid = msg.payload;
+      log('ok', `endshare  sid=${sid}`);
+      if (peers[sid]) { peers[sid].close(); delete peers[sid]; }
+      $('video').srcObject = null;
+      setStatus('Share ended');
+      break;
+    }
+
+    case 'Error':
+      log('err', msg.payload.message);
+      setStatus(msg.payload.message, false);
+      break;
+  }
+}
+</script>
+</body>
+</html>

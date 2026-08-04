@@ -42,6 +42,10 @@ func (e *Disconnected) executeNoError(rooms *Rooms, current ClientInfo) {
 	delete(room.Users, current.ID)
 	usersLeftTotal.Inc()
 
+	if rooms.config.SFUMode && user.Streaming {
+		room.closeSFUHost(current.ID)
+	}
+
 	for id, session := range room.Sessions {
 		if bytes.Equal(session.Client.Bytes(), current.ID.Bytes()) {
 			host, ok := room.Users[session.Host]
