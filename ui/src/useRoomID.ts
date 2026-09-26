@@ -5,12 +5,7 @@ export const getRoomFromURL = (): string | undefined => getFromURL('room');
 export const getFromURL = (
     key: string,
     search: string = window.location.search
-): string | undefined =>
-    search
-        .slice(1)
-        .split('&')
-        .find((param) => param.startsWith(`${key}=`))
-        ?.split('=')[1];
+): string | undefined => new URLSearchParams(search).get(key) ?? undefined;
 
 export const useRoomID = (): [string | undefined, (v?: string) => void] => {
     const [state, setState] = React.useState<string | undefined>(() => getRoomFromURL());
@@ -25,7 +20,12 @@ export const useRoomID = (): [string | undefined, (v?: string) => void] => {
             (id) =>
                 setState((oldId?: string) => {
                     if (oldId !== id) {
-                        window.history.pushState({roomId: id}, '', id ? `?room=${id}` : '?');
+                        const params = new URLSearchParams();
+                        if (id) {
+                            params.set('room', id);
+                        }
+                        const query = params.toString();
+                        window.history.pushState({roomId: id}, '', query ? `?${query}` : '?');
                     }
                     return id;
                 }),
