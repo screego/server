@@ -328,7 +328,10 @@ export const useRoom = (config: UIConfig): UseRoom => {
         }
         try {
             stream.current = await navigator.mediaDevices.getDisplayMedia({
-                video: {frameRate: loadSettings().framerate},
+                video: {
+                    frameRate: loadSettings().framerate,
+                    width: { ideal: loadSettings().width, max: loadSettings().width }
+                },
                 audio: {
                     echoCancellation: false,
                     autoGainControl: false,
