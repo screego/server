@@ -21,6 +21,11 @@ func (e *StopShare) Execute(rooms *Rooms, current ClientInfo) error {
 	}
 
 	room.Users[current.ID].Streaming = false
+
+	if rooms.config.SFUMode {
+		room.closeSFUHost(current.ID)
+	}
+
 	for id, session := range room.Sessions {
 		if bytes.Equal(session.Host.Bytes(), current.ID.Bytes()) {
 			client, ok := room.Users[session.Client]

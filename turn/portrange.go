@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/pion/randutil"
+	"github.com/pion/turn/v5"
 )
 
 type RelayAddressGeneratorPortRange struct {
@@ -22,9 +23,9 @@ func (r *RelayAddressGeneratorPortRange) Validate() error {
 	return nil
 }
 
-func (r *RelayAddressGeneratorPortRange) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
-	if requestedPort != 0 {
-		conn, err := net.ListenPacket("udp", fmt.Sprintf(":%d", requestedPort))
+func (r *RelayAddressGeneratorPortRange) AllocatePacketConn(conf turn.AllocateListenerConfig) (net.PacketConn, net.Addr, error) {
+	if conf.RequestedPort != 0 {
+		conn, err := net.ListenPacket("udp", fmt.Sprintf(":%d", conf.RequestedPort))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -46,6 +47,10 @@ func (r *RelayAddressGeneratorPortRange) AllocatePacketConn(network string, requ
 	return nil, nil, errors.New("could not find free port: max retries exceeded")
 }
 
-func (r *RelayAddressGeneratorPortRange) AllocateConn(network string, requestedPort int) (net.Conn, net.Addr, error) {
-	return nil, nil, errors.New("todo")
+func (r *RelayAddressGeneratorPortRange) AllocateListener(_ turn.AllocateListenerConfig) (net.Listener, net.Addr, error) {
+	return nil, nil, errors.New("TCP relay not supported")
+}
+
+func (r *RelayAddressGeneratorPortRange) AllocateConn(_ turn.AllocateConnConfig) (net.Conn, error) {
+	return nil, errors.New("TCP relay not supported")
 }

@@ -7,6 +7,9 @@ import PeopleIcon from '@mui/icons-material/People';
 import VolumeMuteIcon from '@mui/icons-material/VolumeOff';
 import VolumeIcon from '@mui/icons-material/VolumeUp';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
 import {makeStyles} from 'tss-react/mui';
@@ -58,11 +61,15 @@ export const Room = ({
     share,
     stopShare,
     setName,
+    subscribeStream,
+    unsubscribeStream,
 }: {
     state: ConnectedRoom;
     share: () => void;
     stopShare: () => void;
     setName: (name: string) => void;
+    subscribeStream: (userID: string) => void;
+    unsubscribeStream: (sessionID: string) => void;
 }) => {
     const {classes} = useStyles();
     const [open, setOpen] = React.useState(false);
@@ -70,8 +77,10 @@ export const Room = ({
     const [settings, setSettings] = useSettings();
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
+    const [showStrip, setShowStrip] = React.useState(true);
     const [selectedStream, setSelectedStream] = React.useState<string | typeof HostStream>();
     const [videoElement, setVideoElement] = React.useState<FullScreenHTMLVideoElement | null>(null);
+    const explicitDeselect = React.useRef(false);
 
     useShowOnMouseMovement(setShowControl);
 
@@ -79,17 +88,29 @@ export const Room = ({
 
     React.useEffect(() => {
         if (selectedStream === HostStream && state.hostStream) {
+            explicitDeselect.current = false;
             return;
         }
         if (state.clientStreams.some(({id}) => id === selectedStream)) {
+            explicitDeselect.current = false;
             return;
         }
         if (state.clientStreams.length === 0 && selectedStream) {
             setSelectedStream(undefined);
             return;
         }
-        setSelectedStream(state.clientStreams[0]?.id);
+        if (!explicitDeselect.current) {
+            setSelectedStream(state.clientStreams[0]?.id);
+        }
     }, [state.clientStreams, selectedStream, state.hostStream]);
+
+    React.useEffect(() => {
+        if (!showStrip) {
+            state.clientStreams
+                .filter((cs) => cs.id !== selectedStream)
+                .forEach((cs) => unsubscribeStream(cs.id));
+        }
+    }, [state.clientStreams, showStrip, selectedStream, unsubscribeStream]);
 
     const stream =
         selectedStream === HostStream
@@ -214,11 +235,30 @@ export const Room = ({
             )}
 
             {stream ? (
-                <video
-                    ref={setVideoElement}
-                    className={videoClasses()}
-                    onDoubleClick={handleFullscreen}
-                />
+                <>
+                    <video
+                        ref={setVideoElement}
+                        className={videoClasses()}
+                        onDoubleClick={handleFullscreen}
+                    />
+                    {controlVisible && (
+                        <Tooltip title="Deselect" arrow>
+                            <IconButton
+                                size="small"
+                                onClick={() => {
+                                    if (!showStrip && typeof selectedStream === 'string') {
+                                        unsubscribeStream(selectedStream);
+                                    }
+                                    explicitDeselect.current = true;
+                                    setSelectedStream(undefined);
+                                }}
+                                sx={{position: 'absolute', top: 8, right: 8, zIndex: 25, bgcolor: 'rgba(0,0,0,0.4)'}}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </>
             ) : (
                 <Typography
                     variant="h4"
@@ -283,6 +323,40 @@ export const Room = ({
                             </IconButton>
                         </Tooltip>
 
+                        <Tooltip title={showStrip ? 'Hide stream list' : 'Show stream list'} arrow>
+                            <IconButton
+                                onClick={() => {
+                                    if (showStrip) {
+                                        state.clientStreams
+                                            .filter((cs) => cs.id !== selectedStream)
+                                            .forEach((cs) => unsubscribeStream(cs.id));
+                                        setShowStrip(false);
+                                    } else {
+                                        const subscribedIDs = new Set(
+                                            state.clientStreams.map((cs) => cs.peer_id)
+                                        );
+                                        state.users
+                                            .filter(
+                                                (u) =>
+                                                    u.streaming &&
+                                                    !u.you &&
+                                                    !subscribedIDs.has(u.id)
+                                            )
+                                            .forEach((u) => subscribeStream(u.id));
+                                        setShowStrip(true);
+                                    }
+                                }}
+                                size="large"
+                                color={showStrip ? 'primary' : 'inherit'}
+                            >
+                                {showStrip ? (
+                                    <VisibilityIcon fontSize="large" />
+                                ) : (
+                                    <VisibilityOffIcon fontSize="large" />
+                                )}
+                            </IconButton>
+                        </Tooltip>
+
                         <Tooltip title="Settings" arrow>
                             <IconButton onClick={() => setOpen(true)} size="large">
                                 <SettingsIcon fontSize="large" />
@@ -292,58 +366,60 @@ export const Room = ({
                 </Paper>
             )}
 
-            <div className={classes.bottomContainer}>
-                {state.clientStreams
-                    .filter(({id}) => id !== selectedStream)
-                    .map((client) => {
-                        return (
-                            <Paper
-                                key={client.id}
-                                elevation={4}
-                                className={classes.smallVideoContainer}
-                                onClick={() => setSelectedStream(client.id)}
-                            >
-                                <Video
+            {showStrip && (
+                <div className={classes.bottomContainer}>
+                    {state.clientStreams
+                        .filter(({id}) => id !== selectedStream)
+                        .map((client) => {
+                            return (
+                                <Paper
                                     key={client.id}
-                                    src={client.stream}
-                                    className={classes.smallVideo}
-                                />
-                                <Typography
-                                    variant="subtitle1"
-                                    component="div"
-                                    align="center"
-                                    className={classes.smallVideoLabel}
+                                    elevation={4}
+                                    className={classes.smallVideoContainer}
+                                    onClick={() => setSelectedStream(client.id)}
                                 >
-                                    {state.users.find(({id}) => client.peer_id === id)?.name ??
-                                        'unknown'}
-                                </Typography>
-                            </Paper>
-                        );
-                    })}
-                {state.hostStream && selectedStream !== HostStream && (
-                    <Paper
-                        elevation={4}
-                        className={classes.smallVideoContainer}
-                        onClick={() => setSelectedStream(HostStream)}
-                    >
-                        <Video src={state.hostStream} className={classes.smallVideo} />
-                        <Typography
-                            variant="subtitle1"
-                            component="div"
-                            align="center"
-                            className={classes.smallVideoLabel}
+                                    <Video
+                                        key={client.id}
+                                        src={client.stream}
+                                        className={classes.smallVideo}
+                                    />
+                                    <Typography
+                                        variant="subtitle1"
+                                        component="div"
+                                        align="center"
+                                        className={classes.smallVideoLabel}
+                                    >
+                                        {state.users.find(({id}) => client.peer_id === id)?.name ??
+                                            'unknown'}
+                                    </Typography>
+                                </Paper>
+                            );
+                        })}
+                    {state.hostStream && selectedStream !== HostStream && (
+                        <Paper
+                            elevation={4}
+                            className={classes.smallVideoContainer}
+                            onClick={() => setSelectedStream(HostStream)}
                         >
-                            You
-                        </Typography>
-                    </Paper>
-                )}
-                <SettingDialog
-                    open={open}
-                    setOpen={setOpen}
-                    updateName={setName}
-                    saveSettings={setSettings}
-                />
-            </div>
+                            <Video src={state.hostStream} className={classes.smallVideo} />
+                            <Typography
+                                variant="subtitle1"
+                                component="div"
+                                align="center"
+                                className={classes.smallVideoLabel}
+                            >
+                                You
+                            </Typography>
+                        </Paper>
+                    )}
+                </div>
+            )}
+            <SettingDialog
+                open={open}
+                setOpen={setOpen}
+                updateName={setName}
+                saveSettings={setSettings}
+            />
         </div>
     );
 };

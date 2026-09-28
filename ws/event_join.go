@@ -1,7 +1,10 @@
 package ws
 
 import (
+	"errors"
 	"fmt"
+
+	"github.com/screego/server/config"
 )
 
 func init() {
@@ -23,6 +26,10 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 	room, ok := rooms.Rooms[e.ID]
 	if !ok {
 		return fmt.Errorf("room with id %s does not exist", e.ID)
+	}
+
+	if rooms.config.AuthMode == config.AuthModeAll && !current.Authenticated {
+		return errors.New("you need to login")
 	}
 	name := e.UserName
 	if current.Authenticated {
@@ -53,7 +60,20 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 		if current.ID == user.ID || !user.Streaming {
 			continue
 		}
-		room.newSession(user.ID, current.ID, rooms, v4, v6)
+		if rooms.config.SFUMode {
+			h, ok := room.SFUHosts[user.ID]
+			if !ok {
+				continue
+			}
+			if h.Track != nil {
+				createViewerPC(room, rooms, user.ID, current.ID, v4, v6)
+			} else {
+				// Host PC exists but OnTrack hasn't fired yet; defer until the track arrives.
+				h.Pending = append(h.Pending, current.ID)
+			}
+		} else {
+			room.newSession(user.ID, current.ID, rooms, v4, v6)
+		}
 	}
 
 	return nil

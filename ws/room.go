@@ -1,11 +1,13 @@
 package ws
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"sort"
 	"time"
 
+	"github.com/pion/webrtc/v4"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
@@ -20,12 +22,26 @@ const (
 	ConnectionTURN  ConnectionMode = config.AuthModeTurn
 )
 
+// SFUHost holds server-side state for one active sharer in SFU mode.
+type SFUHost struct {
+	PC        *webrtc.PeerConnection
+	Cancel    context.CancelFunc
+	SessionID xid.ID
+	SSRC      uint32
+	Track     *webrtc.TrackLocalStaticRTP
+	Pending   []xid.ID // viewers waiting for this sharer's track to arrive
+}
+
 type Room struct {
 	ID                string
 	CloseOnOwnerLeave bool
 	Mode              ConnectionMode
 	Users             map[xid.ID]*User
 	Sessions          map[xid.ID]*RoomSession
+
+	// SFUHosts holds per-sharer SFU state; keyed by sharer user ID.
+	// Only populated when SCREEGO_SFU_MODE=true. Supports multiple simultaneous sharers.
+	SFUHosts map[xid.ID]*SFUHost
 }
 
 const (
@@ -83,6 +99,9 @@ func (r *Rooms) addresses(prefix string, v4, v6 net.IP, tcp bool) (result []stri
 }
 
 func (r *Room) closeSession(rooms *Rooms, id xid.ID) {
+	if session, ok := r.Sessions[id]; ok && session.ViewerPC != nil {
+		_ = session.ViewerPC.Close()
+	}
 	if r.Mode == ConnectionTURN {
 		rooms.turnServer.Disallow(id.String() + "host")
 		rooms.turnServer.Disallow(id.String() + "client")
@@ -91,9 +110,42 @@ func (r *Room) closeSession(rooms *Rooms, id xid.ID) {
 	sessionClosedTotal.Inc()
 }
 
+// sfuHostBySession returns the SFUHost whose SessionID matches sid, or nil.
+func (r *Room) sfuHostBySession(sid xid.ID) *SFUHost {
+	for _, h := range r.SFUHosts {
+		if h.SessionID == sid {
+			return h
+		}
+	}
+	return nil
+}
+
+// closeSFUHost tears down one sharer's SFU state.
+func (r *Room) closeSFUHost(sharerID xid.ID) {
+	h, ok := r.SFUHosts[sharerID]
+	if !ok {
+		return
+	}
+	if h.Cancel != nil {
+		h.Cancel()
+	}
+	if h.PC != nil {
+		_ = h.PC.Close()
+	}
+	delete(r.SFUHosts, sharerID)
+}
+
+// closeAllSFUHosts tears down all active sharers' SFU state (used on room close).
+func (r *Room) closeAllSFUHosts() {
+	for id := range r.SFUHosts {
+		r.closeSFUHost(id)
+	}
+}
+
 type RoomSession struct {
-	Host   xid.ID
-	Client xid.ID
+	Host     xid.ID
+	Client   xid.ID
+	ViewerPC *webrtc.PeerConnection // SFU only: server-side sendonly PC for this viewer
 }
 
 func (r *Room) notifyInfoChanged() {
@@ -138,6 +190,16 @@ type User struct {
 	Streaming bool
 	Owner     bool
 	_write    chan<- outgoing.Message
+}
+
+// sessionByPeers finds the session ID and session for a given (host, client) pair.
+func (r *Room) sessionByPeers(host, client xid.ID) (xid.ID, *RoomSession, bool) {
+	for id, s := range r.Sessions {
+		if s.Host == host && s.Client == client {
+			return id, s, true
+		}
+	}
+	return xid.ID{}, nil, false
 }
 
 func (u *User) WriteTimeout(msg outgoing.Message) {

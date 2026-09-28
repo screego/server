@@ -32,6 +32,7 @@ type HostSession struct {
 	ID         xid.ID      `json:"id"`
 	Peer       xid.ID      `json:"peer"`
 	ICEServers []ICEServer `json:"iceServers"`
+	Mode       string      `json:"mode,omitempty"` // "sfu" in SFU mode; absent means p2p
 }
 
 func (HostSession) Type() string {

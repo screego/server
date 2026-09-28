@@ -21,6 +21,12 @@ func (e *HostOffer) Execute(rooms *Rooms, current ClientInfo) error {
 		return err
 	}
 
+	if rooms.config.SFUMode {
+		// In SFU mode the server originates all offers; browser-sent hostoffer is unexpected.
+		log.Debug().Str("id", e.SID.String()).Msg("SFU: ignoring browser-originated hostoffer")
+		return nil
+	}
+
 	session, ok := room.Sessions[e.SID]
 
 	if !ok {
