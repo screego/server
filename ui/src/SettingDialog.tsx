@@ -45,7 +45,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
         setOpen(false);
     };
 
-    const {name, preferCodec, displayMode, framerate, width} = settingsInput;
+    const {name, preferCodec, displayMode, framerate, width, height} = settingsInput;
 
     return (
         <Dialog open={open} onClose={() => setOpen(false)} maxWidth={'xs'} fullWidth>
@@ -111,12 +111,19 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                             fullWidth
                         />
                     </Box>
-                    <Box sx={{paddingTop: 1}}>
+                    <Box sx={{paddingTop: 1, display: "flex"}}>
                         <NumberField
                             label="Width (px)"
-                            min={1}
+                            min={0}
                             onChange={(width) => setSettingsInput((c) => ({...c, width}))}
                             value={width}
+                            fullWidth
+                        />
+                        <NumberField
+                            label="Height (px)"
+                            min={0}
+                            onChange={(height) => setSettingsInput((c) => ({...c, height}))}
+                            value={height}
                             fullWidth
                         />
                     </Box>

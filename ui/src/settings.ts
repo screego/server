@@ -39,6 +39,7 @@ export interface Settings {
     preferCodec?: PreferredCodec;
     framerate: number;
     width: number;
+    height: number;
 }
 export interface PreferredCodec {
     mimeType: string;
@@ -60,7 +61,8 @@ export const loadSettings = (): Settings => {
     const defaults: Settings = {
         displayMode: VideoDisplayMode.FitToWindow,
         framerate: 30,
-        width: 1920,
+        width: 0, 
+        height: 0,
     };
 
     if (settings && typeof settings === 'object') {
@@ -72,6 +74,7 @@ export const loadSettings = (): Settings => {
                 defaults.displayMode,
             preferCodec: settings.preferCodec ?? CodecDefault,
             width: settings.width ?? defaults.width,
+            height: settings.height ?? defaults.height,
         };
     }
     return defaults;
