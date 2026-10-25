@@ -11,6 +11,7 @@ export const NumberField = ({
     value,
     min,
     onChange,
+    helperText,
     ...props
 }: NumberFieldProps & Omit<TextFieldProps, 'value' | 'onChange'>) => {
     const [stringValue, setStringValue] = React.useState<string>(value.toString());
@@ -20,7 +21,7 @@ export const NumberField = ({
         <TextField
             value={stringValue}
             type="number"
-            helperText={error}
+            helperText={error || helperText}
             error={error !== ''}
             onChange={(event) => {
                 setStringValue(event.target.value);
