@@ -111,16 +111,18 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                             fullWidth
                         />
                     </Box>
-                    <Box sx={{paddingTop: 1, display: "flex"}}>
+                    <Box sx={{paddingTop: 1, display: 'flex', gap: 1}}>
                         <NumberField
-                            label="Width (px)"
+                            label="Max Width (px)"
+                            helperText="0 = unlimited"
                             min={0}
                             onChange={(width) => setSettingsInput((c) => ({...c, width}))}
                             value={width}
                             fullWidth
                         />
                         <NumberField
-                            label="Height (px)"
+                            label="Max Height (px)"
+                            helperText="0 = unlimited"
                             min={0}
                             onChange={(height) => setSettingsInput((c) => ({...c, height}))}
                             value={height}
