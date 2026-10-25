@@ -61,7 +61,7 @@ export const loadSettings = (): Settings => {
     const defaults: Settings = {
         displayMode: VideoDisplayMode.FitToWindow,
         framerate: 30,
-        width: 0, 
+        width: 0,
         height: 0,
     };
 
