@@ -41,6 +41,7 @@ export interface P2PSession {
     id: string;
     peer: string;
     iceServers: ICEServer[];
+    mode?: 'sfu'; // present only in hostsession when SCREEGO_SFU_MODE=true; absent means p2p
 }
 
 export interface ICEServer {
@@ -83,6 +84,8 @@ export type StopShare = Typed<{}, 'stopshare'>;
 export type RoomCreate = Typed<RoomConfiguration & {joinIfExist?: boolean}, 'create'>;
 export type JoinRoom = Typed<JoinConfiguration, 'join'>;
 export type EndShare = Typed<string, 'endshare'>;
+export type Subscribe = Typed<{id: string}, 'subscribe'>;
+export type Unsubscribe = Typed<{id: string}, 'unsubscribe'>;
 
 export type IncomingMessage =
     | Room
@@ -104,4 +107,6 @@ export type OutgoingMessage =
     | HostOffer
     | StopShare
     | ClientAnswer
-    | StartSharing;
+    | StartSharing
+    | Subscribe
+    | Unsubscribe;

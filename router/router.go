@@ -71,7 +71,7 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version stri
 		router.Methods("GET").Path("/metrics").Handler(basicAuth(promhttp.Handler(), users))
 	}
 
-	ui.Register(router)
+	ui.Register(router, conf.TestClient)
 
 	return router
 }

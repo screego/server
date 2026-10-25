@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pion/turn/v4"
+	"github.com/pion/turn/v5"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/config"
 	"github.com/screego/server/config/ipdns"
@@ -43,8 +43,8 @@ type Generator struct {
 	IPProvider ipdns.Provider
 }
 
-func (r *Generator) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
-	conn, addr, err := r.RelayAddressGenerator.AllocatePacketConn(network, requestedPort)
+func (r *Generator) AllocatePacketConn(conf turn.AllocateListenerConfig) (net.PacketConn, net.Addr, error) {
+	conn, addr, err := r.RelayAddressGenerator.AllocatePacketConn(conf)
 	if err != nil {
 		return conn, addr, err
 	}
@@ -155,19 +155,19 @@ func (a *ExternalServer) Disallow(username string) {
 	// not supported, will expire on TTL
 }
 
-func (a *InternalServer) authenticate(username, realm string, addr net.Addr) ([]byte, bool) {
+func (a *InternalServer) authenticate(ra *turn.RequestAttributes) (string, []byte, bool) {
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 
-	entry, ok := a.lookup[username]
+	entry, ok := a.lookup[ra.Username]
 
 	if !ok {
-		log.Debug().Interface("addr", addr).Str("username", username).Msg("TURN username not found")
-		return nil, false
+		log.Debug().Interface("addr", ra.SrcAddr).Str("username", ra.Username).Msg("TURN username not found")
+		return "", nil, false
 	}
 
-	log.Debug().Interface("addr", addr.String()).Str("realm", realm).Msg("TURN authenticated")
-	return entry.password, true
+	log.Debug().Str("addr", ra.SrcAddr.String()).Str("realm", ra.Realm).Msg("TURN authenticated")
+	return ra.Username, entry.password, true
 }
 
 func (a *InternalServer) Credentials(id string, addr net.IP) (string, string) {

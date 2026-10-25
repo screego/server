@@ -15,11 +15,14 @@ var buildFiles embed.FS
 var files, _ = fs.Sub(buildFiles, "build")
 
 // Register registers the ui on the root path.
-func Register(r *mux.Router) {
+func Register(r *mux.Router, testClient bool) {
 	r.Handle("/", serveFile("index.html", "text/html"))
 	r.Handle("/index.html", serveFile("index.html", "text/html"))
 	r.Handle("/assets/{resource}", http.FileServer(http.FS(files)))
 
+	if testClient {
+		r.Handle("/test-client.html", serveFile("test-client.html", "text/html"))
+	}
 	r.Handle("/favicon.ico", serveFile("favicon.ico", "image/x-icon"))
 	r.Handle("/logo.svg", serveFile("logo.svg", "image/svg+xml"))
 	r.Handle("/apple-touch-icon.png", serveFile("apple-touch-icon.png", "image/png"))

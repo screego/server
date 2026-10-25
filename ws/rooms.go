@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/pion/interceptor"
+	"github.com/pion/webrtc/v4"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
 	"github.com/screego/server/auth"
@@ -16,7 +18,19 @@ import (
 	"github.com/screego/server/util"
 )
 
+func newWebRTCAPI() *webrtc.API {
+	m := &webrtc.MediaEngine{}
+	_ = m.RegisterDefaultCodecs()
+	i := &interceptor.Registry{}
+	_ = webrtc.RegisterDefaultInterceptors(m, i)
+	return webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i))
+}
+
 func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms {
+	var api *webrtc.API
+	if conf.SFUMode {
+		api = newWebRTCAPI()
+	}
 	return &Rooms{
 		Rooms:      map[string]*Room{},
 		Incoming:   make(chan ClientMessage),
@@ -25,6 +39,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 		users:      users,
 		config:     conf,
 		r:          rand.New(rand.NewSource(time.Now().Unix())),
+		webrtcAPI:  api,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -45,6 +60,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 
 type Rooms struct {
 	turnServer turn.Server
+	webrtcAPI  *webrtc.API
 	Rooms      map[string]*Room
 	Incoming   chan ClientMessage
 	upgrader   websocket.Upgrader
@@ -136,6 +152,7 @@ func (r *Rooms) closeRoom(roomID string) {
 	for id := range room.Sessions {
 		room.closeSession(r, id)
 	}
+	room.closeAllSFUHosts()
 
 	delete(r.Rooms, roomID)
 	roomsClosedTotal.Inc()
