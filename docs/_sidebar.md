@@ -3,6 +3,7 @@
 * [Config](config.md)
 * [NAT Traversal](nat-traversal.md)
 * [Reverse Proxy](proxy.md)
+* [Fail2ban](fail2ban.md)
 * [Development](development.md)
 * [FAQ](faq.md)
 * [GitHub](https://github.com/screego/server)
